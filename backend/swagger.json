@@ -1,0 +1,4434 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1": {
+      "get": {
+        "operationId": "AppController_getHello",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "App"
+        ]
+      }
+    },
+    "/api/v1/users": {
+      "post": {
+        "operationId": "UsersController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User has been successfully created"
+          },
+          "400": {
+            "description": "Bad request"
+          }
+        },
+        "summary": "Create a new user",
+        "tags": [
+          "users"
+        ]
+      },
+      "get": {
+        "operationId": "UsersController_findAll",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Returns a list of users"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Admin role required"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all users (Admin only)",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/users/me": {
+      "get": {
+        "operationId": "UsersController_getCurrentUser",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Returns the current user profile"
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the currently authenticated user",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/users/{id}": {
+      "get": {
+        "operationId": "UsersController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "User ID",
+            "schema": {
+              "example": "60d21b4667d0d8992e610c85",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the user information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "60d21b4667d0d8992e610c85",
+                    "email": "user@example.com",
+                    "name": "John Doe",
+                    "role": "streamer",
+                    "image": "https://example.com/avatar.jpg"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get user by ID",
+        "tags": [
+          "users"
+        ]
+      },
+      "put": {
+        "operationId": "UsersController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "User ID",
+            "schema": {
+              "example": "60d21b4667d0d8992e610c85",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User has been successfully updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "60d21b4667d0d8992e610c85",
+                    "email": "updated@example.com",
+                    "name": "Updated Name",
+                    "role": "streamer"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Cannot update other users unless admin"
+          },
+          "404": {
+            "description": "User not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update user information",
+        "tags": [
+          "users"
+        ]
+      },
+      "delete": {
+        "operationId": "UsersController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/users/profile/streamer/{id}": {
+      "get": {
+        "operationId": "UsersController_getStreamerProfile",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Streamer ID",
+            "schema": {
+              "example": "60d21b4667d0d8992e610c85",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Returns the streamer profile",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "60d21b4667d0d8992e610c85",
+                    "name": "Popular Streamer",
+                    "image": "https://example.com/avatar.jpg",
+                    "channelUrl": "https://twitch.tv/popularstreamer",
+                    "category": [
+                      "Gaming"
+                    ],
+                    "language": [
+                      "English"
+                    ],
+                    "statistics": {
+                      "followers": 10000,
+                      "averageViewers": 500,
+                      "impressions": 25000
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Streamer not found"
+          }
+        },
+        "summary": "Get streamer profile information",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/users/me/overlay": {
+      "get": {
+        "operationId": "UsersController_getOverlaySettings",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      },
+      "put": {
+        "operationId": "UsersController_updateOverlaySettings",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OverlaySettingsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Overlay settings successfully updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OverlaySettingsResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update overlay settings for the current user",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/users/me/overlay/regenerate": {
+      "post": {
+        "operationId": "UsersController_regenerateOverlayToken",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/users/me/overlay/status": {
+      "get": {
+        "operationId": "UsersController_getOverlayStatus",
+        "parameters": [
+          {
+            "name": "overlayToken",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/users/me/overlay/test": {
+      "post": {
+        "operationId": "UsersController_testOverlay",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/users/me/campaign-selection": {
+      "get": {
+        "operationId": "UsersController_getCampaignSelectionSettings",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Campaign selection settings retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignSelectionSettingsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get campaign selection settings for the current user",
+        "tags": [
+          "users"
+        ]
+      },
+      "put": {
+        "operationId": "UsersController_updateCampaignSelectionSettings",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CampaignSelectionSettingsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Campaign selection settings successfully updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CampaignSelectionSettingsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Update campaign selection settings for the current user",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/auth/register": {
+      "post": {
+        "description": "Create a new user account with email/password or social provider",
+        "operationId": "AuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterCredentialsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "User successfully registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "60d21b4667d0d8992e610c85",
+                    "email": "user@example.com",
+                    "name": "John Doe",
+                    "role": "streamer",
+                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input data or user already exists"
+          }
+        },
+        "summary": "Register a new user account",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "description": "Authenticate user with email and password credentials",
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "User successfully authenticated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "60d21b4667d0d8992e610c85",
+                    "email": "user@example.com",
+                    "name": "John Doe",
+                    "role": "streamer",
+                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid credentials"
+          }
+        },
+        "summary": "Login with email and password",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/twitch/token-exchange": {
+      "post": {
+        "description": "Convert Twitch OAuth tokens into application JWT tokens",
+        "operationId": "AuthController_twitchTokenExchange",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OAuthExchangeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Token successfully exchanged",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "60d21b4667d0d8992e610c85",
+                    "email": "twitch-user@example.com",
+                    "name": "TwitchStreamer",
+                    "role": "streamer",
+                    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+                    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid OAuth token"
+          }
+        },
+        "summary": "Exchange Twitch OAuth token for JWT",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/youtube/token-exchange": {
+      "post": {
+        "operationId": "AuthController_handleYouTubeOAuth",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OAuthExchangeDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/refresh-token": {
+      "post": {
+        "operationId": "AuthController_refreshToken",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/profile": {
+      "get": {
+        "description": "Returns the profile of the currently authenticated user",
+        "operationId": "AuthController_getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "User profile retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "60d21b4667d0d8992e610c85",
+                    "email": "user@example.com",
+                    "name": "John Doe",
+                    "role": "streamer",
+                    "image": "https://example.com/avatar.jpg",
+                    "authProvider": "twitch",
+                    "channelUrl": "https://twitch.tv/username"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - Valid JWT token required"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get the authenticated user profile",
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/auth/validate-token": {
+      "post": {
+        "operationId": "AuthController_validateToken",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/api/v1/campaigns": {
+      "post": {
+        "description": "Create a new advertising campaign (Brand role required)",
+        "operationId": "CampaignsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCampaignDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Campaign successfully created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": "61f8d3c97e1d2a001f9a5e8c",
+                    "title": "Summer Gaming Promotion",
+                    "description": "Promote our new gaming products during your streams",
+                    "brandId": "60d21b4667d0d8992e610c85",
+                    "budget": 1000,
+                    "mediaUrl": "https://example.com/media/campaign123.mp4",
+                    "mediaType": "video",
+                    "status": "active",
+                    "categories": [
+                      "Gaming",
+                      "Technology"
+                    ],
+                    "createdAt": "2025-06-25T12:00:00.000Z",
+                    "updatedAt": "2025-06-25T12:00:00.000Z"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request - Invalid input data"
+          },
+          "401": {
+            "description": "Unauthorized - Authentication required"
+          },
+          "403": {
+            "description": "Forbidden - Must be a brand to create campaigns"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a new campaign",
+        "tags": [
+          "campaigns"
+        ]
+      },
+      "get": {
+        "description": "Retrieve all campaigns with optional filtering",
+        "operationId": "CampaignsController_findAll",
+        "parameters": [
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "description": "Filter campaigns by category",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Filter campaigns by status",
+            "schema": {
+              "enum": [
+                "draft",
+                "active",
+                "paused",
+                "completed"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of campaigns",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "example": {
+                      "id": "61f8d3c97e1d2a001f9a5e8c",
+                      "title": "Summer Gaming Promotion",
+                      "brandId": "60d21b4667d0d8992e610c85",
+                      "status": "active",
+                      "budget": 1000,
+                      "mediaUrl": "https://example.com/media/campaign123.mp4",
+                      "mediaType": "video"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Get all campaigns",
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/brand": {
+      "get": {
+        "operationId": "CampaignsController_findBrandCampaigns",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/streamer/available": {
+      "get": {
+        "operationId": "CampaignsController_findAvailableCampaigns",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/streamer/active": {
+      "get": {
+        "operationId": "CampaignsController_findStreamerCampaigns",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/{id}": {
+      "get": {
+        "operationId": "CampaignsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "adminAccess",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "campaigns"
+        ]
+      },
+      "put": {
+        "operationId": "CampaignsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCampaignDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "campaigns"
+        ]
+      },
+      "delete": {
+        "operationId": "CampaignsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/join": {
+      "post": {
+        "operationId": "CampaignsController_joinCampaign",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/JoinCampaignDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/leave/{campaignId}": {
+      "delete": {
+        "operationId": "CampaignsController_leaveCampaign",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/impression/{token}": {
+      "post": {
+        "operationId": "CampaignsController_recordImpression",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/click/{token}": {
+      "post": {
+        "operationId": "CampaignsController_recordClick",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/{id}/activate": {
+      "post": {
+        "operationId": "CampaignsController_activateCampaign",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Campaign ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Campaign activated successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Forbidden - Not campaign owner"
+          },
+          "404": {
+            "description": "Campaign not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Activate a draft campaign",
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/{id}/pause": {
+      "post": {
+        "operationId": "CampaignsController_pauseCampaign",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Campaign ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Campaign paused successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Forbidden - Not campaign owner"
+          },
+          "404": {
+            "description": "Campaign not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Pause an active campaign",
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/{id}/resume": {
+      "post": {
+        "operationId": "CampaignsController_resumeCampaign",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Campaign ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Campaign resumed successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Forbidden - Not campaign owner"
+          },
+          "404": {
+            "description": "Campaign not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Resume a paused campaign",
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/{campaignId}/leave": {
+      "post": {
+        "operationId": "CampaignsController_leaveCampaignEarly",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "description": "Campaign ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Left campaign successfully, earnings released"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Active participation not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Streamer leaves campaign early",
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/{campaignId}/pause-participation": {
+      "post": {
+        "operationId": "CampaignsController_pauseParticipation",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "description": "Campaign ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Participation paused successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Active participation not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Streamer pauses campaign participation",
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/{campaignId}/resume-participation": {
+      "post": {
+        "operationId": "CampaignsController_resumeParticipation",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "description": "Campaign ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Participation resumed successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Paused participation not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Streamer resumes campaign participation",
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/{campaignId}/streamers/{streamerId}": {
+      "delete": {
+        "operationId": "CampaignsController_removeStreamerFromCampaign",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "description": "Campaign ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "streamerId",
+            "required": true,
+            "in": "path",
+            "description": "Streamer ID to remove",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "enum": [
+                      "violation",
+                      "fraud",
+                      "admin_decision",
+                      "brand_decision"
+                    ],
+                    "description": "Reason for removal"
+                  },
+                  "forfeitEarnings": {
+                    "type": "boolean",
+                    "description": "Whether to forfeit held earnings",
+                    "default": false
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Streamer removed successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          },
+          "404": {
+            "description": "Participation not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Remove streamer from campaign",
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/conflict-rules/check/{streamerId}/{campaignId}": {
+      "post": {
+        "description": "Check if a streamer can join a campaign without conflicts",
+        "operationId": "ConflictRulesController_checkCampaignJoinConflicts",
+        "parameters": [
+          {
+            "name": "streamerId",
+            "required": true,
+            "in": "path",
+            "description": "Streamer ID",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "description": "Campaign ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Conflict check result"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Check campaign join conflicts",
+        "tags": [
+          "conflict-rules"
+        ]
+      }
+    },
+    "/api/v1/conflict-rules": {
+      "get": {
+        "description": "Retrieve all conflict rules (Admin only)",
+        "operationId": "ConflictRulesController_getConflictRules",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "List of conflict rules"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all conflict rules",
+        "tags": [
+          "conflict-rules"
+        ]
+      },
+      "post": {
+        "description": "Create a new conflict rule (Admin only)",
+        "operationId": "ConflictRulesController_createConflictRule",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": "Conflict rule created successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create conflict rule",
+        "tags": [
+          "conflict-rules"
+        ]
+      }
+    },
+    "/api/v1/conflict-rules/{id}": {
+      "put": {
+        "description": "Update an existing conflict rule (Admin only)",
+        "operationId": "ConflictRulesController_updateConflictRule",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Conflict rule ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Conflict rule updated successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update conflict rule",
+        "tags": [
+          "conflict-rules"
+        ]
+      },
+      "delete": {
+        "description": "Delete a conflict rule (Admin only)",
+        "operationId": "ConflictRulesController_deleteConflictRule",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Conflict rule ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Conflict rule deleted successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete conflict rule",
+        "tags": [
+          "conflict-rules"
+        ]
+      }
+    },
+    "/api/v1/conflict-rules/violations/{streamerId}": {
+      "get": {
+        "description": "Get conflict violations for a specific streamer",
+        "operationId": "ConflictRulesController_getStreamerViolations",
+        "parameters": [
+          {
+            "name": "streamerId",
+            "required": true,
+            "in": "path",
+            "description": "Streamer ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of conflict violations"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get streamer violations",
+        "tags": [
+          "conflict-rules"
+        ]
+      }
+    },
+    "/api/v1/conflict-rules/violations/{id}/override": {
+      "post": {
+        "description": "Override a conflict violation (Admin only)",
+        "operationId": "ConflictRulesController_overrideViolation",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Violation ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/OverrideViolationDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Violation overridden successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Override violation",
+        "tags": [
+          "conflict-rules"
+        ]
+      }
+    },
+    "/api/v1/conflict-rules/violations": {
+      "get": {
+        "description": "Get all conflict violations (Admin only)",
+        "operationId": "ConflictRulesController_getAllViolations",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "description": "Filter by status",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Limit number of results",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of conflict violations"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all violations",
+        "tags": [
+          "conflict-rules"
+        ]
+      }
+    },
+    "/api/v1/wallet/balance": {
+      "get": {
+        "description": "Retrieve current wallet balance, reserved balance, and withdrawable balance",
+        "operationId": "WalletController_getBalance",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Wallet balance information",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "balance": 5000,
+                    "reservedBalance": 1500,
+                    "withdrawableBalance": 2800,
+                    "totalEarnings": 15000,
+                    "totalSpent": 8000
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get wallet balance",
+        "tags": [
+          "Wallet"
+        ]
+      }
+    },
+    "/api/v1/wallet/add-funds": {
+      "post": {
+        "description": "Add funds to brand wallet using various payment methods",
+        "operationId": "WalletController_addFunds",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddFundsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Funds added successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Add funds to wallet",
+        "tags": [
+          "Wallet"
+        ]
+      }
+    },
+    "/api/v1/wallet/reserve-campaign-funds": {
+      "post": {
+        "description": "Reserve funds from wallet balance for campaign activation",
+        "operationId": "WalletController_reserveCampaignFunds",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReserveCampaignFundsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reserve campaign funds",
+        "tags": [
+          "Wallet"
+        ]
+      }
+    },
+    "/api/v1/wallet/charge-campaign-funds": {
+      "post": {
+        "description": "Charge reserved funds based on campaign milestones",
+        "operationId": "WalletController_chargeCampaignFunds",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChargeCampaignFundsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Charge campaign funds",
+        "tags": [
+          "Wallet"
+        ]
+      }
+    },
+    "/api/v1/wallet/credit-earnings": {
+      "post": {
+        "description": "Credit earnings to streamer wallet with hold period",
+        "operationId": "WalletController_creditEarnings",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreditEarningsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Credit earnings to streamer",
+        "tags": [
+          "Wallet"
+        ]
+      }
+    },
+    "/api/v1/wallet/release-earnings/{transactionId}": {
+      "post": {
+        "description": "Release earnings after campaign validation",
+        "operationId": "WalletController_releaseEarnings",
+        "parameters": [
+          {
+            "name": "transactionId",
+            "required": true,
+            "in": "path",
+            "description": "Hold transaction ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Release earnings from hold",
+        "tags": [
+          "Wallet"
+        ]
+      }
+    },
+    "/api/v1/wallet/request-withdrawal": {
+      "post": {
+        "description": "Request withdrawal of earnings to bank account",
+        "operationId": "WalletController_requestWithdrawal",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/WithdrawalRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Request withdrawal",
+        "tags": [
+          "Wallet"
+        ]
+      }
+    },
+    "/api/v1/wallet/transactions": {
+      "get": {
+        "description": "Retrieve wallet transaction history with pagination",
+        "operationId": "WalletController_getTransactionHistory",
+        "parameters": [
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Number of transactions to return",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "offset",
+            "required": false,
+            "in": "query",
+            "description": "Number of transactions to skip",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "Filter by transaction type",
+            "schema": {
+              "enum": [
+                "deposit",
+                "withdrawal",
+                "campaign_reserve",
+                "campaign_charge",
+                "campaign_refund",
+                "earnings_credit",
+                "earnings_hold",
+                "earnings_release",
+                "platform_fee",
+                "dispute_hold",
+                "dispute_release"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get transaction history",
+        "tags": [
+          "Wallet"
+        ]
+      }
+    },
+    "/api/v1/wallet/analytics": {
+      "get": {
+        "description": "Retrieve wallet analytics for specified time period",
+        "operationId": "WalletController_getWalletAnalytics",
+        "parameters": [
+          {
+            "name": "days",
+            "required": false,
+            "in": "query",
+            "description": "Number of days for analytics",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get wallet analytics",
+        "tags": [
+          "Wallet"
+        ]
+      }
+    },
+    "/api/v1/wallet/auto-topup-check": {
+      "get": {
+        "description": "Check if wallet is eligible for auto top-up",
+        "operationId": "WalletController_checkAutoTopup",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Check auto top-up eligibility",
+        "tags": [
+          "Wallet"
+        ]
+      }
+    },
+    "/api/v1/wallet/transactions/{transactionId}": {
+      "get": {
+        "description": "Get detailed information about a specific transaction",
+        "operationId": "WalletController_getTransactionById",
+        "parameters": [
+          {
+            "name": "transactionId",
+            "required": true,
+            "in": "path",
+            "description": "Transaction ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get transaction details",
+        "tags": [
+          "Wallet"
+        ]
+      }
+    },
+    "/api/v1/payments/create-intent": {
+      "post": {
+        "description": "Create a payment intent for wallet top-up using various payment methods",
+        "operationId": "PaymentController_createPaymentIntent",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePaymentIntentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Payment intent created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "clientSecret": "pi_1234_secret_5678",
+                    "paymentIntentId": "pi_1234567890",
+                    "amount": 1000,
+                    "currency": "inr"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create payment intent",
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
+    "/api/v1/payments/confirm": {
+      "post": {
+        "description": "Confirm and retrieve payment status",
+        "operationId": "PaymentController_confirmPayment",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConfirmPaymentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Payment confirmation result",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "success": true,
+                    "paymentIntentId": "pi_1234567890",
+                    "amount": 1000,
+                    "currency": "inr",
+                    "status": "completed"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Confirm payment",
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
+    "/api/v1/payments/payout": {
+      "post": {
+        "description": "Process payout to streamer bank account (Admin only)",
+        "operationId": "PaymentController_processPayout",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProcessPayoutDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Payout processed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "success": true,
+                    "transferId": "tr_1234567890",
+                    "amount": 500,
+                    "currency": "inr",
+                    "status": "pending"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Process payout",
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
+    "/api/v1/payments/upi": {
+      "post": {
+        "description": "Process payment using UPI ID",
+        "operationId": "PaymentController_processUPIPayment",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProcessUPIPaymentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "UPI payment processed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "success": true,
+                    "transactionId": "UPI_1234567890",
+                    "amount": 1000,
+                    "status": "completed",
+                    "upiRef": "UPI_REF_1234567890"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Process UPI payment",
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
+    "/api/v1/payments/bank-transfer": {
+      "post": {
+        "description": "Process bank transfer for payouts (Admin only)",
+        "operationId": "PaymentController_processBankTransfer",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ProcessBankTransferDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Bank transfer processed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "success": true,
+                    "transferId": "BANK_1234567890",
+                    "amount": 500,
+                    "currency": "inr",
+                    "status": "processing"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Process bank transfer",
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
+    "/api/v1/kyc/submit": {
+      "post": {
+        "description": "Submit KYC documents and bank details for verification",
+        "operationId": "KYCController_submitKYC",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "KYC documents submitted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "_id": "507f1f77bcf86cd799439011",
+                    "userId": "507f1f77bcf86cd799439012",
+                    "status": "pending",
+                    "fullName": "John Doe",
+                    "submittedAt": "2024-01-01T00:00:00.000Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Submit KYC documents",
+        "tags": [
+          "KYC"
+        ]
+      }
+    },
+    "/api/v1/kyc/bank-details": {
+      "put": {
+        "description": "Update or add bank details for KYC record",
+        "operationId": "KYCController_updateBankDetails",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Bank details updated successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update bank details",
+        "tags": [
+          "KYC"
+        ]
+      },
+      "get": {
+        "description": "Get verified bank details for withdrawals",
+        "operationId": "KYCController_getVerifiedBankDetails",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Bank details retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get verified bank details",
+        "tags": [
+          "KYC"
+        ]
+      }
+    },
+    "/api/v1/kyc/status": {
+      "get": {
+        "description": "Get KYC status and details for the authenticated user",
+        "operationId": "KYCController_getKYCStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "KYC status retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "_id": "507f1f77bcf86cd799439011",
+                    "userId": "507f1f77bcf86cd799439012",
+                    "status": "approved",
+                    "fullName": "John Doe",
+                    "bankDetails": {
+                      "accountNumber": "1234567890",
+                      "ifscCode": "SBIN0001234",
+                      "accountHolderName": "John Doe",
+                      "bankName": "State Bank of India",
+                      "isVerified": true
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get KYC status",
+        "tags": [
+          "KYC"
+        ]
+      }
+    },
+    "/api/v1/kyc/withdrawal-eligibility": {
+      "get": {
+        "description": "Check if user is eligible for withdrawals based on KYC status",
+        "operationId": "KYCController_checkWithdrawalEligibility",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Withdrawal eligibility checked",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "eligible": true,
+                    "reason": "KYC approved and bank details verified"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Check withdrawal eligibility",
+        "tags": [
+          "KYC"
+        ]
+      }
+    },
+    "/api/v1/kyc/admin/records": {
+      "get": {
+        "description": "Get all KYC records for admin review",
+        "operationId": "KYCController_getAllKYCRecords",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "enum": [
+                "not_started",
+                "pending",
+                "under_review",
+                "approved",
+                "rejected",
+                "expired"
+              ],
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "KYC records retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "records": [],
+                    "total": 10,
+                    "pages": 1
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get all KYC records (Admin)",
+        "tags": [
+          "KYC"
+        ]
+      }
+    },
+    "/api/v1/kyc/admin/{kycId}/approve": {
+      "post": {
+        "description": "Approve KYC record (Admin only)",
+        "operationId": "KYCController_approveKYC",
+        "parameters": [
+          {
+            "name": "kycId",
+            "required": true,
+            "in": "path",
+            "description": "KYC record ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ApproveKYCDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "KYC approved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Approve KYC (Admin)",
+        "tags": [
+          "KYC"
+        ]
+      }
+    },
+    "/api/v1/kyc/admin/{kycId}/reject": {
+      "post": {
+        "description": "Reject KYC record with reason (Admin only)",
+        "operationId": "KYCController_rejectKYC",
+        "parameters": [
+          {
+            "name": "kycId",
+            "required": true,
+            "in": "path",
+            "description": "KYC record ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RejectKYCDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "KYC rejected successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reject KYC (Admin)",
+        "tags": [
+          "KYC"
+        ]
+      }
+    },
+    "/api/v1/webhooks/stripe": {
+      "post": {
+        "description": "Process webhook events from Stripe payment gateway",
+        "operationId": "WebhookController_handleStripeWebhook",
+        "parameters": [
+          {
+            "name": "stripe-signature",
+            "required": true,
+            "in": "header",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Webhook processed successfully"
+          }
+        },
+        "summary": "Handle Stripe webhook",
+        "tags": [
+          "Webhooks"
+        ]
+      }
+    },
+    "/api/v1/analytics/dashboard": {
+      "get": {
+        "description": "Retrieve analytics data for the user's dashboard based on their role",
+        "operationId": "AnalyticsController_getDashboardData",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Dashboard analytics data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "impressions": {
+                      "total": 10000,
+                      "last7Days": 2500,
+                      "last30Days": 8500,
+                      "trend": 0.15
+                    },
+                    "clicks": {
+                      "total": 1200,
+                      "last7Days": 350,
+                      "last30Days": 980,
+                      "trend": 0.25
+                    },
+                    "earnings": {
+                      "total": 1500.5,
+                      "last7Days": 450.25,
+                      "last30Days": 1200.75,
+                      "trend": 0.1
+                    },
+                    "campaigns": {
+                      "total": 15,
+                      "active": 8
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get user dashboard analytics",
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/api/v1/analytics/campaign/{id}": {
+      "get": {
+        "operationId": "AnalyticsController_getCampaignAnalytics",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/api/v1/analytics/streamer/{id}": {
+      "get": {
+        "operationId": "AnalyticsController_getStreamerAnalytics",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/api/v1/analytics/brand/{id}": {
+      "get": {
+        "operationId": "AnalyticsController_getBrandAnalytics",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/api/v1/analytics/overview": {
+      "get": {
+        "operationId": "AnalyticsController_getPlatformOverview",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/api/v1/analytics/campaigns/top": {
+      "get": {
+        "operationId": "AnalyticsController_getTopPerformingCampaigns",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/api/v1/analytics/streamers/top": {
+      "get": {
+        "operationId": "AnalyticsController_getTopPerformingStreamers",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/api/v1/analytics/advanced": {
+      "get": {
+        "operationId": "AnalyticsController_getAdvancedAnalytics",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Analytics"
+        ]
+      }
+    },
+    "/api/v1/overlay/{token}": {
+      "get": {
+        "description": "Serves the overlay HTML for OBS/Streamlabs browser source integration",
+        "operationId": "OverlayController_getOverlay",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "description": "Overlay access token",
+            "schema": {
+              "example": "abcd1234-5678-efgh-9101",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "HTML overlay content",
+            "content": {
+              "text/html": {
+                "example": "<!DOCTYPE html><html>...</html>"
+              }
+            }
+          },
+          "404": {
+            "description": "Overlay not found or invalid token"
+          }
+        },
+        "summary": "Get overlay HTML page",
+        "tags": [
+          "Overlay"
+        ]
+      }
+    },
+    "/api/v1/overlay/{token}/click": {
+      "post": {
+        "operationId": "OverlayController_trackClick",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Overlay"
+        ]
+      }
+    },
+    "/api/v1/overlay/{token}/click/{type}": {
+      "post": {
+        "operationId": "OverlayController_trackAlternativeClick",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Overlay"
+        ]
+      }
+    },
+    "/api/v1/overlay/{token}/qr": {
+      "get": {
+        "operationId": "OverlayController_generateQRCode",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Overlay"
+        ]
+      }
+    },
+    "/api/v1/overlay/{token}/chat-command": {
+      "get": {
+        "operationId": "OverlayController_getChatCommand",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Overlay"
+        ]
+      }
+    },
+    "/api/v1/overlay/{token}/data": {
+      "get": {
+        "operationId": "OverlayController_getOverlayData",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Overlay"
+        ]
+      }
+    },
+    "/api/v1/overlay/{token}/ping": {
+      "post": {
+        "operationId": "OverlayController_pingOverlay",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Overlay"
+        ]
+      }
+    },
+    "/api/v1/earnings/summary": {
+      "get": {
+        "description": "Returns summary of earnings for the authenticated streamer",
+        "operationId": "EarningsController_getMyEarningsSummary",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Earnings summary data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "totalEarnings": 1250.75,
+                    "pendingEarnings": 350.25,
+                    "paidEarnings": 900.5,
+                    "monthlyEarnings": {
+                      "Jan 2025": 250,
+                      "Feb 2025": 300.5,
+                      "Mar 2025": 400.25
+                    },
+                    "earningsByCampaign": [
+                      {
+                        "campaignId": "61f8d3c97e1d2a001f9a5e8c",
+                        "campaignTitle": "Summer Gaming Promotion",
+                        "earnings": 450.75,
+                        "impressions": 15000,
+                        "clicks": 750
+                      },
+                      {
+                        "campaignId": "61f9e4d87e1d2a001f9a5e8d",
+                        "campaignTitle": "Tech Hardware Launch",
+                        "earnings": 800,
+                        "impressions": 25000,
+                        "clicks": 1250
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden - Streamer role required"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get earnings summary",
+        "tags": [
+          "Earnings"
+        ]
+      }
+    },
+    "/api/v1/earnings/summary/{streamerId}": {
+      "get": {
+        "operationId": "EarningsController_getStreamerEarningsSummary",
+        "parameters": [
+          {
+            "name": "streamerId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Earnings"
+        ]
+      }
+    },
+    "/api/v1/earnings/campaign/{campaignId}": {
+      "get": {
+        "operationId": "EarningsController_getCampaignEarnings",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Earnings"
+        ]
+      }
+    },
+    "/api/v1/stream-verification/status/{userId}": {
+      "get": {
+        "operationId": "StreamVerificationController_checkStreamStatus",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "description": "ID of the streamer",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Stream status information"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "404": {
+            "description": "Streamer not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Check if a streamer's stream is live",
+        "tags": [
+          "stream-verification"
+        ]
+      }
+    },
+    "/api/v1/upload": {
+      "post": {
+        "operationId": "UploadController_uploadFile",
+        "parameters": [],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Upload"
+        ]
+      }
+    },
+    "/api/v1/upload/test-status": {
+      "get": {
+        "operationId": "UploadController_testStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "Upload"
+        ]
+      }
+    },
+    "/api/v1/auth-debug/status": {
+      "get": {
+        "operationId": "AuthDebugController_checkAuthStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AuthDebug"
+        ]
+      }
+    },
+    "/api/v1/auth-debug/public": {
+      "get": {
+        "operationId": "AuthDebugController_publicEndpoint",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "AuthDebug"
+        ]
+      }
+    },
+    "/api/v1/admin/finance/overview": {
+      "get": {
+        "description": "Get financial statistics and overview data",
+        "operationId": "AdminFinanceController_getFinanceOverview",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Finance overview data"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get finance overview",
+        "tags": [
+          "admin-finance"
+        ]
+      }
+    },
+    "/api/v1/admin/finance/transactions": {
+      "get": {
+        "description": "Get all transactions with filtering options",
+        "operationId": "AdminFinanceController_getTransactions",
+        "parameters": [
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "userRole",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "transactionType",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateRange",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "page",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Filtered transactions list"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get transactions with filters",
+        "tags": [
+          "admin-finance"
+        ]
+      }
+    },
+    "/api/v1/admin/finance/withdrawals": {
+      "get": {
+        "description": "Get all pending withdrawal requests",
+        "operationId": "AdminFinanceController_getWithdrawalRequests",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Withdrawal requests list"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get withdrawal requests",
+        "tags": [
+          "admin-finance"
+        ]
+      }
+    },
+    "/api/v1/admin/finance/withdrawals/{id}": {
+      "patch": {
+        "description": "Approve or reject a withdrawal request",
+        "operationId": "AdminFinanceController_processWithdrawal",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Withdrawal processed successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Process withdrawal request",
+        "tags": [
+          "admin-finance"
+        ]
+      }
+    },
+    "/api/v1/admin/finance/disputes": {
+      "get": {
+        "description": "Get all payment disputes",
+        "operationId": "AdminFinanceController_getDisputes",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Payment disputes list"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get payment disputes",
+        "tags": [
+          "admin-finance"
+        ]
+      }
+    },
+    "/api/v1/admin/finance/disputes/{id}/resolve": {
+      "patch": {
+        "description": "Resolve a payment dispute",
+        "operationId": "AdminFinanceController_resolveDispute",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Dispute resolved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Resolve payment dispute",
+        "tags": [
+          "admin-finance"
+        ]
+      }
+    },
+    "/api/v1/admin/finance/transactions/{id}/audit": {
+      "get": {
+        "description": "Get detailed audit trail for a specific transaction",
+        "operationId": "AdminFinanceController_getTransactionAuditTrail",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Transaction audit trail"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get transaction audit trail",
+        "tags": [
+          "admin-finance"
+        ]
+      }
+    },
+    "/api/v1/admin/finance/reports": {
+      "get": {
+        "description": "Generate financial reports for specified date range",
+        "operationId": "AdminFinanceController_generateReport",
+        "parameters": [
+          {
+            "name": "startDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Financial report data"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Generate finance report",
+        "tags": [
+          "admin-finance"
+        ]
+      }
+    },
+    "/api/v1/admin/wallets/{userId}/adjust": {
+      "post": {
+        "operationId": "AdminController_adjustWalletBalance",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "description": "User ID to adjust wallet for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "amount": {
+                    "type": "number",
+                    "description": "Adjustment amount (positive to add, negative to subtract)",
+                    "example": 1000
+                  },
+                  "reason": {
+                    "type": "string",
+                    "description": "Reason for adjustment",
+                    "example": "Compensation for platform error"
+                  }
+                },
+                "required": [
+                  "amount",
+                  "reason"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Wallet balance adjusted successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "User or wallet not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Admin adjusts user wallet balance",
+        "tags": [
+          "Admin Operations"
+        ]
+      }
+    },
+    "/api/v1/admin/wallets/{userId}/freeze": {
+      "post": {
+        "operationId": "AdminController_freezeWallet",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "description": "User ID to freeze wallet for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "description": "Reason for freezing wallet",
+                    "example": "Fraud investigation"
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Wallet frozen successfully"
+          },
+          "404": {
+            "description": "User or wallet not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Admin freezes user wallet",
+        "tags": [
+          "Admin Operations"
+        ]
+      }
+    },
+    "/api/v1/admin/wallets/{userId}/unfreeze": {
+      "post": {
+        "operationId": "AdminController_unfreezeWallet",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "description": "User ID to unfreeze wallet for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Wallet unfrozen successfully"
+          },
+          "404": {
+            "description": "User or wallet not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Admin unfreezes user wallet",
+        "tags": [
+          "Admin Operations"
+        ]
+      }
+    },
+    "/api/v1/admin/wallets/{userId}/details": {
+      "get": {
+        "operationId": "AdminController_getWalletDetails",
+        "parameters": [
+          {
+            "name": "userId",
+            "required": true,
+            "in": "path",
+            "description": "User ID to get wallet details for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Wallet details retrieved successfully"
+          },
+          "404": {
+            "description": "User or wallet not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Admin gets detailed wallet information",
+        "tags": [
+          "Admin Operations"
+        ]
+      }
+    },
+    "/api/v1/admin/campaigns/{campaignId}/force-complete": {
+      "post": {
+        "operationId": "AdminController_forceCampaignCompletion",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "description": "Campaign ID to force complete",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "description": "Reason for force completion",
+                    "example": "Policy violation detected"
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Campaign force completed successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Campaign not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Admin force completes a campaign",
+        "tags": [
+          "Admin Operations"
+        ]
+      }
+    },
+    "/api/v1/admin/campaigns/{campaignId}/force-cancel": {
+      "post": {
+        "operationId": "AdminController_forceCampaignCancellation",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "description": "Campaign ID to force cancel",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "description": "Reason for force cancellation",
+                    "example": "Policy violation"
+                  },
+                  "refundFunds": {
+                    "type": "boolean",
+                    "description": "Whether to refund funds to brand",
+                    "default": true
+                  }
+                },
+                "required": [
+                  "reason"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Campaign force cancelled successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Campaign not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Admin force cancels a campaign",
+        "tags": [
+          "Admin Operations"
+        ]
+      }
+    },
+    "/api/v1/admin/campaigns/{campaignId}/override-budget": {
+      "put": {
+        "operationId": "AdminController_overrideCampaignBudget",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "description": "Campaign ID to override budget for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "newBudget": {
+                    "type": "number",
+                    "description": "New budget amount",
+                    "example": 50000
+                  },
+                  "reason": {
+                    "type": "string",
+                    "description": "Reason for budget override",
+                    "example": "Platform compensation for technical issues"
+                  }
+                },
+                "required": [
+                  "newBudget",
+                  "reason"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Campaign budget overridden successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Campaign not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Admin overrides campaign budget",
+        "tags": [
+          "Admin Operations"
+        ]
+      }
+    },
+    "/api/v1/admin/campaigns/{campaignId}/emergency-control": {
+      "post": {
+        "operationId": "AdminController_emergencyCampaignControl",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "description": "Campaign ID for emergency control",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "action": {
+                    "type": "string",
+                    "enum": [
+                      "activate",
+                      "deactivate",
+                      "suspend"
+                    ],
+                    "description": "Emergency action to take"
+                  },
+                  "reason": {
+                    "type": "string",
+                    "description": "Reason for emergency action",
+                    "example": "Emergency content removal required"
+                  }
+                },
+                "required": [
+                  "action",
+                  "reason"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Emergency control applied successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "404": {
+            "description": "Campaign not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Admin emergency campaign control",
+        "tags": [
+          "Admin Operations"
+        ]
+      }
+    },
+    "/api/v1/admin/campaigns/{campaignId}/financial-overview": {
+      "get": {
+        "operationId": "AdminController_getCampaignFinancialOverview",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "description": "Campaign ID to get overview for",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Financial overview retrieved successfully"
+          },
+          "404": {
+            "description": "Campaign not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Admin gets campaign financial overview",
+        "tags": [
+          "Admin Operations"
+        ]
+      }
+    },
+    "/api/v1/admin/dashboard/financial": {
+      "get": {
+        "operationId": "AdminController_getFinancialDashboard",
+        "parameters": [
+          {
+            "name": "period",
+            "required": false,
+            "in": "query",
+            "description": "Time period (7d, 30d, 90d)",
+            "schema": {
+              "example": "30d",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Financial dashboard data retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Admin gets platform financial dashboard",
+        "tags": [
+          "Admin Operations"
+        ]
+      }
+    },
+    "/api/v1/admin/reports/audit": {
+      "get": {
+        "operationId": "AdminController_generateAuditReport",
+        "parameters": [
+          {
+            "name": "startDate",
+            "required": false,
+            "in": "query",
+            "description": "Start date for audit report",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "endDate",
+            "required": false,
+            "in": "query",
+            "description": "End date for audit report",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "Report type (transactions, campaigns, users)",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Audit report generated successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Admin gets audit report",
+        "tags": [
+          "Admin Operations"
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "GameTriggers API",
+    "description": "The Gametriggers marketplace API documentation",
+    "version": "1.0",
+    "contact": {}
+  },
+  "tags": [
+    {
+      "name": "campaigns",
+      "description": ""
+    },
+    {
+      "name": "users",
+      "description": ""
+    }
+  ],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "UserRole": {
+        "type": "string",
+        "enum": [
+          "streamer",
+          "brand",
+          "admin"
+        ],
+        "description": "User role in the system"
+      },
+      "AuthProvider": {
+        "type": "string",
+        "enum": [
+          "twitch",
+          "youtube",
+          "email"
+        ],
+        "description": "Authentication provider"
+      },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User email address",
+            "example": "user@example.com"
+          },
+          "name": {
+            "type": "string",
+            "description": "User full name",
+            "example": "John Doe"
+          },
+          "image": {
+            "type": "string",
+            "description": "User profile image URL",
+            "example": "https://example.com/avatar.jpg"
+          },
+          "role": {
+            "description": "User role in the system",
+            "example": "streamer",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserRole"
+              }
+            ]
+          },
+          "authProvider": {
+            "description": "Authentication provider",
+            "example": "twitch",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AuthProvider"
+              }
+            ]
+          },
+          "authProviderId": {
+            "type": "string",
+            "description": "ID from the authentication provider",
+            "example": "12345678"
+          },
+          "channelUrl": {
+            "type": "string",
+            "description": "Channel URL for streamers",
+            "example": "https://twitch.tv/username"
+          },
+          "category": {
+            "description": "Stream categories",
+            "example": [
+              "Gaming",
+              "Just Chatting"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "language": {
+            "description": "Stream languages",
+            "example": [
+              "English",
+              "Spanish"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "email",
+          "name",
+          "role",
+          "authProvider"
+        ]
+      },
+      "UpdateUserDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "OverlaySettingsDto": {
+        "type": "object",
+        "properties": {
+          "position": {
+            "type": "string",
+            "description": "Position of the overlay on screen",
+            "enum": [
+              "top-left",
+              "top-right",
+              "bottom-left",
+              "bottom-right"
+            ],
+            "example": "top-right"
+          },
+          "size": {
+            "type": "string",
+            "description": "Size of the overlay",
+            "enum": [
+              "small",
+              "medium",
+              "large"
+            ],
+            "example": "medium"
+          },
+          "opacity": {
+            "type": "object",
+            "description": "Opacity percentage of the overlay",
+            "minimum": 20,
+            "maximum": 100,
+            "example": 75
+          },
+          "backgroundColor": {
+            "type": "object",
+            "description": "Background color in hex or rgba format",
+            "example": "#ffffff"
+          }
+        }
+      },
+      "OverlaySettingsResponseDto": {
+        "type": "object",
+        "properties": {
+          "position": {
+            "type": "string",
+            "description": "Position of the overlay on screen",
+            "enum": [
+              "top-left",
+              "top-right",
+              "bottom-left",
+              "bottom-right"
+            ],
+            "example": "top-right"
+          },
+          "size": {
+            "type": "string",
+            "description": "Size of the overlay",
+            "enum": [
+              "small",
+              "medium",
+              "large"
+            ],
+            "example": "medium"
+          },
+          "opacity": {
+            "type": "number",
+            "description": "Opacity percentage of the overlay",
+            "minimum": 20,
+            "maximum": 100,
+            "example": 75
+          },
+          "backgroundColor": {
+            "type": "string",
+            "description": "Background color in hex or rgba format",
+            "example": "#ffffff"
+          },
+          "overlayToken": {
+            "type": "string",
+            "description": "Token for accessing the overlay",
+            "example": "abc123xyz456"
+          }
+        },
+        "required": [
+          "position",
+          "size",
+          "opacity",
+          "backgroundColor",
+          "overlayToken"
+        ]
+      },
+      "PriorityWeightsDto": {
+        "type": "object",
+        "properties": {
+          "paymentRate": {
+            "type": "number",
+            "example": 0.4,
+            "description": "Weight for payment rate factor"
+          },
+          "performance": {
+            "type": "number",
+            "example": 0.3,
+            "description": "Weight for performance factor"
+          },
+          "fairness": {
+            "type": "number",
+            "example": 0.3,
+            "description": "Weight for fairness factor"
+          }
+        },
+        "required": [
+          "paymentRate",
+          "performance",
+          "fairness"
+        ]
+      },
+      "BlackoutPeriodDto": {
+        "type": "object",
+        "properties": {
+          "startTime": {
+            "type": "string",
+            "example": "22:00",
+            "description": "Start time in HH:MM format"
+          },
+          "endTime": {
+            "type": "string",
+            "example": "06:00",
+            "description": "End time in HH:MM format"
+          },
+          "days": {
+            "example": [
+              "monday",
+              "tuesday",
+              "wednesday"
+            ],
+            "description": "Days of the week for blackout period",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "startTime",
+          "endTime",
+          "days"
+        ]
+      },
+      "CampaignRotationSettingsDto": {
+        "type": "object",
+        "properties": {
+          "preferredStrategy": {
+            "type": "string",
+            "example": "fair-rotation",
+            "enum": [
+              "fair-rotation",
+              "weighted",
+              "time-rotation",
+              "performance",
+              "revenue-optimized"
+            ],
+            "description": "Preferred campaign selection strategy"
+          },
+          "rotationIntervalMinutes": {
+            "type": "number",
+            "example": 3,
+            "description": "Rotation interval in minutes"
+          },
+          "priorityWeights": {
+            "description": "Priority weights for weighted selection",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PriorityWeightsDto"
+              }
+            ]
+          },
+          "blackoutPeriods": {
+            "description": "Blackout periods when campaigns should not be displayed",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BlackoutPeriodDto"
+            }
+          }
+        },
+        "required": [
+          "preferredStrategy",
+          "rotationIntervalMinutes",
+          "priorityWeights"
+        ]
+      },
+      "CampaignSelectionSettingsResponseDto": {
+        "type": "object",
+        "properties": {
+          "campaignSelectionStrategy": {
+            "type": "string",
+            "description": "Campaign selection strategy"
+          },
+          "campaignRotationSettings": {
+            "description": "Campaign rotation settings",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CampaignRotationSettingsDto"
+              }
+            ]
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2024-01-01T00:00:00.000Z",
+            "description": "Settings last updated timestamp"
+          }
+        },
+        "required": [
+          "campaignSelectionStrategy",
+          "campaignRotationSettings",
+          "updatedAt"
+        ]
+      },
+      "CampaignSelectionSettingsDto": {
+        "type": "object",
+        "properties": {
+          "campaignSelectionStrategy": {
+            "type": "string",
+            "example": "fair-rotation",
+            "enum": [
+              "fair-rotation",
+              "weighted",
+              "time-rotation",
+              "performance",
+              "revenue-optimized"
+            ],
+            "description": "Overall campaign selection strategy"
+          },
+          "campaignRotationSettings": {
+            "description": "Campaign rotation settings",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CampaignRotationSettingsDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "campaignSelectionStrategy",
+          "campaignRotationSettings"
+        ]
+      },
+      "RegisterCredentialsDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "description": "User email address",
+            "example": "streamer@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "User password (min 8 characters)",
+            "example": "securePassword123"
+          },
+          "name": {
+            "type": "string",
+            "description": "User full name",
+            "example": "Popular Streamer"
+          },
+          "companyName": {
+            "type": "string",
+            "description": "Company name (for brands)",
+            "example": "Gaming Peripherals Inc."
+          },
+          "companyWebsite": {
+            "type": "string",
+            "description": "Company website (for brands)",
+            "example": "https://gamingbrand.com"
+          },
+          "role": {
+            "description": "User role in the system",
+            "example": "streamer",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/UserRole"
+              }
+            ]
+          },
+          "channelUrl": {
+            "type": "string",
+            "description": "Channel URL for streamers",
+            "example": "https://twitch.tv/popularstreamer"
+          },
+          "category": {
+            "type": "string",
+            "description": "Stream category",
+            "example": "Gaming"
+          },
+          "language": {
+            "type": "string",
+            "description": "Stream language",
+            "example": "English"
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "name",
+          "role"
+        ]
+      },
+      "OAuthProfileDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "User ID from the provider",
+            "example": "12345678"
+          }
+        },
+        "required": [
+          "id"
+        ]
+      },
+      "OAuthExchangeDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string",
+            "description": "OAuth access token from the provider",
+            "example": "oauth2-token-from-twitch-or-youtube"
+          },
+          "refreshToken": {
+            "type": "string",
+            "description": "OAuth refresh token from the provider",
+            "example": "refresh-token-from-provider"
+          },
+          "profile": {
+            "description": "User profile information from the provider",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/OAuthProfileDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "accessToken",
+          "profile"
+        ]
+      },
+      "MediaType": {
+        "type": "string",
+        "enum": [
+          "image",
+          "video"
+        ],
+        "description": "Type of media used in the campaign"
+      },
+      "CampaignStatus": {
+        "type": "string",
+        "enum": [
+          "draft",
+          "active",
+          "paused",
+          "completed",
+          "cancelled"
+        ],
+        "description": "Campaign status"
+      },
+      "CreateCampaignDto": {
+        "type": "object",
+        "properties": {
+          "title": {
+            "type": "string",
+            "description": "Campaign title",
+            "example": "Summer Gaming Promotion"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed campaign description",
+            "example": "Promote our new gaming products during your streams"
+          },
+          "brandId": {
+            "type": "string",
+            "description": "MongoDB ID of the brand creating the campaign",
+            "example": "60d21b4667d0d8992e610c85"
+          },
+          "budget": {
+            "type": "number",
+            "description": "Total campaign budget in INR",
+            "minimum": 0,
+            "example": 10000
+          },
+          "mediaUrl": {
+            "type": "string",
+            "description": "URL to the campaign media (image, video, etc)",
+            "example": "https://example.com/media/campaign123.mp4"
+          },
+          "mediaType": {
+            "description": "Type of media used in the campaign",
+            "example": "video",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/MediaType"
+              }
+            ]
+          },
+          "status": {
+            "description": "Campaign status",
+            "default": "draft",
+            "example": "draft",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CampaignStatus"
+              }
+            ]
+          },
+          "categories": {
+            "description": "Categories associated with the campaign",
+            "example": [
+              "Gaming",
+              "Technology"
+            ],
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "title",
+          "brandId",
+          "budget",
+          "mediaUrl",
+          "mediaType"
+        ]
+      },
+      "UpdateCampaignDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "JoinCampaignDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "OverrideViolationDto": {
+        "type": "object",
+        "properties": {
+          "reason": {
+            "type": "string",
+            "example": "Manual override due to business exception"
+          }
+        },
+        "required": [
+          "reason"
+        ]
+      },
+      "AddFundsDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ReserveCampaignFundsDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ChargeCampaignFundsDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreditEarningsDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "WithdrawalRequestDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreatePaymentIntentDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ConfirmPaymentDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ProcessPayoutDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ProcessUPIPaymentDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ProcessBankTransferDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "ApproveKYCDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "RejectKYCDto": {
+        "type": "object",
+        "properties": {}
+      }
+    }
+  }
+}

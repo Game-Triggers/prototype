@@ -1,0 +1,353 @@
+{
+  "apiEndpoints": {
+    "app": {
+      "getHello": {
+        "method": "GET",
+        "url": "/api/v1",
+        "description": "API health check endpoint"
+      }
+    },
+    "users": {
+      "create": {
+        "method": "POST",
+        "url": "/api/v1/users",
+        "description": "Create a new user",
+        "requiresAuth": false
+      },
+      "findAll": {
+        "method": "GET",
+        "url": "/api/v1/users",
+        "description": "Get all users (Admin only)",
+        "requiresAuth": true,
+        "adminOnly": true
+      },
+      "getCurrentUser": {
+        "method": "GET",
+        "url": "/api/v1/users/me",
+        "description": "Get the currently authenticated user profile",
+        "requiresAuth": true
+      },
+      "findOne": {
+        "method": "GET",
+        "url": "/api/v1/users/{id}",
+        "description": "Get user by ID",
+        "requiresAuth": true,
+        "params": ["id"]
+      },
+      "update": {
+        "method": "PUT",
+        "url": "/api/v1/users/{id}",
+        "description": "Update user by ID",
+        "requiresAuth": true,
+        "params": ["id"]
+      },
+      "remove": {
+        "method": "DELETE",
+        "url": "/api/v1/users/{id}",
+        "description": "Delete user by ID",
+        "requiresAuth": true,
+        "params": ["id"]
+      },
+      "getStreamerProfile": {
+        "method": "GET",
+        "url": "/api/v1/users/profile/streamer/{id}",
+        "description": "Get streamer profile by ID",
+        "requiresAuth": true,
+        "params": ["id"]
+      },
+      "getOverlaySettings": {
+        "method": "GET",
+        "url": "/api/v1/users/me/overlay",
+        "description": "Get current user's overlay settings",
+        "requiresAuth": true
+      },
+      "updateOverlaySettings": {
+        "method": "PUT",
+        "url": "/api/v1/users/me/overlay",
+        "description": "Update overlay settings for current user",
+        "requiresAuth": true
+      },
+      "regenerateOverlayToken": {
+        "method": "POST",
+        "url": "/api/v1/users/me/overlay/regenerate",
+        "description": "Regenerate overlay token for current user",
+        "requiresAuth": true
+      },
+      "getOverlayStatus": {
+        "method": "GET",
+        "url": "/api/v1/users/me/overlay/status",
+        "description": "Get overlay status using token",
+        "requiresAuth": false,
+        "queryParams": ["overlayToken"]
+      },
+      "testOverlay": {
+        "method": "POST",
+        "url": "/api/v1/users/me/overlay/test",
+        "description": "Test overlay for current user",
+        "requiresAuth": true
+      }
+    },
+    "auth": {
+      "register": {
+        "method": "POST",
+        "url": "/api/v1/auth/register",
+        "description": "Register a new user with credentials",
+        "requiresAuth": false
+      },
+      "login": {
+        "method": "POST",
+        "url": "/api/v1/auth/login",
+        "description": "Login with credentials",
+        "requiresAuth": false
+      },
+      "twitchTokenExchange": {
+        "method": "POST",
+        "url": "/api/v1/auth/twitch/token-exchange",
+        "description": "Exchange Twitch OAuth code for tokens",
+        "requiresAuth": false
+      },
+      "youtubeTokenExchange": {
+        "method": "POST",
+        "url": "/api/v1/auth/youtube/token-exchange",
+        "description": "Exchange YouTube OAuth code for tokens",
+        "requiresAuth": false
+      },
+      "refreshToken": {
+        "method": "POST",
+        "url": "/api/v1/auth/refresh-token",
+        "description": "Get a new access token using refresh token",
+        "requiresAuth": false
+      },
+      "getProfile": {
+        "method": "GET",
+        "url": "/api/v1/auth/profile",
+        "description": "Get authenticated user profile",
+        "requiresAuth": true
+      },
+      "validateToken": {
+        "method": "POST",
+        "url": "/api/v1/auth/validate-token",
+        "description": "Validate an authentication token",
+        "requiresAuth": true
+      }
+    },
+    "campaigns": {
+      "create": {
+        "method": "POST",
+        "url": "/api/v1/campaigns",
+        "description": "Create a new campaign",
+        "requiresAuth": true,
+        "roleRequired": "brand"
+      },
+      "findAll": {
+        "method": "GET",
+        "url": "/api/v1/campaigns",
+        "description": "Get all campaigns",
+        "requiresAuth": true
+      },
+      "findBrandCampaigns": {
+        "method": "GET",
+        "url": "/api/v1/campaigns/brand",
+        "description": "Get current brand's campaigns",
+        "requiresAuth": true,
+        "roleRequired": "brand"
+      },
+      "findAvailableCampaigns": {
+        "method": "GET",
+        "url": "/api/v1/campaigns/streamer/available",
+        "description": "Get available campaigns for streamers",
+        "requiresAuth": true,
+        "roleRequired": "streamer"
+      },
+      "findStreamerCampaigns": {
+        "method": "GET",
+        "url": "/api/v1/campaigns/streamer/active",
+        "description": "Get active campaigns for current streamer",
+        "requiresAuth": true,
+        "roleRequired": "streamer"
+      },
+      "findOne": {
+        "method": "GET",
+        "url": "/api/v1/campaigns/{id}",
+        "description": "Get campaign by ID",
+        "requiresAuth": true,
+        "params": ["id"]
+      },
+      "update": {
+        "method": "PUT",
+        "url": "/api/v1/campaigns/{id}",
+        "description": "Update campaign by ID",
+        "requiresAuth": true,
+        "params": ["id"],
+        "roleRequired": "brand"
+      },
+      "remove": {
+        "method": "DELETE",
+        "url": "/api/v1/campaigns/{id}",
+        "description": "Delete campaign by ID",
+        "requiresAuth": true,
+        "params": ["id"],
+        "roleRequired": "brand"
+      },
+      "joinCampaign": {
+        "method": "POST",
+        "url": "/api/v1/campaigns/join",
+        "description": "Join a campaign as a streamer",
+        "requiresAuth": true,
+        "roleRequired": "streamer"
+      },
+      "leaveCampaign": {
+        "method": "DELETE",
+        "url": "/api/v1/campaigns/leave/{campaignId}",
+        "description": "Leave a campaign as a streamer",
+        "requiresAuth": true,
+        "params": ["campaignId"],
+        "roleRequired": "streamer"
+      },
+      "recordImpression": {
+        "method": "POST",
+        "url": "/api/v1/campaigns/impression/{token}",
+        "description": "Record campaign impression",
+        "requiresAuth": false,
+        "params": ["token"]
+      },
+      "recordClick": {
+        "method": "POST",
+        "url": "/api/v1/campaigns/click/{token}",
+        "description": "Record campaign click",
+        "requiresAuth": false,
+        "params": ["token"]
+      }
+    },
+    "analytics": {
+      "getDashboardData": {
+        "method": "GET",
+        "url": "/api/v1/analytics/dashboard",
+        "description": "Get analytics dashboard data",
+        "requiresAuth": true
+      },
+      "getCampaignAnalytics": {
+        "method": "GET",
+        "url": "/api/v1/analytics/campaign/{id}",
+        "description": "Get analytics for a specific campaign",
+        "requiresAuth": true,
+        "params": ["id"]
+      },
+      "getStreamerAnalytics": {
+        "method": "GET",
+        "url": "/api/v1/analytics/streamer/{id}",
+        "description": "Get analytics for a specific streamer",
+        "requiresAuth": true,
+        "params": ["id"]
+      },
+      "getBrandAnalytics": {
+        "method": "GET",
+        "url": "/api/v1/analytics/brand/{id}",
+        "description": "Get analytics for a specific brand",
+        "requiresAuth": true,
+        "params": ["id"]
+      },
+      "getPlatformOverview": {
+        "method": "GET",
+        "url": "/api/v1/analytics/overview",
+        "description": "Get platform overview analytics",
+        "requiresAuth": true,
+        "adminOnly": true
+      },
+      "getTopPerformingCampaigns": {
+        "method": "GET",
+        "url": "/api/v1/analytics/campaigns/top",
+        "description": "Get top performing campaigns",
+        "requiresAuth": true
+      },
+      "getTopPerformingStreamers": {
+        "method": "GET",
+        "url": "/api/v1/analytics/streamers/top",
+        "description": "Get top performing streamers",
+        "requiresAuth": true
+      }
+    },
+    "overlay": {
+      "getOverlay": {
+        "method": "GET",
+        "url": "/api/v1/overlay/{token}",
+        "description": "Get overlay by token",
+        "requiresAuth": false,
+        "params": ["token"]
+      },
+      "trackClick": {
+        "method": "POST",
+        "url": "/api/v1/overlay/{token}/click",
+        "description": "Track overlay click",
+        "requiresAuth": false,
+        "params": ["token"]
+      },
+      "getOverlayData": {
+        "method": "GET",
+        "url": "/api/v1/overlay/{token}/data",
+        "description": "Get overlay data by token",
+        "requiresAuth": false,
+        "params": ["token"]
+      },
+      "pingOverlay": {
+        "method": "POST",
+        "url": "/api/v1/overlay/{token}/ping",
+        "description": "Ping overlay to check status",
+        "requiresAuth": false,
+        "params": ["token"]
+      }
+    },
+    "earnings": {
+      "getMyEarningsSummary": {
+        "method": "GET",
+        "url": "/api/v1/earnings/summary",
+        "description": "Get current user's earnings summary",
+        "requiresAuth": true,
+        "roleRequired": "streamer"
+      },
+      "getStreamerEarningsSummary": {
+        "method": "GET",
+        "url": "/api/v1/earnings/summary/{streamerId}",
+        "description": "Get earnings summary for a specific streamer",
+        "requiresAuth": true,
+        "params": ["streamerId"],
+        "adminOnly": true
+      },
+      "getCampaignEarnings": {
+        "method": "GET",
+        "url": "/api/v1/earnings/campaign/{campaignId}",
+        "description": "Get earnings for a specific campaign",
+        "requiresAuth": true,
+        "params": ["campaignId"]
+      }
+    },
+    "upload": {
+      "uploadFile": {
+        "method": "POST",
+        "url": "/api/v1/upload",
+        "description": "Upload a file",
+        "requiresAuth": true
+      },
+      "testStatus": {
+        "method": "GET",
+        "url": "/api/v1/upload/test-status",
+        "description": "Test upload status endpoint",
+        "requiresAuth": true
+      }
+    },
+    "authDebug": {
+      "checkAuthStatus": {
+        "method": "GET",
+        "url": "/api/v1/auth-debug/status",
+        "description": "Check authentication status (for debugging)",
+        "requiresAuth": true
+      },
+      "publicEndpoint": {
+        "method": "GET",
+        "url": "/api/v1/auth-debug/public",
+        "description": "Public endpoint (for debugging)",
+        "requiresAuth": false
+      }
+    }
+  }
+}

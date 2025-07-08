@@ -1,0 +1,561 @@
+{
+  "info": {
+    "name": "Instreamly Payment & Earnings API",
+    "description": "Test collection for payment and earnings system",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "brandToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "streamerToken", 
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "adminToken",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login Brand User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"brand@test.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/signin",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "signin"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Login successful', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const token = pm.response.json().token;",
+                  "    pm.collectionVariables.set('brandToken', token);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Login Streamer User", 
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type", 
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"streamer@test.com\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/signin",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "signin"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Login successful', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const token = pm.response.json().token;", 
+                  "    pm.collectionVariables.set('streamerToken', token);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Wallet Management",
+      "item": [
+        {
+          "name": "Get Brand Wallet Balance",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{brandToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/wallet/balance",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "wallet", "balance"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Wallet balance retrieved', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const wallet = pm.response.json();",
+                  "    pm.expect(wallet).to.have.property('balance');",
+                  "    pm.expect(wallet).to.have.property('walletType', 'brand');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Streamer Wallet Balance",
+          "request": {
+            "method": "GET", 
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{streamerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/wallet/balance",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "wallet", "balance"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Streamer wallet retrieved', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const wallet = pm.response.json();",
+                  "    pm.expect(wallet).to.have.property('walletType', 'streamer');",
+                  "    pm.expect(wallet).to.have.property('totalEarnings');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get Transaction History",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{brandToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/wallet/transactions?limit=10&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "wallet", "transactions"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "offset", 
+                  "value": "0"
+                }
+              ]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Transaction history retrieved', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const result = pm.response.json();",
+                  "    pm.expect(result).to.have.property('transactions');",
+                  "    pm.expect(result).to.have.property('totalCount');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Payment Operations",
+      "item": [
+        {
+          "name": "Create Payment Intent - Card",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{brandToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 10000,\n  \"currency\": \"inr\",\n  \"paymentMethod\": \"card\",\n  \"metadata\": {\n    \"purpose\": \"wallet_topup\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/create-intent",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "payments", "create-intent"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Payment intent created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const result = pm.response.json();",
+                  "    pm.expect(result).to.have.property('clientSecret');",
+                  "    pm.expect(result).to.have.property('paymentIntentId');",
+                  "    pm.collectionVariables.set('paymentIntentId', result.paymentIntentId);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Create Payment Intent - UPI",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization", 
+                "value": "Bearer {{brandToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 5000,\n  \"currency\": \"inr\",\n  \"paymentMethod\": \"upi\",\n  \"metadata\": {\n    \"purpose\": \"wallet_topup\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/create-intent",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "payments", "create-intent"]
+            }
+          }
+        },
+        {
+          "name": "Process UPI Payment",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{brandToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 2000,\n  \"upiId\": \"testuser@paytm\",\n  \"metadata\": {\n    \"purpose\": \"wallet_topup\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/payments/upi",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "payments", "upi"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('UPI payment processed', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const result = pm.response.json();",
+                  "    pm.expect(result).to.have.property('success');",
+                  "    pm.expect(result).to.have.property('transactionId');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Withdrawal Operations",
+      "item": [
+        {
+          "name": "Create Withdrawal Request",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{streamerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 1000,\n  \"bankAccount\": \"1234567890\",\n  \"ifscCode\": \"HDFC0000123\",\n  \"accountHolderName\": \"Test Streamer\",\n  \"notes\": \"First withdrawal\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/wallet/withdraw",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "wallet", "withdraw"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Withdrawal request created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const result = pm.response.json();",
+                  "    pm.expect(result).to.have.property('transactionId');",
+                  "    pm.expect(result).to.have.property('status', 'pending');",
+                  "    pm.collectionVariables.set('withdrawalId', result.transactionId);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "KYC Operations", 
+      "item": [
+        {
+          "name": "Get KYC Status",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{streamerToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/kyc/status",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "kyc", "status"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('KYC status retrieved', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const result = pm.response.json();",
+                  "    pm.expect(result).to.have.property('status');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Submit KYC Documents",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{streamerToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"documentType\": \"pan\",\n  \"documentNumber\": \"ABCDE1234F\",\n  \"personalInfo\": {\n    \"fullName\": \"Test Streamer\",\n    \"dateOfBirth\": \"1990-01-01\",\n    \"address\": \"123 Test Street, Test City\",\n    \"phone\": \"9876543210\",\n    \"nationality\": \"Indian\"\n  },\n  \"bankDetails\": {\n    \"accountNumber\": \"1234567890\",\n    \"ifscCode\": \"HDFC0000123\",\n    \"accountHolderName\": \"Test Streamer\",\n    \"bankName\": \"HDFC Bank\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/kyc/submit",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "kyc", "submit"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('KYC submitted successfully', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "    const result = pm.response.json();",
+                  "    pm.expect(result).to.have.property('status', 'submitted');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Admin Operations",
+      "item": [
+        {
+          "name": "Get Finance Overview",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/finance/overview",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "finance", "overview"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Finance overview retrieved', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "    const result = pm.response.json();",
+                  "    pm.expect(result).to.have.property('totalRevenue');",
+                  "    pm.expect(result).to.have.property('pendingWithdrawals');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "Get All Transactions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/finance/transactions?limit=20&offset=0",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "finance", "transactions"],
+              "query": [
+                {
+                  "key": "limit",
+                  "value": "20"
+                },
+                {
+                  "key": "offset",
+                  "value": "0"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Pending Withdrawals",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/finance/withdrawals?status=pending",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "finance", "withdrawals"],
+              "query": [
+                {
+                  "key": "status",
+                  "value": "pending"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Approve Withdrawal",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{adminToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"action\": \"approve\",\n  \"notes\": \"Approved by admin\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/admin/finance/withdrawals/{{withdrawalId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "admin", "finance", "withdrawals", "{{withdrawalId}}"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
