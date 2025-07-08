@@ -1,6 +1,6 @@
 # Super Admin Creation Script
 
-This script allows you to create a super admin user for the Instreamly Clone platform.
+This script allows you to create a super admin user for the Gametriggers platform.
 
 ## Prerequisites
 

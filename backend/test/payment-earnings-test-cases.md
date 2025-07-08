@@ -1,7 +1,7 @@
 # Payment & Earnings System Test Cases
 
 ## Overview
-This document provides comprehensive test cases for the Instreamly Clone payment and earnings system. All tests use mock implementations, so no real payment gateways are required.
+This document provides comprehensive test cases for the Gametriggers payment and earnings system. All tests use mock implementations, so no real payment gateways are required.
 
 ## Prerequisites
 1. Development server running (`npm run dev:unified`)
