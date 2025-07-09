@@ -1,0 +1,15 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "run server",
+			"type": "shell",
+			"command": "npm run dev:unified",
+			"group": "build",
+			"isBackground": true,
+			"problemMatcher": [
+				"$tsc-watch"
+			]
+		}
+	]
+}
