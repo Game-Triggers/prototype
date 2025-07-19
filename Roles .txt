@@ -1,0 +1,71 @@
+Eureka E1 Roles ( Eureka 1 means Brand side portal)
+	
+
+	Advertiser
+	Internal Blowtrumpet Team
+
+	Roles                    Responsibilities
+	-------                  --------------
+	Marketing Head           Creates advertiser organization, Assigns user roles and budget limits, Forms campaign teams, Reviews analytics and the budget allocation, Set-up high-value spend
+	Super Admin              Full access to platform, Override permissions for any campaign or organization, Can delete or suspend users or campaigns
+
+	Campaign Manger          Creates and manages campaigns, Selects targeting, creatives, and bidding strategy, Collaborates with team, Analyzes performance metrics
+	Admin                    Manages advertiser accounts, Assigns Sales Representative, Supports campaign troubleshooting, Cannot delete entities but can suspend or escalate, Has access to CRM
+
+	Finance Manager          Uploads funds, Budget management, Manages payment methods, Views spend history and billing, Cannot create campaigns
+	Validator/Approver       Reviews campaigns before approval, Verifies budget, creatives, and targeting, Sends approved campaigns to Ad Exchange layer (E2) for routing
+
+	Campaign Consultant      Based on agreement basis, to manage advertiser logistics of campaign set up, execution and analytics on behalf of the advertiser, Legal terms of agreement to be set up and signed off by advertiser, Can be a support role as well, no actions on behalf of advertiser must be performed without consent and approval of the advertiser, Can run campaigns but can not oversee finance.
+
+	Sales Representative     Assists advertiser onboarding, Explains product and campaign setup, Guides advertisers during campaign launch or issue resolution, Has access to CRM and edits CRM.
+
+	Support 2                Investigates complex advertiser-side issues such as failed wallet top-ups, broken analytics, or campaign setup failures. Coordinates with finance, validator, consultant and tech teams to identify root causes and provide resolution. Minimizes back-and-forth with advertisers by aiming for complete, one-time fixes.
+
+	Support 1                Resolves basic advertiser queries related to campaign creation steps, login issues, navigation help, wallet visibility, and feature usage. Provides documentation or links, and escalates unresolved issues to higher authorities.
+
+Eureka E2 (Eureka 2 means admin side porta)
+	Ad Exchange
+
+	Roles                    Responsibilities
+	-------                  --------------
+	Super Admin              Full control over campaign moderation, platform configuration, and manual override, Can delete any profile if needed.
+
+	Admin                    Manages internal workflows of operators and success managers, Handles escalations from campaign issues or routing conflicts, Cannot delete entities, Assign roles
+
+	Platform Success Manager Ensures system uptime and operational continuity, Can modify SSP pricing logic, payout distribution, and token conversion rules for Glo/Blo coins, Support 2 queries will escalate to platform success manager who acts as support 3 for the platform related tickets
+
+	Customer Success Manager Ensures advertiser satisfaction through ticket resolution and optimization feedback, Supports coordination between DSP and Ad Exchange, Support 2 queries will escalate to customer success manager who acts as support 3 for the customer related tickets.
+
+	Campaign Success Manager Oversees campaign flow from DSP to SSP, Tracks live campaign status and ensures inventory matching, Generates campaign analytics and insights
+
+	Support 2                Handle tech failures (uploads, APIs), Collaborate with devs for bug reports
+
+	Support 1 (Base Level)   Resolve common internal queries, Help with navigation issues, FAQs.
+
+	Notes
+	-----
+	Super Admin should be one across the parts of Eureka, Super Admin has unrestricted read/write/delete permissions on all database entities and admin panel controls. Only one individual should hold this role in production.
+
+	Support 2 queries will escalate to the platform success manager as well as customer success manager depending on the nature of the tickets, and they both act as "Support 3" across whole platform.
+
+Eureka E3 (Eureka 3 means Streamer side protal)
+	Publisher
+	Internal Gametriggers Team
+
+	Roles                    Responsibilities
+	-------                  --------------
+	Independent              Same as above, but not under any org/agency, Manages their own campaigns and payouts directly
+	Super Admin              Full system control including payout approvals, and overriding campaign allocations, Can suspend publishers or orgs based on violation or can delete a profile if needed.
+
+	Organisation / Agency Head Onboards and manages Artiste Managers under their org (e.g., eSports teams, agencies), Oversees publisher performance- Reviews earnings and analytics for the full group
+	Admin                    Manages publisher group accounts, control including payout approvals, and overriding campaign allocations, Cannot delete orgs but can manage account status, Can assign roles.
+
+	Artiste Manager          Recruits and manages Publishers (streamers, content creators), Monitors campaign performance per publisher, Coordinates onboarding and campaign bidding
+	Finance / Wallet Manager Tracks and verifies publisher Glo/Blo coin payouts, Initiates and approves redemptions (bank transfer, gift cards), Resolves wallet-related disputes
+
+	Publishers (Individual)  Bids and runs campaigns, Connects platform accounts (YouTube, Twitch, etc.), Uploads content and submits analytics, Can operate as solo publishers or under agencies
+	Liaison Manager          Supports Artiste Managers in publisher onboarding, assists with onboarding and dispute resolution, Tracks performance and suggests campaign opportunities, Flags issues or misconduct for internal review
+
+	Support 2                Investigates complex issues by coordinating with finance, and technical teams. Handles escalated cases such as failed redemptions, data mismatches, or unresolved support 1 queries. Ensures resolving of the problem with minimal dependency on repeated user inputs, aiming for one-time resolution. Escalates unresolved cases to the Platform Success Manager (Support 3) for final decision-making.
+
+	Support 1                Resolves tickets raised by publishers for basic queries related to campaign participation, wallet visibility, redemption process, and platform navigation. Provides documentation links and escalates to Liaison Manager or Finance Manager when needed.
