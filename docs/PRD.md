@@ -26,8 +26,7 @@ To create the world's most efficient and transparent marketplace for in-stream a
 ### Microservices Architecture
 The platform will be built using a distributed microservices architecture with specialized frontend portals:
 
-```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+``` a
 │   Brand Portal  │    │ Streamer Portal │    │  Landing Site   │    │  Admin Portal   │
 │    (Next.js)    │    │    (Next.js)    │    │   (Next.js)     │    │   (Next.js)     │
 └─────────────────┘    └─────────────────┘    └─────────────────┘    └─────────────────┘
@@ -72,7 +71,8 @@ The platform will be built using a distributed microservices architecture with s
 
 ## Service Breakdown & Portal Mapping
 
-### 1. Brand Portal (brands.gametriggers.com)
+### 1. Brand Portal - E1 (brands.gametriggers.com)
+**Portal Type**: E1 - Brand/Advertiser Operations  
 **Served by:**
 - Brand Service
 - Campaign Service  
@@ -80,14 +80,26 @@ The platform will be built using a distributed microservices architecture with s
 - Payment Service
 - Upload Service
 
-**Core Features:**
-- Campaign creation and management
-- Brand profile management
-- Analytics dashboard
-- Payment and billing management
-- Asset upload and management
+**Role Hierarchy & Access:**
+- **Marketing Head** (Level 1): Full platform access, team management, budget allocation
+- **Campaign Manager** (Level 2): Campaign creation, targeting, performance monitoring
+- **Finance Manager** (Level 2): Budget management, payment processing, financial reporting
+- **Validator/Approver** (Level 2): Campaign approval, compliance verification
+- **Campaign Consultant** (Level 3): Client campaign management, strategic consulting
+- **Sales Representative** (Level 4): Client onboarding, CRM management, support
+- **Brand Support 2** (Level 4): Complex issue resolution, technical coordination
+- **Brand Support 1** (Level 5): Basic user support, documentation assistance
 
-### 2. Streamer Portal (streamers.gametriggers.com)
+**Core Features:**
+- Multi-tier organization management
+- Campaign creation and management with approval workflows
+- Granular budget control and spending analytics
+- Asset upload and media library management
+- Role-based team collaboration tools
+- Financial reporting and invoice management
+
+### 2. Streamer Portal - E3 (streamers.gametriggers.com)
+**Portal Type**: E3 - Publisher/Creator Operations  
 **Served by:**
 - Streamer Service
 - Participation Service
@@ -95,35 +107,157 @@ The platform will be built using a distributed microservices architecture with s
 - Wallet Service
 - Analytics Service
 
+**Role Hierarchy & Access:**
+- **Organization/Agency Head** (Level 1): Agency management, team oversight, financial control
+- **Artiste Manager** (Level 2): Creator recruitment, performance monitoring, campaign coordination
+- **Finance/Wallet Manager** (Level 2): Payout management, financial dispute resolution
+- **Independent Streamer** (Level 1): Solo creator with full self-management capabilities
+- **Publishers** (Level 3): Individual creators under agency management
+- **Liaison Manager** (Level 3): Onboarding support, performance optimization
+- **Streamer Support 2** (Level 4): Technical issue resolution, escalation handling
+- **Streamer Support 1** (Level 5): Basic platform navigation, FAQ assistance
+
 **Core Features:**
-- Streamer profile and integration setup
-- Overlay configuration and testing
-- Earnings tracking and payout requests
-- Campaign participation history
-- Performance analytics
+- Agency/organization structure for streamer management
+- Overlay configuration and real-time testing
+- Multi-tier earnings tracking and payout systems
+- Campaign participation with filtering and preferences
+- Performance analytics and revenue optimization
+- Hierarchical permission management for agencies
 
 ### 3. Landing Site (gametriggers.com)
+**Portal Type**: Public Marketing & Onboarding  
 **Served by:**
 - Auth Service (for registration)
 - Static content service
 
-**Core Features:**
-- Marketing landing pages
-- User registration and onboarding
-- Platform information and pricing
-- Contact and support
+**Registration Flow Differentiation:**
+- **Brand Registration**: Email-based registration with business verification
+- **Streamer Registration**: OAuth-only (Twitch/YouTube required) - no email signup
+- **Admin Access**: Invitation-only through existing admin users
 
-### 4. Admin Portal (admin.gametriggers.com)
+**Core Features:**
+- Marketing landing pages with role-specific onboarding
+- Portal-specific registration flows with automatic routing
+- OAuth integration for streamer verification during signup
+- Platform information and pricing tiers
+- Contact and support with role-aware routing
+
+### 4. Admin Portal - E2 (admin.gametriggers.com)
+**Portal Type**: E2 - Platform Administration & Ad Exchange  
 **Served by:**
 - Admin Service
 - All backend services (read access)
 - Audit Service
 
+**Role Hierarchy & Access:**
+- **Super Admin** (Level 0): Cross-portal unrestricted access, system override capabilities
+- **Admin** (Level 1): Internal workflow management, role assignment, escalation handling
+- **Platform Success Manager** (Level 2): System uptime, pricing logic, technical operations
+- **Customer Success Manager** (Level 2): Advertiser satisfaction, optimization feedback
+- **Campaign Success Manager** (Level 2): Campaign flow oversight, inventory matching
+- **Admin Support 2** (Level 4): Technical failure handling, developer coordination
+- **Admin Support 1** (Level 5): Internal queries, navigation assistance
+
 **Core Features:**
-- Platform monitoring and management
-- User and campaign moderation
-- System configuration
-- Audit logs and compliance
+- Cross-platform monitoring and management
+- Multi-portal user and campaign moderation
+- Advanced system configuration and override capabilities
+- Comprehensive audit logs and compliance reporting
+- Role-based permission matrix management
+- Inter-portal workflow coordination
+
+## Role-Based Access Control System
+
+### Eureka Multi-Portal Role Architecture
+
+The platform implements a sophisticated role-based access control system across three specialized portals (E1, E2, E3), each serving distinct user types with hierarchical permission structures.
+
+### Role Distribution Matrix
+
+| Portal | Role Count | Primary Users | Access Level |
+|--------|------------|---------------|--------------|
+| **E1 - Brand Portal** | 8 roles | Advertisers, Internal Brand Teams | Campaign management, budget control |
+| **E2 - Admin Portal** | 7 roles | Platform operators, Success managers | System administration, cross-portal oversight |
+| **E3 - Streamer Portal** | 8 roles | Publishers, Agencies, Independent creators | Content delivery, earnings management |
+
+### Permission Categories
+
+The system enforces granular permissions across five core categories:
+
+**1. Campaign Management**
+- Create, edit, approve, delete campaigns
+- Access targeting and budget controls
+- View performance metrics
+
+**2. User Management**  
+- Create user accounts and assign roles
+- Manage organizational hierarchies
+- View and edit user profiles
+
+**3. Financial Operations**
+- View and set budgets
+- Approve payouts and transactions
+- Access financial reporting
+
+**4. Analytics & Reporting**
+- Access real-time dashboards
+- Export performance data  
+- Configure custom reports
+
+**5. System Administration**
+- Configure platform settings
+- Access audit logs and compliance tools
+- Override permissions for emergencies
+
+### Cross-Portal Access Rules
+
+**Super Admin**: Unrestricted access to all three portals (E1, E2, E3)
+- Full read/write/delete permissions across all entities
+- Emergency override capabilities
+- Cross-portal workflow management
+
+**Platform Success Manager**: Limited cross-portal access (E2 → E1)
+- Coordinate between admin operations and brand support
+- System-wide configuration management
+
+**Customer Success Manager**: Specialized cross-portal access (E2 → E1)
+- Brand satisfaction and optimization support
+- Escalation handling from brand portal
+
+### Organizational Hierarchy Support
+
+**Brand Organizations (E1)**
+- Marketing Head creates and manages brand teams
+- Hierarchical budget allocation and approval workflows
+- Role-specific campaign management permissions
+
+**Streamer Agencies (E3)**
+- Agency Head manages multiple Artiste Managers
+- Centralized earnings oversight and payout approval
+- Individual creator permission delegation
+
+**Internal Teams (E2)**
+- Admin manages cross-platform operations
+- Success managers coordinate between portals
+- Support tier escalation pathways
+
+### Security & Compliance Features
+
+**Permission Inheritance**
+- Organization-level restrictions override individual permissions
+- Role-based baseline permissions with user-specific overrides
+- Emergency escalation with automatic expiration
+
+**Audit Requirements**
+- All role assignments logged with approval chains
+- Cross-portal access tracked with additional detail
+- Financial permissions require dual authorization
+
+**Data Isolation**
+- Organization-specific data segregation
+- Role-based row-level security
+- Portal-specific session management
 
 ## Detailed Functional Requirements
 
@@ -131,26 +265,46 @@ The platform will be built using a distributed microservices architecture with s
 
 | ID | Feature | User Story | Acceptance Criteria | Microservice |
 |----|---------|------------|---------------------|--------------|
-| FR001 | User Registration | As a new user, I want to register for the platform so I can access brand or streamer features. | System provides separate registration flows for brands and streamers with role-specific data collection. Email verification required. | Auth Service |
-| FR002 | OAuth Integration | As a streamer, I want to connect my Twitch/YouTube account so the platform can verify my streaming status. | System integrates with Twitch, YouTube APIs. Stores OAuth tokens securely. Validates streaming eligibility. | Auth Service, Streamer Service |
-| FR003 | Role-based Access | As a user, I want to access only the features relevant to my role (brand/streamer/admin). | System enforces role-based permissions. Users can only access their designated portal. Clear role switching if applicable. | Auth Service, API Gateway |
-| FR004 | Profile Management | As a user, I want to manage my profile information so I can keep my account updated. | Users can update personal information, contact details, preferences. Validation for required fields. | Brand Service, Streamer Service |
+| FR001 | Multi-Portal Registration | As a new user, I want to register for the appropriate portal (E1/E2/E3) so I can access role-specific features. | System provides separate registration flows: E1 (email/business registration), E2 (admin invitation only), E3 (OAuth-only via Twitch/YouTube). Portal-specific data collection and role assignment required. | Auth Service |
+| FR002 | OAuth-Required Streamer Registration | As a streamer, I want to register using my Twitch/YouTube account so the platform can verify my streaming credentials and automatically assign appropriate permissions. | Streamers MUST register via OAuth (Twitch/YouTube only). System validates streaming status, channel metrics, and eligibility. Automatic role assignment based on channel type (Independent Streamer default). Email registration not available for E3 portal. | Auth Service, Streamer Service |
+| FR003 | Hierarchical Role Access | As a user, I want to access only the features relevant to my specific role within my organization hierarchy. | System enforces granular role-based permissions with organizational context. Portal access restrictions and feature-level permissions. | Auth Service, API Gateway |
+| FR004 | Organization Management | As a Marketing Head or Agency Head, I want to create and manage my organization so I can assign roles and manage team permissions. | Users can create organizations, invite team members, assign hierarchical roles, and manage organization-specific settings and budgets. | Brand Service, Streamer Service, Admin Service |
+| FR005 | Cross-Portal Super Admin | As a Super Admin, I want unified access across all portals so I can manage the entire platform ecosystem. | Super Admin role can seamlessly switch between E1, E2, E3 portals with full permissions and override capabilities. Emergency access controls included. | Auth Service, All Services |
+| FR006 | Role-Based Profile Management | As a user, I want to manage profile information relevant to my specific role and organizational position. | Role-specific profile fields, permission-based edit capabilities, and organizational context displayed. Validation for role-required fields. | Brand Service, Streamer Service, Admin Service |
+| FR007 | Permission Inheritance | As an organization member, I want my permissions to reflect both my role and my organization's restrictions. | System applies role permissions filtered through organizational settings. Hierarchical permission inheritance with override capabilities for higher-level roles. | Auth Service, All Services |
 
-### Brand Campaign Management
+### Brand Campaign Management (E1 Portal)
 
-| ID | Feature | User Story | Acceptance Criteria | Microservice |
-|----|---------|------------|---------------------|--------------|
-| FR005 | Campaign Creation | As a brand, I want to create advertising campaigns so I can reach my target audience. | Form-based campaign creation with media upload, targeting options, budget setting. Draft/publish workflow. | Campaign Service, Upload Service |
-| FR006 | Media Upload | As a brand, I want to upload campaign assets so they can be displayed to streamers. | Support for images, videos, GIFs. File validation for size, format, content. CDN integration for performance. | Upload Service |
-| FR007 | Targeting Configuration | As a brand, I want to set targeting criteria so my ads reach the right streamers. | Options for categories, languages, viewer count, geography. Real-time audience estimation. | Campaign Service |
-| FR008 | Budget Management | As a brand, I want to set and track campaign budgets so I can control spending. | Budget allocation, spending tracking, automatic pause when budget exhausted. Alerts for budget thresholds. | Campaign Service, Payment Service |
-| FR009 | Campaign Analytics | As a brand, I want to see campaign performance so I can optimize my advertising strategy. | Real-time metrics: impressions, clicks, conversions. Demographic breakdowns. Export capabilities. | Analytics Service |
+| ID | Feature | User Story | Acceptance Criteria | Microservice | Required Roles |
+|----|---------|------------|---------------------|--------------|----------------|
+| FR008 | Campaign Creation | As a Campaign Manager, I want to create advertising campaigns so I can reach target audiences within my budget authority. | Form-based campaign creation with role-based budget limits, targeting options, media upload. Draft/publish workflow with approval chain. | Campaign Service, Upload Service | Campaign Manager, Marketing Head |
+| FR009 | Campaign Approval Workflow | As a Validator/Approver, I want to review and approve campaigns before they go live so I can ensure compliance and quality standards. | Multi-step approval process with campaign review tools, compliance checking, and approval/rejection with feedback. Approved campaigns route to E2 layer. | Campaign Service | Validator/Approver, Marketing Head |
+| FR010 | Budget Management & Control | As a Finance Manager, I want to set organization budgets and monitor spending so I can control financial exposure. | Hierarchical budget allocation, real-time spending tracking, automatic pause controls, budget threshold alerts, and approval workflows for budget changes. | Campaign Service, Payment Service | Finance Manager, Marketing Head |
+| FR011 | Asset Upload & Management | As a Campaign Manager, I want to upload and organize campaign assets so I can create effective advertising materials. | Media library with role-based access, file validation, version control, approval workflows for sensitive content, CDN integration for performance. | Upload Service | Campaign Manager, Marketing Head, Campaign Consultant |
+| FR012 | Team Campaign Analytics | As a Marketing Head, I want to see comprehensive campaign performance across my team so I can optimize strategy and resource allocation. | Multi-user dashboard with team performance metrics, ROI analysis, budget utilization, demographic insights, export capabilities with role-based data filtering. | Analytics Service | Marketing Head, Campaign Manager, Finance Manager |
+| FR013 | Client Campaign Management | As a Campaign Consultant, I want to manage campaigns on behalf of my clients so I can provide comprehensive campaign services. | Client-specific dashboard with campaign creation rights, performance reporting, budget visibility (no financial management), client approval workflows. | Campaign Service, Analytics Service | Campaign Consultant |
 
-### Streamer Integration & Overlay
+### Streamer Portal Management (E3 Portal)
 
-| ID | Feature | User Story | Acceptance Criteria | Microservice |
-|----|---------|------------|---------------------|--------------|
-| FR010 | Overlay Integration | As a streamer, I want to add the Gametriggers overlay to my stream so I can display ads and earn money. | Browser source URL generation for OBS/Streamlabs. Easy copy-paste integration. Setup validation. | Overlay Service |
+| ID | Feature | User Story | Acceptance Criteria | Microservice | Required Roles |
+|----|---------|------------|---------------------|--------------|----------------|
+| FR014 | Agency Management | As an Organization/Agency Head, I want to manage my streamer agency so I can oversee multiple creators and their earnings. | Organization creation, member invitation, role assignment, centralized earnings dashboard, payout approval workflows, performance oversight across all managed creators. | Streamer Service, Wallet Service | Organization/Agency Head |
+| FR015 | Creator Recruitment | As an Artiste Manager, I want to recruit and manage streamers so I can build a successful creator network. | Creator search and invitation tools, onboarding workflows, performance monitoring per creator, campaign coordination, earnings tracking, creator performance analytics. | Streamer Service, Participation Service | Artiste Manager, Organization/Agency Head |
+| FR016 | Overlay Integration & Testing | As a Publisher, I want to customize and test my overlay so it integrates seamlessly with my stream setup. | Browser source URL generation for OBS/Streamlabs, real-time overlay customization, A/B testing capabilities, position/size/opacity controls, brand alignment tools. | Overlay Service | Publisher, Independent Streamer, Artiste Manager |
+| FR017 | Campaign Participation Control | As a Publisher, I want control over which campaigns appear on my stream so I can maintain my brand alignment and audience expectations. | Campaign filtering by category/brand, whitelist/blacklist functionality, automatic campaign selection based on preferences, participation history tracking. | Participation Service | Publisher, Independent Streamer |
+| FR018 | Agency Financial Management | As a Finance/Wallet Manager, I want to manage payouts and resolve financial disputes so I can ensure creators are paid correctly. | Centralized wallet overview, payout scheduling, dispute resolution tools, earnings verification, tax reporting assistance, payment method management. | Wallet Service, Payment Service | Finance/Wallet Manager, Organization/Agency Head |
+| FR019 | Creator Performance Analytics | As an Independent Streamer, I want detailed performance analytics so I can optimize my earning potential. | Real-time earnings dashboard, campaign performance comparison, audience engagement metrics, revenue optimization suggestions, historical trend analysis. | Analytics Service, Wallet Service | Independent Streamer, Publisher |
+| FR020 | Support & Onboarding | As a Liaison Manager, I want to assist with creator onboarding so I can help streamers succeed on the platform. | Onboarding workflow management, performance tracking tools, optimization recommendations, issue flagging and escalation, training resource access. | Streamer Service, Participation Service | Liaison Manager, Artiste Manager |
+
+### Administrative Portal Management (E2 Portal)
+
+| ID | Feature | User Story | Acceptance Criteria | Microservice | Required Roles |
+|----|---------|------------|---------------------|--------------|----------------|
+| FR021 | Platform-Wide Monitoring | As a Platform Success Manager, I want to monitor system health across all portals so I can ensure optimal platform performance. | Cross-portal dashboard with real-time metrics, service health monitoring, performance alerts, system configuration tools, pricing logic management. | Admin Service, All Services | Platform Success Manager, Super Admin |
+| FR022 | Customer Success Management | As a Customer Success Manager, I want to coordinate between E1 and E2 to ensure advertiser satisfaction. | Cross-portal customer journey tracking, satisfaction metrics, optimization feedback tools, escalation management, coordination dashboards. | Admin Service, Brand Service | Customer Success Manager, Super Admin |
+| FR023 | Campaign Flow Oversight | As a Campaign Success Manager, I want to oversee campaign flow from E1 to E3 so I can ensure proper inventory matching and delivery. | Campaign pipeline monitoring, inventory management, delivery optimization, performance tracking, conflict resolution tools. | Campaign Service, Participation Service | Campaign Success Manager, Super Admin |
+| FR024 | Cross-Portal User Management | As an Admin, I want to manage users across all portals so I can handle escalations and policy enforcement. | Unified user search and management, cross-portal role assignment, account suspension/activation, policy enforcement tools, escalation tracking. | Auth Service, Admin Service | Admin, Super Admin |
+| FR025 | System Configuration & Override | As a Super Admin, I want unrestricted access to all platform functions so I can handle any situation or emergency. | Cross-portal access with full permissions, emergency override capabilities, system configuration access, global settings management, audit trail access. | All Services | Super Admin |
 | FR011 | Overlay Customization | As a streamer, I want to customize the overlay appearance so it matches my stream aesthetic. | Position, size, opacity, background color options. Real-time preview. Template selection. | Overlay Service |
 | FR012 | Campaign Selection | As a streamer, I want control over which campaigns appear on my stream so I can maintain brand alignment. | Campaign filtering options. Blacklist/whitelist functionality. Category preferences. | Participation Service |
 | FR013 | Earnings Tracking | As a streamer, I want to track my earnings so I can see how much I'm making from the platform. | Real-time earnings display. Historical data. Breakdown by campaign. Tax reporting features. | Wallet Service, Analytics Service |
