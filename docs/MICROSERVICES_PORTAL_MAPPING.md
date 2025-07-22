@@ -1,674 +1,632 @@
-# Gametriggers Platform - Microservices to Portal Mapping with Eureka Role System
+# Gametriggers Platform - Eureka Microservices to Portal Mapping
 
 ## Overview
 
-This document provides a detailed mapping of microservices to frontend portals, showing which backend services support each user-facing application in the Gametriggers platform. The platform implements the Eureka multi-portal role system with specialized access control across E1 (Brand), E2 (Admin), and E3 (Streamer) portals.
+This document provides a detailed mapping of microservices to frontend portals for the Eureka role-based access control system, showing which backend services support each user-facing application in the Gametriggers platform across the three specialized portals.
 
-## Portal Architecture Map with Eureka System
+## Eureka Portal Architecture Map
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────────┐
-│                                GAMETRIGGERS PLATFORM                                   │
-│                              EUREKA MULTI-PORTAL SYSTEM                                │
+│                           GAMETRIGGERS EUREKA PLATFORM                                │
+│                              Role-Based Access Control                                │
 └─────────────────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│   BRAND PORTAL  │    │ STREAMER PORTAL │    │  LANDING SITE   │    │  ADMIN PORTAL   │
-│      (E1)       │    │      (E3)       │    │   (PUBLIC)      │    │      (E2)       │
+│  E1 BRAND       │    │ E3 PUBLISHER    │    │  LANDING SITE   │    │ E2 AD EXCHANGE  │
+│  PORTAL         │    │ PORTAL          │    │                 │    │ PORTAL          │
 │                 │    │                 │    │                 │    │                 │
-│ brands.domain   │    │streamers.domain │    │  www.domain     │    │ admin.domain    │
+│ brands.domain   │    │publishers.domain│    │  www.domain     │    │exchange.domain  │
 │   (Next.js)     │    │   (Next.js)     │    │   (Next.js)     │    │   (Next.js)     │
 │                 │    │                 │    │                 │    │                 │
-│ 8 Roles         │    │ 8 Roles         │    │ Public Access   │    │ 7 Roles         │
-│ 5 Hierarchy     │    │ 5 Hierarchy     │    │ + Registration  │    │ 5 Hierarchy     │
-│ Levels          │    │ Levels          │    │                 │    │ Levels          │
+│ 9 Brand Roles   │    │ 6 Publisher     │    │ Public Access   │    │ 6 Exchange      │
+│                 │    │ Roles           │    │                 │    │ Roles           │
 └─────────────────┘    └─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       │                       │
-         └───────────────────────┼───────────────────────┼───────────────────────┘
-                                 │                       │
-                    ┌─────────────────┐                  │
-                    │   API GATEWAY   │                  │
-                    │   (Express)     │                  │
-                    │ + Role Guards   │                  │
-                    └─────────────────┘                  │
-                                 │                       │
-    ┌────────────────────────────┼────────────────────────────┬─────────────────┘
-    │                            │                            │
-┌───▼───┐  ┌─────────┐  ┌───────▼──┐  ┌─────────┐  ┌─────────┐  ┌─────────┐
-│  Auth  │  │ Brand   │  │ Streamer │  │Campaign │  │Analytics│  │  Admin  │
-│Service │  │ Service │  │ Service  │  │ Service │  │ Service │  │ Service │
-│+ RBAC  │  │+ Orgs   │  │+ Agencies│  │+ Approval│ │+ Portal │  │+ Cross  │
-└───────┘  └─────────┘  └──────────┘  └─────────┘  └─────────┘  └─────────┘
-    │          │             │            │            │            │
-┌───▼───┐  ┌───▼───┐     ┌───▼───┐    ┌───▼───┐    ┌───▼───┐    ┌───▼───┐
-│Payment│  │Overlay│     │Wallet │    │Upload │    │ Event │    │Audit  │
-│Service│  │Service│     │Service│    │Service│    │ Bus   │    │Service│
-│+ Multi │  │+ Real │     │+ Hier │    │+ Role │    │+ Role │    │+ Comp │
-└───────┘  └───────┘     └───────┘    └───────┘    └───────┘    └───────┘
+
+Cross-Portal Role: Super Admin (Access to all E1, E2, E3 portals)
 ```
 
-## Eureka Role-Based Service Mapping Matrix
+## Enhanced Service-to-Portal Mapping Matrix
 
-| Microservice | E1 - Brand Portal | E3 - Streamer Portal | Public Site | E2 - Admin Portal | Role-Based Features |
-|--------------|-------------------|--------------------|-------------|-------------------|---------------------|
-| **Auth Service** | ✅ Multi-Role Auth | ✅ OAuth-Only Auth | ✅ Email Registration | ✅ Admin Auth | Role assignment, organization context, cross-portal access |
-| **Brand Service** | ✅ Primary (8 roles) | ❌ | ❌ | ✅ Oversight | Organization management, hierarchical permissions, team collaboration |
-| **Streamer Service** | ❌ | ✅ Primary (8 roles) | ❌ | ✅ Oversight | Agency management, creator hierarchies, earnings distribution |
-| **Campaign Service** | ✅ Primary (Approval Chain) | ✅ Participation | ❌ | ✅ E1→E2→E3 Flow | Role-based approval workflows, cross-portal campaign routing |
-| **Participation Service** | ✅ View (Limited) | ✅ Primary (Filtered) | ❌ | ✅ Monitor All | Hierarchical participation control, agency-level management |
-| **Analytics Service** | ✅ Role-Filtered | ✅ Role-Filtered | ❌ | ✅ Global View | Permission-based data access, organizational analytics |
-| **Payment Service** | ✅ Finance Roles | ✅ Payout Roles | ❌ | ✅ Financial Oversight | Role-based financial permissions, approval hierarchies |
-| **Wallet Service** | ❌ | ✅ Primary (Hierarchical) | ❌ | ✅ Monitor | Agency-level wallet management, individual creator earnings |
-| **Overlay Service** | ❌ | ✅ Primary (Permission-Based) | ❌ | ✅ System Control | Role-based overlay customization, agency branding |
-| **Upload Service** | ✅ Primary (Approval Chain) | ❌ | ❌ | ✅ Content Moderation | Role-based upload permissions, approval workflows |
-| **Admin Service** | ❌ | ❌ | ❌ | ✅ Primary (7 roles) | Cross-portal administration, escalation management |
-| **Audit Service** | ❌ | ❌ | ❌ | ✅ Primary (Compliance) | Role-based audit access, organizational compliance |
-| **Organization Service** | ✅ Brand Orgs | ✅ Streamer Agencies | ❌ | ✅ All Organizations | Multi-tenant organization management, role inheritance |
+| Microservice | E1 Brand Portal | E3 Publisher Portal | Landing Site | E2 Exchange Portal | Primary Function |
+|--------------|-----------------|-------------------|--------------|---------------------|------------------|
+| **Auth Service** | ✅ All Brand Roles | ✅ All Publisher Roles | ✅ Register | ✅ All Exchange Roles | Eureka RBAC authentication |
+| **Brand Service** | ✅ Primary (9 roles) | ❌ | ❌ | ✅ Read Only | Brand profile & organization |
+| **Publisher Service** | ❌ | ✅ Primary (6 roles) | ❌ | ✅ Monitor | Publisher/streamer management |
+| **Campaign Service** | ✅ Primary | ✅ Browse/Participate | ❌ | ✅ Route/Moderate | Campaign lifecycle management |
+| **Organization Service** | ✅ Primary | ✅ Agencies | ❌ | ✅ Monitor | Multi-tenant organization mgmt |
+| **Workflow Service** | ✅ Approvals | ✅ Onboarding | ❌ | ✅ Internal Ops | Approval & routing workflows |
+| **Analytics Service** | ✅ Brand Analytics | ✅ Publisher Analytics | ❌ | ✅ Platform Analytics | Role-based reporting |
+| **Payment Service** | ✅ Billing/Budgets | ✅ Payouts | ❌ | ✅ Financial Ops | Financial transaction processing |
+| **Wallet Service** | ❌ | ✅ Primary | ❌ | ✅ Monitor | Publisher earnings management |
+| **Overlay Service** | ❌ | ✅ Primary | ❌ | ✅ Monitor | Real-time ad delivery |
+| **Upload Service** | ✅ Primary | ❌ | ❌ | ✅ Moderate | Asset upload & management |
+| **Exchange Service** | 🔄 Receives | 🔄 Receives | ❌ | ✅ Primary | Campaign routing & optimization |
+| **Admin Service** | 🔄 Internal Admin | 🔄 Internal Admin | ❌ | ✅ Primary | System administration |
+| **Audit Service** | 🔄 Logging | 🔄 Logging | ❌ | ✅ Primary | Compliance & audit logging |
+| **Notification Service** | ✅ Secondary | ✅ Secondary | ❌ | ✅ Secondary | Role-based notifications |
+| **Event Bus** | 🔄 Internal | 🔄 Internal | ❌ | 🔄 Internal | Inter-service communication |
 
-**Enhanced Legend:**
-- ✅ Primary: Core functionality with role-based access control
-- ✅ Role-Filtered: Access filtered by user role and organizational context
-- ✅ Oversight: Administrative oversight with cross-organizational visibility
+**Legend:**
+- ✅ Primary: Core functionality for portal roles
+- ✅ Secondary: Supporting functionality
+- ✅ Read Only: Monitoring/read access
 - ❌ No direct access
-- 🔄 Internal: Infrastructure service with role-aware routing
+- 🔄 Internal: Infrastructure/cross-portal communication
 
-## Detailed Portal Breakdowns with Eureka Role System
+## Detailed Portal Breakdowns with Eureka Roles
 
-### 1. Brand Portal - E1 (brands.gametriggers.com)
+### 1. E1 Brand Portal (brands.gametriggers.com)
 
-**Purpose**: Complete campaign management and brand operations with hierarchical team structure
+**Purpose**: Campaign management, brand operations, and advertiser workflow management
 
-**Eureka Role Hierarchy (8 roles across 5 levels):**
-- **Level 1**: Marketing Head - Organization creator, full platform access
-- **Level 2**: Campaign Manager, Finance Manager, Validator/Approver - Core operational roles
-- **Level 3**: Campaign Consultant - Client service role with limited financial access
-- **Level 4**: Sales Representative, Brand Support 2 - Customer-facing support roles
-- **Level 5**: Brand Support 1 - Basic support and documentation assistance
+**Target Roles (9 roles):**
+- **Marketing Head**: Organization setup, team management, budget allocation, high-level strategy
+- **Campaign Manager**: Campaign creation, management, targeting, performance analysis  
+- **Finance Manager**: Budget controls, payment methods, financial reporting, spending oversight
+- **Validator/Approver**: Campaign validation, approval workflows, routing to ad exchange
+- **Campaign Consultant**: Client campaign management (with consent), analytics, no finance access
+- **Admin (Brand)**: Account management, sales rep coordination, troubleshooting, user management
+- **Sales Representative**: Client onboarding, CRM management, guidance, issue resolution
+- **Support 1 (Brand)**: Basic advertiser support, navigation help, documentation, escalation
+- **Support 2 (Brand)**: Complex issue resolution, technical troubleshooting, cross-team coordination
 
-**Primary Services with Role-Based Access:**
-- **Brand Service**: Organization management, team hierarchy, role-based permissions
-- **Campaign Service**: Role-based campaign creation, approval workflows, team collaboration
-- **Analytics Service**: Hierarchical data access, role-filtered reporting, team performance metrics
-- **Payment Service**: Finance role access, budget management, organizational billing
-- **Upload Service**: Role-based asset management, approval workflows, team asset sharing
-
-**Supporting Services:**
-- **Auth Service**: Email/business registration, multi-role authentication, organizational context
-- **Participation Service**: View participating streamers (role-filtered visibility)
-- **Notification Service**: Role-based alerts, organizational notifications
-
-**Role-Based Features:**
-```typescript
-// E1 Brand Portal Role-Based Feature Matrix
-interface E1PortalFeatures {
-  organizationManagement: {
-    createOrganization: ['marketing_head'];
-    inviteMembers: ['marketing_head'];
-    assignRoles: ['marketing_head'];
-    manageBudgets: ['marketing_head', 'finance_manager'];
-  };
-  campaignManagement: {
-    create: ['marketing_head', 'campaign_manager', 'campaign_consultant'];
-    approve: ['marketing_head', 'validator_approver'];
-    edit: ['marketing_head', 'campaign_manager'];
-    viewAnalytics: ['marketing_head', 'campaign_manager', 'finance_manager'];
-  };
-  financialOperations: {
-    setBudgets: ['marketing_head', 'finance_manager'];
-    viewSpending: ['marketing_head', 'finance_manager', 'campaign_manager'];
-    processPayments: ['marketing_head', 'finance_manager'];
-    generateReports: ['marketing_head', 'finance_manager'];
-  };
-  supportOperations: {
-    accessCRM: ['sales_representative', 'brand_support_2'];
-    escalateIssues: ['brand_support_1', 'brand_support_2'];
-    provideTechnicalSupport: ['brand_support_2'];
-  };
-}
-```
-
-### 2. Streamer Portal - E3 (streamers.gametriggers.com)
-
-**Purpose**: Creator onboarding, agency management, and earnings optimization
-
-**Eureka Role Hierarchy (8 roles across 5 levels):**
-- **Level 1**: Organization/Agency Head, Independent Streamer - Top-level management
-- **Level 2**: Artiste Manager, Finance/Wallet Manager - Agency operational roles
-- **Level 3**: Publishers, Liaison Manager - Individual creators and support
-- **Level 4**: Streamer Support 2 - Technical issue resolution
-- **Level 5**: Streamer Support 1 - Basic platform assistance
-
-**Primary Services with Role-Based Access:**
-- **Streamer Service**: Agency management, creator profiles, hierarchical organization structure
-- **Overlay Service**: Role-based customization, agency branding, individual creator control
-- **Participation Service**: Agency-level campaign management, individual creator participation
-- **Wallet Service**: Hierarchical earnings management, agency payout distribution
-- **Analytics Service**: Role-based performance metrics, agency-wide reporting
+**Primary Services:**
+- **Brand Service**: Company profiles, team management, advertiser account setup
+- **Campaign Service**: Campaign lifecycle, targeting, scheduling, management
+- **Organization Service**: Multi-tenant organization management, hierarchy, budget allocation
+- **Analytics Service**: Campaign performance, ROI analysis, audience insights
+- **Payment Service**: Billing, invoicing, budget controls, financial reporting
+- **Upload Service**: Asset management, creative library, media processing
+- **Workflow Service**: Approval processes, routing, validation workflows
 
 **Supporting Services:**
-- **Auth Service**: OAuth-only integrations (Twitch/YouTube), agency context, role-based authentication
-- **Campaign Service**: Browse and filter available campaigns
-- **Payment Service**: Payout processing, earnings distribution
-- **Notification Service**: Role-based earnings alerts, campaign notifications
+- **Auth Service**: Role-based authentication, permission management
+- **Notification Service**: Campaign alerts, budget notifications, approval requests
 
-**Role-Based Features:**
+**Key Features by Role:**
 ```typescript
-// E3 Streamer Portal Role-Based Feature Matrix
-interface E3PortalFeatures {
-  agencyManagement: {
-    createAgency: ['organization_head'];
-    recruitCreators: ['organization_head', 'artiste_manager'];
-    manageTeam: ['organization_head', 'artiste_manager'];
-    overseeEarnings: ['organization_head', 'finance_wallet_manager'];
-  };
-  overlayManagement: {
-    configure: ['independent_streamer', 'publisher', 'artiste_manager'];
-    customize: ['independent_streamer', 'publisher'];
-    test: ['independent_streamer', 'publisher', 'artiste_manager'];
-    applyBranding: ['organization_head', 'artiste_manager'];
-  };
-  earningsManagement: {
-    viewEarnings: ['independent_streamer', 'publisher', 'artiste_manager', 'finance_wallet_manager'];
-    requestPayouts: ['independent_streamer', 'publisher'];
-    approvePayout: ['organization_head', 'finance_wallet_manager'];
-    resolveDisputes: ['finance_wallet_manager', 'organization_head'];
-  };
-  campaignParticipation: {
-    browseAll: ['independent_streamer', 'publisher'];
-    filterCampaigns: ['independent_streamer', 'publisher'];
-    manageTeamParticipation: ['artiste_manager', 'organization_head'];
-    optimizePerformance: ['liaison_manager', 'artiste_manager'];
-  };
-}
-```
-
-**Key Features:**
-```typescript
-// Brand Portal Feature Set
+// E1 Brand Portal Role-Based Features
 interface BrandPortalFeatures {
-  campaignManagement: {
-    create: boolean;
-    edit: boolean;
-    schedule: boolean;
-    targeting: boolean;
-    budgetControl: boolean;
+  marketingHead: {
+    organizationManagement: boolean;
+    teamRoleAssignment: boolean;
+    budgetAllocation: boolean;
+    highLevelAnalytics: boolean;
+    strategicPlanning: boolean;
   };
-  analytics: {
-    realTimeMetrics: boolean;
-    historicalReports: boolean;
-    roiAnalysis: boolean;
-    audienceInsights: boolean;
+  campaignManager: {
+    campaignCreation: boolean;
+    targetingConfiguration: boolean;
+    performanceOptimization: boolean;
+    creativeManagement: boolean;
+    teamCollaboration: boolean;
   };
-  assetManagement: {
-    upload: boolean;
-    library: boolean;
-    mediaPreview: boolean;
-    bulkOperations: boolean;
+  financeManager: {
+    budgetManagement: boolean;
+    paymentMethodSetup: boolean;
+    financialReporting: boolean;
+    spendingControls: boolean;
+    billingOversight: boolean;
   };
-  financial: {
-    billing: boolean;
-    invoicing: boolean;
-    paymentMethods: boolean;
-    spendingAlerts: boolean;
+  validatorApprover: {
+    campaignValidation: boolean;
+    approvalWorkflows: boolean;
+    complianceChecking: boolean;
+    routingToExchange: boolean;
   };
+  campaignConsultant: {
+    clientCampaignManagement: boolean;
+    performanceAnalytics: boolean;
+    strategicGuidance: boolean;
+    // No financial access
+  };
+  // Additional roles...
 }
 ```
 
-### 2. Streamer Portal (streamers.gametriggers.com)
+### 2. E3 Publisher Portal (publishers.gametriggers.com)
 
-**Purpose**: Streamer onboarding, overlay management, and earnings tracking
+**Purpose**: Publisher/streamer management, overlay operations, and earnings tracking
+
+**Target Roles (6 roles):**
+- **Artiste Manager**: Publisher recruitment, agency management, performance oversight, team coordination
+- **Streamer (Individual)**: Campaign participation, overlay management, content creation, earnings tracking
+- **Independent Publisher**: Self-managed operations, direct campaign access, autonomous payout management
+- **Liaison Manager**: Publisher support, onboarding assistance, dispute resolution, performance guidance
+- **Support 1 (Publisher)**: Basic publisher queries, platform navigation, process guidance
+- **Support 2 (Publisher)**: Complex technical issues, advanced troubleshooting, redemption problems
 
 **Primary Services:**
-- **Streamer Service**: Profile setup, platform integrations, preferences
-- **Overlay Service**: Overlay configuration, testing, real-time control
-- **Participation Service**: Campaign browsing, opt-in/out, participation history
-- **Wallet Service**: Earnings tracking, payout requests, financial history
-- **Analytics Service**: Performance metrics, revenue optimization
+- **Publisher Service**: Publisher profiles, platform integrations, verification, management tools
+- **Organization Service**: Agency management, multi-publisher coordination, hierarchical structures
+- **Participation Service**: Campaign participation, bidding, history tracking, preference management
+- **Overlay Service**: Real-time overlay management, customization, testing, delivery
+- **Wallet Service**: Earnings tracking, payout requests, financial history, tax reporting
+- **Analytics Service**: Publisher performance, revenue optimization, audience insights
 
 **Supporting Services:**
-- **Auth Service**: Authentication, OAuth integrations
-- **Campaign Service**: Browse available campaigns
-- **Payment Service**: Payout processing
-- **Notification Service**: Earnings alerts, campaign notifications
+- **Auth Service**: OAuth integrations, role-based access, publisher verification
+- **Campaign Service**: Available campaign browsing, participation opportunities
+- **Payment Service**: Payout processing, earnings distribution
+- **Workflow Service**: Onboarding workflows, dispute resolution processes
 
-**Key Features:**
+**Key Features by Role:**
 ```typescript
-// Streamer Portal Feature Set
-interface StreamerPortalFeatures {
-  overlayManagement: {
-    configuration: boolean;
-    testing: boolean;
-    realTimeControl: boolean;
-    customization: boolean;
+// E3 Publisher Portal Role-Based Features
+interface PublisherPortalFeatures {
+  artisteManager: {
+    publisherRecruitment: boolean;
+    agencyManagement: boolean;
+    performanceMonitoring: boolean;
+    payoutDistribution: boolean;
+    teamCoordination: boolean;
   };
-  earnings: {
-    realTimeTracking: boolean;
-    payoutRequests: boolean;
-    historicalData: boolean;
-    taxReporting: boolean;
+  streamerIndividual: {
+    campaignParticipation: boolean;
+    overlayCustomization: boolean;
+    earningsTracking: boolean;
+    platformIntegration: boolean;
+    contentManagement: boolean;
   };
-  campaignParticipation: {
-    browseCampaigns: boolean;
-    optInOut: boolean;
-    preferenceSettings: boolean;
-    participationHistory: boolean;
+  independentPublisher: {
+    autonomousOperations: boolean;
+    directCampaignAccess: boolean;
+    selfManagedPayouts: boolean;
+    advancedAnalytics: boolean;
   };
-  analytics: {
-    performanceMetrics: boolean;
-    revenueOptimization: boolean;
-    audienceInsights: boolean;
+  liaisonManager: {
+    publisherSupport: boolean;
+    onboardingAssistance: boolean;
+    disputeResolution: boolean;
+    performanceGuidance: boolean;
   };
+  // Support roles...
 }
 ```
 
-### 3. Landing Site (gametriggers.com)
+### 3. E2 Ad Exchange Portal (exchange.gametriggers.com)
 
-**Purpose**: Marketing, onboarding, and public information
+**Purpose**: Internal platform operations, campaign routing, and system management
+
+**Target Roles (6 roles):**
+- **Admin (Exchange)**: Internal workflow management, team coordination, escalation handling
+- **Platform Success Manager**: System optimization, pricing logic, platform configuration, uptime management
+- **Customer Success Manager**: Advertiser satisfaction, optimization feedback, cross-platform coordination
+- **Campaign Success Manager**: Campaign routing, inventory matching, performance oversight
+- **Support 1 (Exchange)**: Internal support queries, navigation assistance, FAQ management
+- **Support 2 (Exchange)**: Technical issue resolution, API troubleshooting, developer coordination
 
 **Primary Services:**
-- **Auth Service**: Brand registration (email/business), streamer OAuth registration redirect (Twitch/YouTube), initial onboarding
-- Static content delivery (marketing pages, documentation)
+- **Exchange Service**: Campaign routing, inventory management, pricing optimization, platform logic
+- **Admin Service**: System administration, user management, platform configuration
+- **Workflow Service**: Internal operational workflows, escalation management, process automation
+- **Analytics Service**: Platform-wide analytics, performance metrics, optimization insights
+- **Audit Service**: Compliance monitoring, activity logging, security oversight
 
 **Supporting Services:**
-- Minimal backend dependencies for optimal performance
-- CDN integration for static assets
+- All other services for monitoring and management purposes
+- Cross-portal coordination and oversight capabilities
+
+**Key Features by Role:**
+```typescript
+// E2 Exchange Portal Role-Based Features
+interface ExchangePortalFeatures {
+  adminExchange: {
+    internalWorkflows: boolean;
+    teamManagement: boolean;
+    escalationHandling: boolean;
+    processOptimization: boolean;
+  };
+  platformSuccessManager: {
+    systemOptimization: boolean;
+    pricingLogicConfig: boolean;
+    platformConfiguration: boolean;
+    uptimeManagement: boolean;
+    tokenConversionRules: boolean;
+  };
+  customerSuccessManager: {
+    advertiserSatisfaction: boolean;
+    optimizationFeedback: boolean;
+    crossPlatformCoordination: boolean;
+    relationshipManagement: boolean;
+  };
+  campaignSuccessManager: {
+    campaignRouting: boolean;
+    inventoryMatching: boolean;
+    performanceOversight: boolean;
+    analyticsGeneration: boolean;
+  };
+  // Support roles...
+}
+```
+
+### 4. Landing Site (gametriggers.com)
+
+**Purpose**: Public marketing, role-based onboarding, and information portal
+
+**Target Users:** General public, prospective users seeking role-specific information
+
+**Primary Services:**
+- **Auth Service**: Role-based registration flows, initial portal routing
+- Static content delivery with role-specific information
 
 **Key Features:**
 ```typescript
-// Landing Site Feature Set
+// Landing Site Features
 interface LandingSiteFeatures {
   marketing: {
-    productOverview: boolean;
-    pricing: boolean;
+    brandPortalOverview: boolean;
+    publisherPortalOverview: boolean;
+    exchangePortalInfo: boolean;
+    roleBasedPricing: boolean;
     testimonials: boolean;
-    caseStudies: boolean;
   };
   onboarding: {
-    userRegistration: boolean;
-    roleSelection: boolean;
-    initialSetup: boolean;
+    roleBasedRegistration: boolean;
+    portalSelection: boolean;
+    organizationSetup: boolean;
+    initialRoleAssignment: boolean;
   };
-  support: {
-    documentation: boolean;
-    faq: boolean;
-    contactForms: boolean;
-  };
-}
-```
-
-### 4. Admin Portal (admin.gametriggers.com)
-
-**Purpose**: Platform administration, monitoring, and compliance
-
-**Primary Services:**
-- **Admin Service**: Platform configuration, user management, system controls
-- **Audit Service**: Compliance tracking, activity logs, security monitoring
-
-**Monitoring Access to All Services:**
-- **Auth Service**: User account management
-- **Brand Service**: Brand verification, moderation
-- **Streamer Service**: Streamer verification, platform compliance
-- **Campaign Service**: Content moderation, policy enforcement
-- **Analytics Service**: Platform-wide metrics
-- **Payment Service**: Financial oversight, fraud detection
-- **All other services**: Health monitoring, performance metrics
-
-**Key Features:**
-```typescript
-// Admin Portal Feature Set
-interface AdminPortalFeatures {
-  userManagement: {
-    search: boolean;
-    verification: boolean;
-    suspension: boolean;
-    roleManagement: boolean;
-  };
-  contentModeration: {
-    campaignReview: boolean;
-    assetApproval: boolean;
-    policyEnforcement: boolean;
-  };
-  systemMonitoring: {
-    serviceHealth: boolean;
-    performanceMetrics: boolean;
-    alertManagement: boolean;
-  };
-  compliance: {
-    auditLogs: boolean;
-    reportGeneration: boolean;
-    dataManagement: boolean;
+  information: {
+    roleDocumentation: boolean;
+    featureComparison: boolean;
+    pricingTiers: boolean;
+    supportResources: boolean;
   };
 }
 ```
 
-## Enhanced API Gateway with Eureka Role-Based Routing
+## Cross-Portal Super Admin Access
 
-### Role-Aware Service Discovery & Routing
+**Super Admin Role**: Unrestricted access across all three portals (E1, E2, E3)
+
+**Capabilities:**
+- Full read/write/delete permissions on all entities
+- Cross-portal user management and role transitions  
+- Override capabilities for any workflow or approval process
+- Global platform configuration and emergency controls
+- Complete audit trail access and compliance management
+- System-wide monitoring and health oversight
+
+## Enhanced API Gateway Routing Strategy
+
+### Role-Based Route Discovery
 ```yaml
-# Enhanced API Gateway with Role-Based Access Control
+# API Gateway Routing Configuration with RBAC
 routes:
-  # Authentication routes (portal-specific auth methods)
-  "/api/auth/brand/*": 
+  # Authentication routes (all portals, role-aware)
+  "/api/auth/*": 
     service: auth-service
-    method: 'email_registration'
-    roles: ['all_brand_roles']
-    features: ['role_assignment', 'organization_context']
-    
-  "/api/auth/streamer/*": 
-    service: auth-service
-    method: 'oauth_only'
-    providers: ['twitch', 'youtube']
-    roles: ['all_streamer_roles']
-    features: ['oauth_integration', 'agency_context']
-    
-  "/api/auth/admin/*": 
-    service: auth-service
-    method: 'invitation_only'
-    roles: ['all_admin_roles']
-    features: ['cross_portal_access', 'escalation_management']
+    rbac: role-based-session-management
   
-  # E1 Brand Portal Routes (Role-Filtered)
-  "/api/e1/brands/*": 
+  # E1 Brand Portal specific routes
+  "/api/brands/*": 
     service: brand-service
-    roles: ['marketing_head', 'campaign_manager', 'finance_manager', 'validator_approver', 'campaign_consultant', 'sales_representative', 'brand_support_2', 'brand_support_1']
-    features: ['organization_management', 'team_collaboration']
+    allowed_roles: [marketing_head, campaign_manager, admin_brand, sales_rep, consultant, validator, finance_manager, support_1_brand, support_2_brand]
     
-  "/api/e1/campaigns/*": 
+  "/api/campaigns/*": 
     service: campaign-service
-    roles: ['marketing_head', 'campaign_manager', 'validator_approver', 'campaign_consultant']
-    features: ['approval_workflow', 'budget_control', 'role_based_creation']
+    allowed_roles: [marketing_head, campaign_manager, validator_approver, consultant]
     
-  "/api/e1/uploads/*": 
+  "/api/organizations/*": 
+    service: organization-service
+    allowed_roles: [marketing_head, admin_brand, super_admin]
+    
+  "/api/uploads/*": 
     service: upload-service
-    roles: ['marketing_head', 'campaign_manager', 'campaign_consultant']
-    features: ['role_based_approval', 'team_asset_sharing']
+    allowed_roles: [campaign_manager, marketing_head]
     
-  # E3 Streamer Portal Routes (Agency-Aware)
-  "/api/e3/streamers/*": 
-    service: streamer-service
-    roles: ['organization_head', 'artiste_manager', 'independent_streamer', 'publisher', 'finance_wallet_manager', 'liaison_manager']
-    features: ['agency_management', 'creator_hierarchy']
+  "/api/workflows/brand/*": 
+    service: workflow-service
+    allowed_roles: [validator_approver, marketing_head, admin_brand]
+  
+  # E3 Publisher Portal specific routes
+  "/api/publishers/*": 
+    service: publisher-service
+    allowed_roles: [artiste_manager, streamer_individual, independent_publisher, liaison_manager, support_1_publisher, support_2_publisher]
     
-  "/api/e3/overlay/*": 
+  "/api/overlay/*": 
     service: overlay-service
-    roles: ['independent_streamer', 'publisher', 'artiste_manager', 'organization_head']
-    features: ['agency_branding', 'individual_customization']
+    allowed_roles: [streamer_individual, independent_publisher, artiste_manager]
     
-  "/api/e3/wallet/*": 
+  "/api/participation/*": 
+    service: participation-service
+    allowed_roles: [streamer_individual, independent_publisher, artiste_manager]
+    
+  "/api/wallet/*": 
     service: wallet-service
-    roles: ['independent_streamer', 'publisher', 'finance_wallet_manager', 'organization_head']
-    features: ['hierarchical_earnings', 'agency_payouts']
+    allowed_roles: [streamer_individual, independent_publisher, artiste_manager, liaison_manager]
+  
+  # E2 Exchange Portal specific routes
+  "/api/exchange/*": 
+    service: exchange-service
+    allowed_roles: [admin_exchange, platform_success_manager, customer_success_manager, campaign_success_manager, support_1_exchange, support_2_exchange]
     
-  # E2 Admin Portal Routes (Cross-Portal Access)
-  "/api/e2/admin/*": 
+  "/api/admin/*": 
     service: admin-service
-    roles: ['super_admin', 'admin', 'platform_success_manager', 'customer_success_manager', 'campaign_success_manager']
-    features: ['cross_portal_oversight', 'system_configuration']
+    allowed_roles: [admin_exchange, platform_success_manager, super_admin]
     
-  "/api/e2/audit/*": 
+  "/api/audit/*": 
     service: audit-service
-    roles: ['super_admin', 'admin']
-    features: ['compliance_reporting', 'role_based_audit_access']
-    
-  # Cross-Portal Routes (Context-Aware)
-  "/api/analytics/*": 
-    service: analytics-service
-    roles: ['all_with_context']
-    features: ['role_filtered_data', 'organizational_analytics']
-    
+    allowed_roles: [super_admin, admin_exchange]
+  
+  # Shared routes (role-contextual access)
   "/api/payments/*": 
     service: payment-service
-    roles: ['finance_manager', 'marketing_head', 'finance_wallet_manager', 'organization_head', 'super_admin']
-    features: ['role_based_financial_access']
+    context_based: true # Access varies by role context
+    
+  "/api/notifications/*": 
+    service: notification-service
+    context_based: true
+    
+  "/api/analytics/*": 
+    service: analytics-service
+    context_based: true # Different data access per role
+
+  # Super Admin routes (cross-portal access)
+  "/api/super-admin/*":
+    service: admin-service
+    allowed_roles: [super_admin]
+    cross_portal: true
 ```
 
-### Enhanced Authentication & Authorization Flow with Eureka Roles
+### Enhanced Authentication & Authorization Flow
 ```mermaid
 sequenceDiagram
-    participant Portal as Frontend Portal (E1/E2/E3)
-    participant Gateway as API Gateway + Role Guard
-    participant Auth as Auth Service + RBAC
-    participant Service as Target Microservice
-    participant OrgService as Organization Service
-    
-    Portal->>Gateway: Request with JWT + Portal Context
-    Gateway->>Auth: Validate JWT + Extract Role & Organization
-    Auth->>Gateway: User Context + Role + Organization + Permissions
-    Gateway->>Gateway: Check Route Access Permissions
-    alt Role Has Access
-        Gateway->>OrgService: Get Organization Context (if applicable)
-        OrgService->>Gateway: Organization Permissions & Restrictions
-        Gateway->>Service: Forwarded Request + Full Context
-        Service->>Service: Apply Role-Based Business Logic
-        Service->>Gateway: Filtered Response Based on Role
-        Gateway->>Portal: Response
-    else Role Lacks Access
-        Gateway->>Portal: 403 Forbidden + Role Info
-    end
-```
-
-### Role-Based Middleware Pipeline
-```typescript
-// Enhanced API Gateway Middleware with Eureka Roles
-interface RouteConfiguration {
-  service: string;
-  allowedRoles: UserRole[];
-  requiredPermissions: string[];
-  organizationContext?: 'required' | 'optional' | 'none';
-  crossPortalAccess?: boolean;
-  authenticationMethod?: 'jwt' | 'oauth' | 'session' | 'invitation';
-  oauthProviders?: ['twitch', 'youtube']; // For E3 streamer portal only
-}
-
-// Middleware Pipeline with Authentication Method Detection
-const middlewarePipeline = [
-  // 1. Authentication Method Detection
-  authenticationMethodDetection, // Detects OAuth tokens vs JWT tokens vs session-based
-  
-  // 2. JWT/OAuth Token Validation
-  tokenValidation, // Validates JWT for brands/admin, OAuth tokens for streamers
-  
-  // 3. Role Extraction & Validation
-  roleExtraction,
-  
-  // 4. Organization Context Loading
-  organizationContextLoader,
-  
-  // 4. Permission Resolution (Role + Organization)
-  permissionResolver,
-  
-  // 5. Route-Specific Access Control
-  routeAccessControl,
-  
-  // 6. Request Context Enhancement
-  requestContextEnhancement,
-  
-  // 7. Service Forwarding
-  serviceForwarding
-];
-
-// Role-Based Route Access Control
-class RoleBasedRouteGuard {
-  checkAccess(
-    userRole: UserRole,
-    organizationId: string,
-    route: string,
-    method: string
-  ): boolean {
-    const routeConfig = this.getRouteConfiguration(route);
-    
-    // Check basic role access
-    if (!routeConfig.allowedRoles.includes(userRole)) {
-      return false;
-    }
-    
-    // Super Admin bypass
-    if (userRole === UserRole.SUPER_ADMIN) {
-      return true;
-    }
-    
-    // Check specific permissions
-    return this.checkPermissions(
-      userRole,
-      organizationId,
-      routeConfig.requiredPermissions
-    );
-  }
-  
-  private checkPermissions(
-    role: UserRole,
-    orgId: string,
-    requiredPermissions: string[]
-  ): boolean {
-    const effectivePermissions = this.getEffectivePermissions(role, orgId);
-    return requiredPermissions.every(permission =>
-      this.hasPermission(effectivePermissions, permission)
-    );
-  }
-}
-```
+    participant Portal as Frontend Portal
     participant Gateway as API Gateway
     participant Auth as Auth Service
+    participant RBAC as Role Engine
     participant Service as Target Service
     
-    Portal->>Gateway: Request with JWT
+    Portal->>Gateway: Request with JWT + Portal Context
     Gateway->>Auth: Validate JWT
-    Auth->>Gateway: User context + permissions
-    Gateway->>Service: Forwarded request + context
-    Service->>Gateway: Response
+    Auth->>RBAC: Get role permissions + portal access
+    RBAC->>Gateway: Role context + permissions
+    Note over Gateway: Route validation based on role
+    Gateway->>Service: Forwarded request + role context
+    Service->>Service: Role-based business logic
+    Service->>Gateway: Role-filtered response
     Gateway->>Portal: Response
 ```
 
-## Database Distribution Strategy
+## Enhanced Database Distribution Strategy
 
-### Service-Specific Database Assignments
+### Service-Specific Database Assignments with RBAC
 
 **MongoDB Clusters:**
 ```yaml
-# Primary MongoDB cluster for document-based data
-users_cluster:
-  services: [auth-service, brand-service, streamer-service]
-  collections: [users, brands, streamers, oauth_tokens]
+# Primary MongoDB cluster for RBAC and document-based data
+auth_rbac_cluster:
+  services: [auth-service, organization-service]
+  collections: [users, roles, permissions, organizations, oauth_tokens, sessions]
+  
+users_profiles_cluster:
+  services: [brand-service, publisher-service]
+  collections: [brands, publishers, profiles, integrations, preferences]
 
-campaigns_cluster:
-  services: [campaign-service, participation-service, upload-service]
-  collections: [campaigns, participations, assets, targeting_rules]
+campaigns_workflows_cluster:
+  services: [campaign-service, workflow-service, participation-service, upload-service]
+  collections: [campaigns, participations, workflows, assets, targeting_rules, approvals]
 
-overlay_cluster:
-  services: [overlay-service, notification-service]
-  collections: [overlay_configs, notifications, real_time_data]
+overlay_realtime_cluster:
+  services: [overlay-service, notification-service, exchange-service]
+  collections: [overlay_configs, notifications, real_time_data, routing_rules, pricing_logic]
 ```
 
 **PostgreSQL Instances:**
 ```yaml
-# Relational data requiring ACID compliance
-analytics_db:
+# Relational data requiring ACID compliance and complex queries
+analytics_reporting_db:
   service: analytics-service
-  tables: [events, metrics, aggregations, reports]
+  tables: [events, metrics, aggregations, reports, role_based_views]
+  partitioning: by_portal_and_date
 
-payments_db:
+financial_transactions_db:
   service: payment-service
-  tables: [transactions, invoices, payouts, financial_records]
+  tables: [transactions, invoices, payouts, financial_records, budget_controls, approval_chains]
+  compliance: PCI_DSS, audit_ready
 
-admin_db:
+admin_audit_db:
   service: admin-service, audit-service
-  tables: [audit_logs, system_configs, admin_actions]
+  tables: [audit_logs, system_configs, admin_actions, compliance_reports, security_events]
+  retention: 7_years
 ```
 
 **Redis Instances:**
 ```yaml
-# Caching and real-time data
-session_cache:
+# Caching and real-time data with role-based partitioning
+session_auth_cache:
   services: [auth-service, api-gateway]
-  data: [sessions, jwt_tokens, rate_limits]
+  data: [sessions, jwt_tokens, role_permissions, rate_limits]
+  ttl: role_based_expiration
 
-overlay_cache:
-  services: [overlay-service, analytics-service]
-  data: [real_time_metrics, active_campaigns, delivery_queue]
+overlay_delivery_cache:
+  services: [overlay-service, analytics-service, exchange-service]  
+  data: [real_time_metrics, active_campaigns, delivery_queue, routing_decisions]
+  ttl: seconds_to_minutes
+
+workflow_state_cache:
+  services: [workflow-service, organization-service]
+  data: [approval_states, pending_workflows, escalation_queues, notification_queues]
+  ttl: hours_to_days
 ```
 
-## Deployment Strategy
+## Enhanced Deployment Strategy
 
-### Container Orchestration
+### Container Orchestration with Role-Based Services
 ```yaml
-# Kubernetes deployment strategy
+# Kubernetes deployment strategy for Eureka RBAC
 namespaces:
-  frontend:
-    - brand-portal
-    - streamer-portal
+  frontend_portals:
+    - e1-brand-portal
+    - e3-publisher-portal  
+    - e2-exchange-portal
     - landing-site
-    - admin-portal
   
-  backend:
+  core_services:
     - auth-service
+    - organization-service
+    - workflow-service
+    
+  business_services:
     - brand-service
-    - streamer-service
+    - publisher-service
     - campaign-service
     - analytics-service
     - payment-service
+    
+  platform_services:
+    - exchange-service
     - overlay-service
+    - upload-service
     - admin-service
   
   infrastructure:
     - api-gateway
     - event-bus
     - monitoring
+    - rbac-engine
 ```
 
-### Service Dependencies
+### Enhanced Service Dependencies
 ```yaml
 startup_order:
   tier_1: [databases, redis, event-bus]
-  tier_2: [auth-service, admin-service]
-  tier_3: [brand-service, streamer-service, payment-service]
-  tier_4: [campaign-service, overlay-service, analytics-service]
-  tier_5: [api-gateway]
-  tier_6: [frontend-portals]
+  tier_2: [auth-service, rbac-engine]
+  tier_3: [organization-service, admin-service]  
+  tier_4: [brand-service, publisher-service, payment-service]
+  tier_5: [campaign-service, workflow-service, analytics-service]
+  tier_6: [exchange-service, overlay-service, upload-service]
+  tier_7: [api-gateway-with-rbac]
+  tier_8: [frontend-portals]
 ```
 
-## Monitoring & Observability
+## Enhanced Monitoring & Observability
 
-### Service Health Monitoring
+### Role-Based Service Health Monitoring
 ```typescript
-interface ServiceHealthMetrics {
-  auth: HealthCheck;
+interface EurekaServiceHealthMetrics {
+  // Core RBAC Services
+  auth: RBACHealthCheck;
+  organization: HealthCheck;
+  workflow: HealthCheck;
+  
+  // Portal-Specific Services  
   brand: HealthCheck;
-  streamer: HealthCheck;
+  publisher: HealthCheck;
+  exchange: HealthCheck;
+  
+  // Business Services
   campaign: HealthCheck;
   analytics: HealthCheck;
   payment: HealthCheck;
   overlay: HealthCheck;
+  
+  // Platform Services
   admin: HealthCheck;
+  audit: HealthCheck;
+  upload: HealthCheck;
+}
+
+interface RBACHealthCheck extends HealthCheck {
+  roleValidationLatency: number;
+  permissionCheckLatency: number;
+  activeRoleSessions: number;
+  failedRoleChecks: number;
 }
 
 interface PortalHealthMetrics {
-  brandPortal: FrontendHealth;
-  streamerPortal: FrontendHealth;
+  e1BrandPortal: FrontendHealth;
+  e3PublisherPortal: FrontendHealth;
+  e2ExchangePortal: FrontendHealth;
   landingSite: FrontendHealth;
-  adminPortal: FrontendHealth;
 }
 ```
 
-### Cross-Service Tracing
-- Request tracing across service boundaries
-- Performance monitoring for each portal
-- Error tracking and alerting
-- Service dependency mapping
+### Role-Based Audit Trail Monitoring
+```typescript
+interface RoleBasedAuditMetrics {
+  // Per-role activity tracking
+  roleActivity: {
+    [key in EurekaRole]: {
+      sessionsActive: number;
+      actionsPerformed: number;
+      permissionViolations: number;
+      averageSessionDuration: number;
+    }
+  };
+  
+  // Cross-portal activity
+  crossPortalAccess: {
+    superAdminSessions: number;
+    portalSwitches: number;
+    crossPortalActions: number;
+  };
+  
+  // Workflow monitoring
+  workflowHealth: {
+    pendingApprovals: number;
+    averageApprovalTime: number;
+    escalationRate: number;
+    workflowCompletionRate: number;
+  };
+}
+```
 
-## Development Guidelines
+### Cross-Service Role Tracing
+- Role-based request tracing across service boundaries
+- Permission validation performance monitoring  
+- Role transition and workflow tracking
+- Cross-portal activity correlation
+- Hierarchical permission audit trails
 
-### Service Development Standards
-1. Each service maintains its own repository
-2. Independent deployment pipelines
-3. Shared TypeScript types via npm packages
-4. Common authentication middleware
-5. Standardized API response formats
+## Enhanced Development Guidelines
 
-### Portal Development Standards
-1. Shared component library (shadcn/ui)
-2. Common authentication hooks
-3. Standardized routing patterns
-4. Consistent error handling
-5. Performance monitoring integration
+### RBAC-Aware Service Development Standards
+1. **Role Validation**: Each service validates incoming role context
+2. **Permission Checking**: Granular permission validation at method level  
+3. **Audit Logging**: All role-based actions logged with context
+4. **Workflow Integration**: Services participate in approval workflows
+5. **Cross-Portal Awareness**: Services handle multi-portal role scenarios
 
-This mapping ensures clear separation of concerns while maintaining efficient communication between services and optimal user experiences across all portals.
+### Portal Development Standards with RBAC
+1. **Role-Based Components**: UI components adapt based on user roles
+2. **Permission Gates**: Render control based on granular permissions
+3. **Portal Context**: Maintain portal-specific user context
+4. **Role Transition**: Support for users with multi-portal access
+5. **Workflow UX**: Integrated approval and workflow interfaces
+
+### Role-Based API Design Patterns
+```typescript
+// Example: Role-aware service method
+@Controller('campaigns')
+@UseGuards(RoleGuard)
+export class CampaignController {
+  
+  @Post()
+  @RequireRoles(EurekaRole.CAMPAIGN_MANAGER, EurekaRole.MARKETING_HEAD)
+  @RequirePermissions(Permission.CREATE_CAMPAIGN)
+  @RequirePortal(Portal.E1_BRAND)
+  async createCampaign(
+    @Body() dto: CreateCampaignDto,
+    @CurrentUser() user: RoleAwareUser
+  ) {
+    // Role-specific business logic
+    return this.campaignService.create(dto, user);
+  }
+  
+  @Put(':id/approve')
+  @RequireRoles(EurekaRole.VALIDATOR_APPROVER)
+  @RequireWorkflowPermission(WorkflowType.CAMPAIGN_APPROVAL)
+  async approveCampaign(
+    @Param('id') campaignId: string,
+    @CurrentUser() user: RoleAwareUser
+  ) {
+    return this.workflowService.approve(campaignId, user);
+  }
+}
+```
+
+This comprehensive mapping ensures the Eureka role-based access control system is properly integrated across all microservices and portals, providing secure, scalable, and maintainable access control for the entire Gametriggers platform.
