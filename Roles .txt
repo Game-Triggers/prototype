@@ -57,13 +57,9 @@ Eureka E3 (Eureka 3 means Streamer side protal)
 	Independent              Same as above, but not under any org/agency, Manages their own campaigns and payouts directly
 	Super Admin              Full system control including payout approvals, and overriding campaign allocations, Can suspend publishers or orgs based on violation or can delete a profile if needed.
 
-	Organisation / Agency Head Onboards and manages Artiste Managers under their org (e.g., eSports teams, agencies), Oversees publisher performance- Reviews earnings and analytics for the full group
-	Admin                    Manages publisher group accounts, control including payout approvals, and overriding campaign allocations, Cannot delete orgs but can manage account status, Can assign roles.
-
 	Artiste Manager          Recruits and manages Publishers (streamers, content creators), Monitors campaign performance per publisher, Coordinates onboarding and campaign bidding
-	Finance / Wallet Manager Tracks and verifies publisher Glo/Blo coin payouts, Initiates and approves redemptions (bank transfer, gift cards), Resolves wallet-related disputes
 
-	Publishers (Individual)  Bids and runs campaigns, Connects platform accounts (YouTube, Twitch, etc.), Uploads content and submits analytics, Can operate as solo publishers or under agencies
+	Streamer (Individual)  Bids and runs campaigns, Connects platform accounts (YouTube, Twitch, etc.), Uploads content and submits analytics, Can operate as solo publishers or under agencies
 	Liaison Manager          Supports Artiste Managers in publisher onboarding, assists with onboarding and dispute resolution, Tracks performance and suggests campaign opportunities, Flags issues or misconduct for internal review
 
 	Support 2                Investigates complex issues by coordinating with finance, and technical teams. Handles escalated cases such as failed redemptions, data mismatches, or unresolved support 1 queries. Ensures resolving of the problem with minimal dependency on repeated user inputs, aiming for one-time resolution. Escalates unresolved cases to the Platform Success Manager (Support 3) for final decision-making.
