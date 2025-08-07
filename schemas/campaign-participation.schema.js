@@ -27,6 +27,16 @@ const campaignParticipationSchema = new mongoose_1.Schema({
     browserSourceUrl: { type: String, required: true },
     browserSourceToken: { type: String, required: true },
     joinedAt: { type: Date, default: Date.now },
+    leftAt: { type: Date },
+    pausedAt: { type: Date },
+    resumedAt: { type: Date },
+    removedAt: { type: Date },
+    removedBy: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User' },
+    removalReason: {
+        type: String,
+        enum: ['violation', 'fraud', 'admin_decision', 'brand_decision']
+    },
+    earningsForfeited: { type: Boolean, default: false },
     trackingUrl: { type: String },
     qrCodeUrl: { type: String },
     chatCommand: { type: String },
