@@ -26,6 +26,7 @@ const userSchema = new mongoose_1.Schema({
     category: [{ type: String }],
     language: [{ type: String }],
     description: { type: String },
+    isActive: { type: Boolean, default: true },
     overlaySettings: {
         position: { type: String, default: 'bottom-right' },
         size: { type: String, default: 'medium' },

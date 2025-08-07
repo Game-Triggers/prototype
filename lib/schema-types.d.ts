@@ -23,7 +23,10 @@ export declare enum ParticipationStatus {
     ACTIVE = "active",
     PAUSED = "paused",
     REJECTED = "rejected",
-    COMPLETED = "completed"
+    COMPLETED = "completed",
+    LEFT_EARLY = "left_early",
+    REMOVED = "removed",
+    PARTICIPATION_PAUSED = "participation_paused"
 }
 export interface IUserData {
     _id?: string;
@@ -93,6 +96,13 @@ export interface ICampaignParticipationData {
     browserSourceUrl: string;
     browserSourceToken: string;
     joinedAt: Date;
+    leftAt?: Date;
+    pausedAt?: Date;
+    resumedAt?: Date;
+    removedAt?: Date;
+    removedBy?: string;
+    removalReason?: 'violation' | 'fraud' | 'admin_decision' | 'brand_decision';
+    earningsForfeited?: boolean;
     trackingUrl?: string;
     qrCodeUrl?: string;
     chatCommand?: string;

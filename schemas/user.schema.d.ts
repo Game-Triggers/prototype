@@ -4,6 +4,7 @@ export { UserRole, AuthProvider };
 import { IUserDocument } from '../backend/src/types/mongoose-helpers';
 export interface IUser extends IUserDocument {
     password?: string;
+    isActive?: boolean;
     overlaySettings?: {
         position?: string;
         size?: string;
@@ -45,9 +46,9 @@ export declare const UserSchema: Schema<IUser, Model<IUser, any, any, any, impor
 }> & {
     __v: number;
 }>;
-export declare function getUserModel(): Model<IUser>;
+export declare function getUserModel(): Model<IUser> | null;
 export declare const User: Model<IUser, {}, {}, {}, import("mongoose").Document<unknown, {}, IUser> & IUser & Required<{
     _id: import("mongoose").Types.ObjectId;
 }> & {
     __v: number;
-}, any>;
+}, any> | null;
