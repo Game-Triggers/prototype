@@ -56,3 +56,96 @@ export async function GET() {
         );
     }
 }
+
+/**
+ * Proxy handler for updating user profile to the NestJS backend
+ * Handles PUT /api/user/profile
+ */
+export async function PUT(request: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    // Parse incoming update and only forward allowed fields (typed)
+    const body = await request.json();
+    type UpdatePayload = {
+      name?: string;
+      channelUrl?: string;
+      category?: string[];
+      language?: string[];
+      description?: string;
+    };
+    const updatePayload: UpdatePayload = {};
+    if (typeof body?.name === "string") updatePayload.name = body.name;
+    if (typeof body?.channelUrl === "string") updatePayload.channelUrl = body.channelUrl;
+    if (Array.isArray(body?.category)) updatePayload.category = body.category as string[];
+    if (Array.isArray(body?.language)) updatePayload.language = body.language as string[];
+    if (typeof body?.description === "string") updatePayload.description = body.description;
+
+    // Determine user id from session, fallback to /users/me
+    const sessUser = session.user as Partial<{ id: string; _id: string; role: string }>;
+    let userId = sessUser.id || sessUser._id;
+    if (!userId) {
+      const meResp = await fetch(`${API_URL}/users/me`, {
+        headers: { Authorization: `Bearer ${session.accessToken}` },
+        cache: "no-store",
+      });
+      if (!meResp.ok) {
+        const t = await meResp.text();
+        return NextResponse.json(
+          { error: "Failed to resolve current user id", message: t },
+          { status: meResp.status }
+        );
+      }
+      const me = await meResp.json();
+      userId = me?._id || me?.id;
+    }
+
+    if (!userId) {
+      return NextResponse.json(
+        { error: "User id not found in session or backend" },
+        { status: 400 }
+      );
+    }
+
+    // Forward update to backend
+    const putResp = await fetch(`${API_URL}/users/${userId}`, {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${session.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(updatePayload),
+    });
+
+    if (!putResp.ok) {
+      const errorText = await putResp.text();
+      return NextResponse.json(
+        { error: "Failed to update profile", message: errorText },
+        { status: putResp.status }
+      );
+    }
+
+    // Return fresh profile from backend for consistency
+    const refreshed = await fetch(`${API_URL}/users/me`, {
+      headers: { Authorization: `Bearer ${session.accessToken}` },
+      cache: "no-store",
+    });
+
+    if (!refreshed.ok) {
+      const updatedFallback = await putResp.json().catch(() => ({}));
+      return NextResponse.json({ ...updatedFallback, role: sessUser.role || "unknown" });
+    }
+
+    const profileData = await refreshed.json();
+    return NextResponse.json({ ...profileData, role: sessUser.role || "unknown" });
+  } catch (error) {
+    console.error("Error proxying PUT /users/:id:", error);
+    return NextResponse.json(
+      { error: "Error processing profile update", message: error instanceof Error ? error.message : String(error) },
+      { status: 500 }
+    );
+  }
+}
