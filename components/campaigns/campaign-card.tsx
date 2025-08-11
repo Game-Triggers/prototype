@@ -1,9 +1,9 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { UserRole } from "@/schemas/user.schema";
 import {
   LucideIcon,
   Gamepad2,
@@ -46,11 +46,9 @@ export const categoryIcons: Record<string, LucideIcon> = {
 
 interface CampaignCardProps {
   campaign: Campaign;
-  userRole: string;
-  onJoin: (campaignId: string) => void;
 }
 
-export function CampaignCard({ campaign, userRole, onJoin }: CampaignCardProps) {
+export function CampaignCard({ campaign }: CampaignCardProps) {
   const CategoryIcon = campaign.categories[0] && categoryIcons[campaign.categories[0].toLowerCase()] 
     ? categoryIcons[campaign.categories[0].toLowerCase()] 
     : ShoppingBag;
@@ -139,32 +137,13 @@ export function CampaignCard({ campaign, userRole, onJoin }: CampaignCardProps) 
               Budget: {formatCurrency(campaign.remainingBudget)} / {formatCurrency(campaign.budget)}
             </span>
           </div>
-          {userRole === UserRole.STREAMER ? (
-            campaign.participationStatus === 'active' ? (
-              <Button 
-                className="w-full" 
-                variant="secondary"
-                disabled
-              >
-                Currently Joined
-              </Button>
-            ) : (
-              <Button 
-                className="w-full" 
-                onClick={() => onJoin(campaign.id)}
-              >
-                Join Campaign
-              </Button>
-            )
-          ) : (
-            <Button 
-              className="w-full" 
-              variant="outline"
-              asChild
-            >
-              <a href={`/dashboard/campaigns/${campaign.id}`}>View Details</a>
-            </Button>
-          )}
+          <Button 
+            className="w-full" 
+            variant="outline"
+            asChild
+          >
+            <Link href={`/dashboard/campaigns/${campaign.id}`}>View Details</Link>
+          </Button>
         </div>
       </div>
     </Card>

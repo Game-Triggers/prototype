@@ -135,72 +135,6 @@ export function CampaignsContent() {
     }
   }, [userRole, session, status]);
 
-  const handleJoinCampaign = async (campaignId: string) => {
-    try {
-      // Get the campaign from our state
-      const campaign = campaigns.find(c => c.id === campaignId);
-      
-      // Check if the user has already joined this campaign
-      if (campaign?.participationStatus === 'active') {
-        alert('You have already joined this campaign.');
-        return;
-      }
-      
-      console.log(`Joining campaign with ID: ${campaignId}`);
-      
-      // Call the API to join the campaign
-      const response = await fetch('/api/campaigns/join', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ campaignId }),
-      });
-      
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Failed to join campaign:', errorData);
-        alert(`Error: ${errorData.message || 'Failed to join campaign'}`);
-        return;
-      }
-      
-      const data = await response.json();
-      console.log('Successfully joined campaign:', data);
-      
-      // Show success message
-      alert('Successfully joined campaign! You can now set up your overlay in the dashboard.');
-        // Refresh campaigns list to update UI
-      const updatedCampaigns = campaigns.map(campaign => {
-        if (campaign.id === campaignId) {
-          return { 
-            ...campaign, 
-            // Update activeStreamers count if defined
-            activeStreamers: campaign.activeStreamers !== undefined ? campaign.activeStreamers + 1 : undefined,
-            // Set participation status to active
-            participationStatus: 'active'
-          };
-        }
-        return campaign;
-      });
-      
-      setCampaigns(updatedCampaigns);    } catch (error) {
-      console.error('Error joining campaign:', error);
-      
-      // Provide a more user-friendly error message
-      let errorMessage = 'An error occurred while joining the campaign.';
-      
-      if (error instanceof Error) {
-        if (error.message.includes('streamerId')) {
-          errorMessage = 'There was an issue with your user account. Please try signing out and signing back in.';
-        } else {
-          errorMessage = error.message;
-        }
-      }
-      
-      alert(`Unable to join campaign: ${errorMessage}`);
-    }
-  }
-
   const handleFilterChange = (newFilter: string) => {
     setFilter(newFilter);
   };
@@ -289,8 +223,6 @@ export function CampaignsContent() {
             <CampaignCard 
               key={campaign.id} 
               campaign={campaign} 
-              userRole={userRole || ''}
-              onJoin={handleJoinCampaign}
             />
           ))}
         </div>

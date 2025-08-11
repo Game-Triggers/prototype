@@ -13,7 +13,7 @@ interface UserType {
   image?: string;
   role?: string;
 }
-
+ 
 interface TopNavProps {
   toggleSidebar: () => void;
   user?: UserType;

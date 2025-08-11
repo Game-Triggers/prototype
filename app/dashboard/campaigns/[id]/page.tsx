@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter, useParams } from "next/navigation";
+import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -21,8 +21,8 @@ import {
   Pause,
   Play
 } from "lucide-react";
-import { formatCurrency, getCurrencyCode } from "@/lib/currency-config";
-import { CampaignStatus, MediaType } from "@/schemas/campaign.schema";
+import { formatCurrency } from "@/lib/currency-config";
+import { CampaignStatus } from "@/schemas/campaign.schema";
 import { UserRole } from "@/schemas/user.schema";
 
 interface Campaign {
@@ -61,7 +61,6 @@ interface Campaign {
 }
 
 export default function CampaignDetailPage() {
-  const router = useRouter();
   const { id } = useParams();
   const { data: session, status } = useSession();
   const [campaign, setCampaign] = useState<Campaign | null>(null);
@@ -70,6 +69,9 @@ export default function CampaignDetailPage() {
   const [isUpdating, setIsUpdating] = useState(false);
   const [updateSuccess, setUpdateSuccess] = useState(false);
   const [updateError, setUpdateError] = useState<string | null>(null);
+  const [joinLoading, setJoinLoading] = useState(false);
+  const [joinError, setJoinError] = useState<string | null>(null);
+  const [joinSuccess, setJoinSuccess] = useState(false);
 
   const userRole = session?.user?.role;
   const userCanEdit = userRole === UserRole.BRAND || userRole === UserRole.ADMIN;
@@ -99,7 +101,15 @@ export default function CampaignDetailPage() {
         console.log('Fetched campaign data:', campaignData);
         
         // Try to fetch advanced analytics for this campaign if active
-        let advancedMetrics = {};
+        type AdvancedMetrics = {
+          viewerImpressions?: number;
+          chatClicks?: number;
+          qrScans?: number;
+          linkClicks?: number;
+          totalClicks?: number;
+          viewerEngagementRate?: number;
+        };
+        let advancedMetrics: AdvancedMetrics = {};
         if (campaignData.status === 'active') {
           try {
             const metricsResponse = await fetch(`/api/analytics/advanced?campaignId=${id}`, {
@@ -191,16 +201,16 @@ export default function CampaignDetailPage() {
         throw new Error(errorData.message || `Failed to update campaign status: ${response.status}`);
       }
       
-      const updatedCampaign = await response.json();
+      await response.json();
       
       // Update local state with new campaign data
-      setCampaign(prev => {
-        if (!prev) return null;
-        return {
-          ...prev,
-          status: newStatus,
-        };
-      });
+      setCampaign((prev): Campaign | null => {
+         if (!prev) return null;
+         return {
+           ...prev,
+           status: String(newStatus) as Campaign['status'],
+         };
+       });
       
       setUpdateSuccess(true);
       
@@ -226,6 +236,31 @@ export default function CampaignDetailPage() {
 
   const handleResumeCampaign = () => {
     updateCampaignStatus(CampaignStatus.ACTIVE);
+  };
+
+  const handleJoinCampaign = async () => {
+    if (!id) return;
+    try {
+      setJoinLoading(true);
+      setJoinError(null);
+      setJoinSuccess(false);
+      const resp = await fetch('/api/campaigns/join', {
+         method: 'POST',
+         headers: { 'Content-Type': 'application/json' },
+         body: JSON.stringify({ campaignId: String(id) }),
+       });
+       if (!resp.ok) {
+        let data: { message?: string } = {};
+        try { data = await resp.json(); } catch {}
+        throw new Error(data?.message || 'Failed to join campaign');
+       }
+      setJoinSuccess(true);
+      setTimeout(() => setJoinSuccess(false), 3000);
+    } catch (e) {
+      setJoinError(e instanceof Error ? e.message : 'Failed to join campaign');
+    } finally {
+      setJoinLoading(false);
+    }
   };
 
   // Loading state
@@ -281,7 +316,7 @@ export default function CampaignDetailPage() {
         <div className="text-center py-12">
           <h3 className="text-lg font-semibold mb-2">Campaign Not Found</h3>
           <p className="text-muted-foreground">
-            The campaign you are looking for does not exist or you don't have permission to view it.
+            The campaign you are looking for does not exist or you don&apos;t have permission to view it.
           </p>
         </div>
       </div>
@@ -412,6 +447,19 @@ export default function CampaignDetailPage() {
         </div>
       )}
 
+      {joinSuccess && (
+        <div className="bg-green-50 border border-green-200 text-green-800 rounded-md p-4 flex items-start">
+          <CheckCircle2 className="h-5 w-5 mr-2 mt-0.5" />
+          <p className="text-sm">You have joined this campaign successfully.</p>
+        </div>
+      )}
+      {joinError && (
+        <div className="bg-red-50 border border-red-200 text-red-800 rounded-md p-4 flex items-start">
+          <AlertCircle className="h-5 w-5 mr-2 mt-0.5" />
+          <p className="text-sm">{joinError}</p>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Main campaign information */}
         <div className="lg:col-span-2 space-y-6">
@@ -512,7 +560,7 @@ export default function CampaignDetailPage() {
                     <p className="font-medium mb-2">Your campaign is currently in draft status</p>
                     <p className="text-muted-foreground">
                       This campaign is not yet visible to streamers. To make it available for streamers to join, 
-                      click the "Activate Campaign" button. Once activated, streamers will be able to discover and join your campaign.
+                      click the &quot;Activate Campaign&quot; button. Once activated, streamers will be able to discover and join your campaign.
                     </p>
                   </>
                 )}
@@ -542,7 +590,7 @@ export default function CampaignDetailPage() {
                     <p className="font-medium mb-2">Your campaign has been completed</p>
                     <p className="text-muted-foreground">
                       This campaign has run its course and is no longer active. You can view its performance metrics
-                      but can't modify or restart it.
+                      but can&apos;t modify or restart it.
                     </p>
                   </>
                 )}
@@ -716,6 +764,8 @@ export default function CampaignDetailPage() {
                 <>
                 <Button 
                   className="w-full justify-between"
+                  onClick={handleJoinCampaign}
+                  disabled={joinLoading}
                 >
                   Join Campaign
                   <ChevronRight className="h-4 w-4" />
