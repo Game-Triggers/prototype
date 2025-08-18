@@ -33,6 +33,10 @@ import {
   CampaignSelectionSettingsDto,
   CampaignSelectionSettingsResponseDto,
 } from './dto/campaign-selection-settings.dto';
+import {
+  EnergyPacksResponseDto,
+  ConsumeEnergyPackDto,
+} from './dto/energy-packs.dto';
 import { Request } from 'express';
 
 // Define the Request with user interface
@@ -361,5 +365,47 @@ export class UsersController {
       throw new UnauthorizedException('User ID is missing from authentication token');
     }
     return this.usersService.getStreakSummary(userId);
+  }
+
+  // Energy Pack endpoints
+  @Get('me/energy-packs')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current user energy packs' })
+  @ApiResponse({
+    status: 200,
+    description: 'Energy packs retrieved successfully',
+    type: EnergyPacksResponseDto,
+  })
+  async getEnergyPacks(@Req() req: RequestWithUser) {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new UnauthorizedException('User ID is missing from authentication token');
+    }
+    return this.usersService.getEnergyPacks(userId);
+  }
+
+  @Post('me/energy-packs/consume')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Consume one energy pack' })
+  @ApiBody({ type: ConsumeEnergyPackDto })
+  @ApiResponse({
+    status: 200,
+    description: 'Energy pack consumed successfully',
+    schema: {
+      example: {
+        success: true,
+        remaining: 9
+      }
+    }
+  })
+  @ApiResponse({ status: 400, description: 'No energy packs available' })
+  async consumeEnergyPack(@Req() req: RequestWithUser, @Body() dto: ConsumeEnergyPackDto) {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new UnauthorizedException('User ID is missing from authentication token');
+    }
+    return this.usersService.consumeEnergyPack(userId, dto.campaignId);
   }
 }

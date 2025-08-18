@@ -529,6 +529,16 @@ export class CampaignsService {
       throw new ForbiddenException('Only streamers can join campaigns');
     }
 
+    // ✅ NEW: Consume energy pack before joining campaign
+    try {
+      await this.usersService.consumeEnergyPack(streamerId, campaignId);
+    } catch (error) {
+      // If energy pack consumption fails, prevent campaign join
+      throw new BadRequestException(
+        error.message || 'Failed to consume energy pack. You need energy packs to join campaigns.'
+      );
+    }
+
     // Check if the streamer is already participating in this campaign
     const existingParticipation = await this.participationModel
       .findOne({ campaignId, streamerId })

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
+import { useEnergyPack } from "@/lib/contexts/energy-pack-context";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -63,6 +64,7 @@ interface Campaign {
 export default function CampaignDetailPage() {
   const { id } = useParams();
   const { data: session, status } = useSession();
+  const { decrementEnergyPack } = useEnergyPack();
   const [campaign, setCampaign] = useState<Campaign | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -271,6 +273,10 @@ export default function CampaignDetailPage() {
         try { data = await resp.json(); } catch {}
         throw new Error(data?.message || 'Failed to join campaign');
        }
+      
+      // Immediately update energy pack count for instant UI feedback
+      decrementEnergyPack();
+      
       setJoinSuccess(true);
       setTimeout(() => setJoinSuccess(false), 3000);
     } catch (e) {

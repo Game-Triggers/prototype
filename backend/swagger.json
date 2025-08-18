@@ -468,6 +468,76 @@
         ]
       }
     },
+    "/api/v1/users/me/energy-packs": {
+      "get": {
+        "operationId": "UsersController_getEnergyPacks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Energy packs retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EnergyPacksResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get current user energy packs",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/users/me/energy-packs/consume": {
+      "post": {
+        "operationId": "UsersController_consumeEnergyPack",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsumeEnergyPackDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Energy pack consumed successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "success": true,
+                    "remaining": 9
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "No energy packs available"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Consume one energy pack",
+        "tags": [
+          "users"
+        ]
+      }
+    },
     "/api/v1/auth/register": {
       "post": {
         "description": "Create a new user account with email/password or social provider",
@@ -4212,6 +4282,62 @@
         "required": [
           "campaignSelectionStrategy",
           "campaignRotationSettings"
+        ]
+      },
+      "EnergyPacksResponseDto": {
+        "type": "object",
+        "properties": {
+          "current": {
+            "type": "number",
+            "description": "Current available energy packs",
+            "example": 8
+          },
+          "maximum": {
+            "type": "number",
+            "description": "Maximum energy packs allowed",
+            "example": 10
+          },
+          "lastReset": {
+            "type": "string",
+            "description": "Last reset timestamp",
+            "example": "2025-08-18T00:00:00.000Z"
+          },
+          "dailyUsed": {
+            "type": "number",
+            "description": "Daily used energy packs",
+            "example": 2
+          },
+          "hoursUntilReset": {
+            "type": "number",
+            "description": "Hours until next reset",
+            "example": 18
+          },
+          "minutesUntilReset": {
+            "type": "number",
+            "description": "Minutes until next reset (within the hour)",
+            "example": 45
+          }
+        },
+        "required": [
+          "current",
+          "maximum",
+          "lastReset",
+          "dailyUsed",
+          "hoursUntilReset",
+          "minutesUntilReset"
+        ]
+      },
+      "ConsumeEnergyPackDto": {
+        "type": "object",
+        "properties": {
+          "campaignId": {
+            "type": "string",
+            "description": "Campaign ID that energy pack is being used for",
+            "example": "60d21b4667d0d8992e610c85"
+          }
+        },
+        "required": [
+          "campaignId"
         ]
       },
       "RegisterCredentialsDto": {

@@ -48,6 +48,14 @@ export interface IUser extends IUserDocument {
   streakLongest?: number;
   streakLastDate?: Date | null;
   streakHistory?: Date[]; // store unique UTC dates of activity (last ~60 days)
+  
+  // Energy Pack system for campaign joins
+  energyPacks?: {
+    current: number; // Current available energy packs
+    maximum: number; // Maximum energy packs (default 10)
+    lastReset: Date; // Last time energy packs were reset (24 hours)
+    dailyUsed: number; // How many used today
+  };
 }
 
 const userSchema = new Schema<IUser>(
@@ -116,6 +124,15 @@ const userSchema = new Schema<IUser>(
     streakLongest: { type: Number, default: 0 },
     streakLastDate: { type: Date, default: null },
     streakHistory: [{ type: Date }],
+    
+    // Energy Pack system for campaign joins
+    energyPacks: {
+      current: { type: Number, default: 10 }, // Start with full energy
+      maximum: { type: Number, default: 10 }, // Default maximum of 10
+      lastReset: { type: Date, default: Date.now }, // Initialize to current time
+      dailyUsed: { type: Number, default: 0 } // Track daily usage
+    },
+    
     // Test campaign data for overlay testing
     testCampaign: {
       title: { type: String },

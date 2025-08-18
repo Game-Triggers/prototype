@@ -7,6 +7,7 @@ import { signOut } from "next-auth/react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Bell, Menu, ChevronDown, LogOut, User as UserIcon, Settings } from "lucide-react";
 import StreakBadge from "@/components/ui/streak";
+import { EnergyPack } from "@/components/ui/energy-pack";
 
 interface UserType {
   name?: string;
@@ -59,6 +60,8 @@ export function TopNav({ toggleSidebar, user }: TopNavProps) {
               <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
             </button>
           </div>
+
+          <EnergyPack />
 
           <StreakBadge />
 

@@ -6,11 +6,34 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { UserRole } from "@/schemas/user.schema";
 import { PlusCircle, Filter, Search } from "lucide-react";
-import { CampaignCard, Campaign } from "./campaign-card";
+import { CampaignCard } from "@/components/ui/campaign-card";
+import { useEnergyPack } from "@/lib/contexts/energy-pack-context";
+
+// Define a type for our campaign data that matches the UI component
+interface Campaign {
+  id: string;
+  title: string;
+  description: string;
+  brandName?: string;
+  brandLogo?: string;
+  mediaUrl: string;
+  mediaType: 'image' | 'video';
+  budget: number;
+  remainingBudget: number;
+  paymentRate: number;
+  paymentType: 'cpm' | 'fixed';
+  categories: string[];
+  status: 'draft' | 'active' | 'paused' | 'completed';
+  activeStreamers?: number;
+  participationStatus?: string;
+  startDate: string;
+  endDate: string;
+}
 import { FilterBar } from "./filter-bar";
 
 export function CampaignsContent() {
   const { data: session, status } = useSession();
+  const { decrementEnergyPack } = useEnergyPack();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState("all");
@@ -78,6 +101,8 @@ export function CampaignsContent() {
               campaign.status as 'draft' | 'active' | 'paused' | 'completed' : 'draft',
             activeStreamers: typeof campaign.activeStreamers === 'number' ? campaign.activeStreamers : 0,
             participationStatus: campaign.participationStatus?.toString() || 'not_joined', // Default to 'not_joined'
+            startDate: campaign.startDate?.toString() || new Date().toISOString(),
+            endDate: campaign.endDate?.toString() || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(), // Default 30 days from now
           }));
           
           console.log('Formatted campaigns:', formattedCampaigns);
@@ -106,6 +131,8 @@ export function CampaignsContent() {
             status: 'active',
             activeStreamers: 12,
             participationStatus: 'active', // This campaign will show as already joined
+            startDate: new Date().toISOString(),
+            endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
           },
           {
             id: '2',
@@ -122,6 +149,8 @@ export function CampaignsContent() {
             status: 'active',
             activeStreamers: 8,
             participationStatus: '', // Not joined
+            startDate: new Date().toISOString(),
+            endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
           },
         ];
         setCampaigns(mockCampaigns);
@@ -143,6 +172,54 @@ export function CampaignsContent() {
     setSearchQuery(event.target.value);
   };
 
+  // Handle campaign actions
+  const handleCampaignAction = async (action: string, campaignId: string) => {
+    console.log(`Performing action: ${action} on campaign: ${campaignId}`);
+    
+    switch (action) {
+      case 'join':
+        try {
+          const response = await fetch('/api/campaigns/join', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ campaignId }),
+          });
+          
+          if (response.ok) {
+            console.log('Successfully joined campaign');
+            
+            // Immediately update energy pack count for instant UI feedback
+            decrementEnergyPack();
+            
+            // Refresh the campaigns list
+            if (status !== 'loading') {
+              setCampaigns(prev => 
+                prev.map(c => 
+                  c.id === campaignId 
+                    ? { ...c, participationStatus: 'active' }
+                    : c
+                )
+              );
+            }
+          } else {
+            const errorData = await response.json();
+            console.error('Failed to join campaign:', errorData);
+            alert(`Failed to join campaign: ${errorData.message || 'Unknown error'}`);
+          }
+        } catch (error) {
+          console.error('Error joining campaign:', error);
+          alert('Error joining campaign. Please try again.');
+        }
+        break;
+      
+      default:
+        console.log(`Action ${action} not implemented yet`);
+        break;
+    }
+  };
+
   // Apply filters to campaigns
   const filteredCampaigns = campaigns.filter(campaign => {
     // Filter by category
@@ -153,7 +230,7 @@ export function CampaignsContent() {
     const matchesSearch = searchQuery === '' || 
       campaign.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       campaign.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      campaign.brandName.toLowerCase().includes(searchQuery.toLowerCase());
+      (campaign.brandName && campaign.brandName.toLowerCase().includes(searchQuery.toLowerCase()));
     
     return matchesCategory && matchesSearch;
   });
@@ -223,6 +300,8 @@ export function CampaignsContent() {
             <CampaignCard 
               key={campaign.id} 
               campaign={campaign} 
+              variant={userRole === UserRole.STREAMER ? "streamer" : userRole === UserRole.BRAND ? "brand" : "admin"}
+              onActionClick={handleCampaignAction}
             />
           ))}
         </div>
