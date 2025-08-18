@@ -4,14 +4,10 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 
 async function migrateUserStreakFields() {
-<<<<<<< HEAD
-  const client = new MongoClient(process.env.MONGODB_URI!);
-=======
   if (!process.env.MONGODB_URI) {
     throw new Error('MONGODB_URI environment variable is not set.');
   }
   const client = new MongoClient(process.env.MONGODB_URI);
->>>>>>> e6aea1e339f59d02e5c065b4e7a72b0848aa342f
   
   try {
     await client.connect();
