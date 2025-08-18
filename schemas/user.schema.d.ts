@@ -36,6 +36,10 @@ export interface IUser extends IUserDocument {
         testMode: boolean;
         expiresAt: Date;
     };
+    streakCurrent?: number;
+    streakLongest?: number;
+    streakLastDate?: Date | null;
+    streakHistory?: Date[];
 }
 export declare const UserSchema: Schema<IUser, Model<IUser, any, any, any, import("mongoose").Document<unknown, any, IUser> & IUser & Required<{
     _id: import("mongoose").Types.ObjectId;

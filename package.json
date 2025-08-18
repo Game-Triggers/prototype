@@ -13,7 +13,10 @@
     "nest:dev": "cd backend && npm run start:dev",
     "nest:build": "cd backend && npm run build",
     "nest:start": "cd backend && npm run start",
-    "create:admin": "node backend/scripts/create-admin.js"
+    "create:admin": "node backend/scripts/create-admin.js",
+    "migrate:streak": "node scripts/migrate-streak-production.js",
+    "build:production": "npm run migrate:streak && npm run build",
+    "deploy": "npm run migrate:streak && npm run build && npm run start:unified"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",

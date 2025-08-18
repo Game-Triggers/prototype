@@ -262,11 +262,6 @@ export class UsersService {
     // 3. Individual participation tokens are used for specific tracking purposes
     // 4. The main overlay URL uses the user's overlayToken, not participation tokens
 
-    console.log(
-      `Regenerated overlay token for user ${userId}. ` +
-        `Main overlay URL will now use: /api/overlay/${newToken}`,
-    );
-
     return { overlayToken: user.overlayToken };
   }
 
@@ -419,11 +414,6 @@ export class UsersService {
     userId: string,
     settingsDto: CampaignSelectionSettingsDto,
   ): Promise<CampaignSelectionSettingsResponseDto> {
-    console.log('updateCampaignSelectionSettings called with:', {
-      userId,
-      settingsDto,
-    });
-
     const user = await this.userModel.findById(userId).exec();
 
     if (!user) {
@@ -435,13 +425,6 @@ export class UsersService {
         'Only streamers can update campaign selection settings',
       );
     }
-
-    console.log('Current user before update:', {
-      id: user._id,
-      email: user.email,
-      campaignSelectionStrategy: user.campaignSelectionStrategy,
-      campaignRotationSettings: user.campaignRotationSettings,
-    });
 
     // Use atomic update to avoid duplicate key errors
     const updatedUser = await this.userModel
@@ -479,14 +462,6 @@ export class UsersService {
         `User with ID ${userId} not found after update`,
       );
     }
-
-    console.log('Updated user after update:', {
-      id: updatedUser._id,
-      email: updatedUser.email,
-      campaignSelectionStrategy: updatedUser.campaignSelectionStrategy,
-      campaignRotationSettings: updatedUser.campaignRotationSettings,
-    });
-
     // Return response
     return {
       campaignSelectionStrategy:
@@ -502,6 +477,115 @@ export class UsersService {
         blackoutPeriods: [],
       },
       updatedAt: updatedUser.updatedAt || new Date(),
+    };
+  }
+
+  /** Normalize a date to UTC midnight */
+  private toUtcDay(d: Date): Date {
+    return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+  }
+
+  /** Returns date for N days before given date (UTC) */
+  private addDaysUTC(d: Date, delta: number): Date {
+    const dt = new Date(d);
+    dt.setUTCDate(dt.getUTCDate() + delta);
+    return this.toUtcDay(dt);
+  }
+
+  /** Update user's daily streak once per day. If already counted for today, it's a no-op. */
+  async pingDailyStreak(userId: string): Promise<{
+    current: number;
+    longest: number;
+    lastDate: string | null;
+    updated: boolean;
+    history: string[]; // ISO dates (UTC midnight)
+  }> {
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
+
+    const today = this.toUtcDay(new Date());
+    const last = user.streakLastDate ? this.toUtcDay(new Date(user.streakLastDate)) : null;
+
+    let current = user.streakCurrent || 0;
+    let longest = user.streakLongest || 0;
+    let updated = false;
+
+    // If already updated today, return summary
+    if (last && last.getTime() === today.getTime()) {
+      return {
+        current,
+        longest,
+        lastDate: last.toISOString(),
+        updated: false,
+        history: (user.streakHistory || []).map((d) => this.toUtcDay(new Date(d)).toISOString()),
+      };
+    }
+
+    // Determine if yesterday was last date to continue streak
+    const yesterday = this.addDaysUTC(today, -1);
+    if (last && last.getTime() === yesterday.getTime()) {
+      current = current + 1;
+    } else {
+      current = 1; // reset
+    }
+
+    if (current > longest) longest = current;
+
+    // Maintain history with unique UTC days, keep last 60 days
+    const historyDates = (user.streakHistory || []).map((d) => this.toUtcDay(new Date(d)).toISOString());
+    const todayIso = today.toISOString();
+    const set = new Set(historyDates);
+    set.add(todayIso);
+    const history = Array.from(set)
+      .map((iso) => new Date(iso))
+      .sort((a, b) => a.getTime() - b.getTime())
+      .slice(-60)
+      .map((d) => d.toISOString());
+
+    // Persist changes
+    user.streakCurrent = current;
+    user.streakLongest = longest;
+    user.streakLastDate = today;
+    user.streakHistory = history.map((iso) => new Date(iso));
+    await user.save();
+    updated = true;
+
+    return {
+      current,
+      longest,
+      lastDate: todayIso,
+      updated,
+      history,
+    };
+  }
+
+  /** Get streak summary without updating state */
+  async getStreakSummary(userId: string): Promise<{
+    current: number;
+    longest: number;
+    lastDate: string | null;
+    last7Days: { date: string; active: boolean }[]; // Today at index 6
+  }> {
+    const user = await this.userModel.findById(userId).exec();
+    if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
+
+    const today = this.toUtcDay(new Date());
+    const historySet = new Set(
+      (user.streakHistory || [])
+        .map((d) => this.toUtcDay(new Date(d)).toISOString())
+    );
+
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const date = this.addDaysUTC(today, i - 6); // oldest first, today last
+      const iso = date.toISOString();
+      return { date: iso, active: historySet.has(iso) };
+    });
+
+    return {
+      current: user.streakCurrent || 0,
+      longest: user.streakLongest || 0,
+      lastDate: user.streakLastDate ? this.toUtcDay(new Date(user.streakLastDate)).toISOString() : null,
+      last7Days,
     };
   }
 }

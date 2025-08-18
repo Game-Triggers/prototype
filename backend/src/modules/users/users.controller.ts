@@ -337,4 +337,29 @@ export class UsersController {
       settingsDto,
     );
   }
+
+  // Streak endpoints
+  @Post('me/streak/ping')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Ping today activity to update streak once per day' })
+  async pingStreak(@Req() req: RequestWithUser) {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new UnauthorizedException('User ID is missing from authentication token');
+    }
+    return this.usersService.pingDailyStreak(userId);
+  }
+
+  @Get('me/streak')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current user streak summary' })
+  async getMyStreak(@Req() req: RequestWithUser) {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new UnauthorizedException('User ID is missing from authentication token');
+    }
+    return this.usersService.getStreakSummary(userId);
+  }
 }
