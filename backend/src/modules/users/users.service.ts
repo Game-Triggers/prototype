@@ -3,6 +3,7 @@ import {
   NotFoundException,
   ConflictException,
   UnauthorizedException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -17,6 +18,11 @@ import {
   CampaignSelectionSettingsDto,
   CampaignSelectionSettingsResponseDto,
 } from './dto/campaign-selection-settings.dto';
+import {
+  EnergyPacksDto,
+  EnergyPacksResponseDto,
+  ConsumeEnergyPackDto,
+} from './dto/energy-packs.dto';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -586,6 +592,103 @@ export class UsersService {
       longest: user.streakLongest || 0,
       lastDate: user.streakLastDate ? this.toUtcDay(new Date(user.streakLastDate)).toISOString() : null,
       last7Days,
+    };
+  }
+
+
+  // Helper function to calculate time until next reset (24 hours from last reset)
+  private getTimeUntilReset(lastReset: Date) {
+    const now = new Date();
+    const nextReset = new Date(lastReset);
+    nextReset.setHours(nextReset.getHours() + 24);
+    
+    const diffMs = nextReset.getTime() - now.getTime();
+    const hoursUntilReset = Math.floor(diffMs / (1000 * 60 * 60));
+    const minutesUntilReset = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+    
+    return {
+      hoursUntilReset: Math.max(0, hoursUntilReset),
+      minutesUntilReset: Math.max(0, minutesUntilReset),
+      shouldReset: diffMs <= 0
+    };
+  }
+
+  async getEnergyPacks(userId: string): Promise<EnergyPacksResponseDto> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Initialize energy packs if not exists
+    if (!user.energyPacks) {
+      user.energyPacks = {
+        current: 10,
+        maximum: 10,
+        lastReset: new Date(),
+        dailyUsed: 0
+      };
+      await user.save();
+    }
+
+    const { hoursUntilReset, minutesUntilReset, shouldReset } = this.getTimeUntilReset(user.energyPacks.lastReset);
+
+    // Reset energy packs if 24 hours have passed
+    if (shouldReset) {
+      user.energyPacks.current = user.energyPacks.maximum;
+      user.energyPacks.dailyUsed = 0;
+      user.energyPacks.lastReset = new Date();
+      await user.save();
+    }
+
+    return {
+      current: user.energyPacks.current,
+      maximum: user.energyPacks.maximum,
+      lastReset: user.energyPacks.lastReset.toISOString(),
+      dailyUsed: user.energyPacks.dailyUsed,
+      hoursUntilReset,
+      minutesUntilReset
+    };
+  }
+
+  async consumeEnergyPack(userId: string, campaignId: string): Promise<{ success: boolean; remaining: number }> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    // Initialize energy packs if not exists
+    if (!user.energyPacks) {
+      user.energyPacks = {
+        current: 10,
+        maximum: 10,
+        lastReset: new Date(),
+        dailyUsed: 0
+      };
+    }
+
+    const { shouldReset } = this.getTimeUntilReset(user.energyPacks.lastReset);
+
+    // Reset energy packs if 24 hours have passed
+    if (shouldReset) {
+      user.energyPacks.current = user.energyPacks.maximum;
+      user.energyPacks.dailyUsed = 0;
+      user.energyPacks.lastReset = new Date();
+    }
+
+    // Check if user has energy packs available
+    if (user.energyPacks.current <= 0) {
+      throw new BadRequestException('No energy packs available. Energy packs reset every 24 hours.');
+    }
+
+    // Consume one energy pack
+    user.energyPacks.current -= 1;
+    user.energyPacks.dailyUsed += 1;
+
+    await user.save();
+
+    return {
+      success: true,
+      remaining: user.energyPacks.current
     };
   }
 }
