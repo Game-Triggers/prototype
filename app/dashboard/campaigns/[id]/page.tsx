@@ -169,6 +169,23 @@ export default function CampaignDetailPage() {
           endDate: campaignData.endDate || null,
           createdAt: campaignData.createdAt || null
         });
+
+        // After successfully loading a real campaign, ping streak once
+        if (status === 'authenticated') {
+          try {
+            const resp = await fetch('/api/users/me/streak', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+            });
+            if (resp.ok) {
+              let detail: any = null;
+              try { detail = await resp.json(); } catch {}
+              if (typeof window !== 'undefined') {
+                window.dispatchEvent(new CustomEvent('streak:updated', { detail }));
+              }
+            }
+          } catch {}
+        }
       } catch (error) {
         console.error('Error fetching campaign:', error);
         setError('Failed to load campaign details. Please try again.');

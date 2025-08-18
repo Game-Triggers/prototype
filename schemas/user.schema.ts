@@ -43,6 +43,11 @@ export interface IUser extends IUserDocument {
     testMode: boolean;
     expiresAt: Date;
   };
+  // Streak tracking fields
+  streakCurrent?: number;
+  streakLongest?: number;
+  streakLastDate?: Date | null;
+  streakHistory?: Date[]; // store unique UTC dates of activity (last ~60 days)
 }
 
 const userSchema = new Schema<IUser>(
@@ -106,6 +111,11 @@ const userSchema = new Schema<IUser>(
         days: [{ type: String }]     // ['monday', 'tuesday', etc.]
       }]
     },
+    // Streak tracking data
+    streakCurrent: { type: Number, default: 0 },
+    streakLongest: { type: Number, default: 0 },
+    streakLastDate: { type: Date, default: null },
+    streakHistory: [{ type: Date }],
     // Test campaign data for overlay testing
     testCampaign: {
       title: { type: String },
@@ -117,6 +127,13 @@ const userSchema = new Schema<IUser>(
   },
   { timestamps: true }
 );
+
+// Index for streak queries by updatedAt if needed later
+userSchema.index({ updatedAt: 1 });
+
+// Index for streak leaderboard queries (for future leaderboard features)
+userSchema.index({ streakLongest: -1 });
+userSchema.index({ streakCurrent: -1 });
 
 // Explicitly export the schema for NestJS
 export const UserSchema = userSchema;
