@@ -63,15 +63,12 @@ const userSchema = new mongoose_1.Schema({
     streakLongest: { type: Number, default: 0 },
     streakLastDate: { type: Date, default: null },
     streakHistory: [{ type: Date }],
-<<<<<<< HEAD
     energyPacks: {
         current: { type: Number, default: 10 },
         maximum: { type: Number, default: 10 },
         lastReset: { type: Date, default: Date.now },
         dailyUsed: { type: Number, default: 0 }
     },
-=======
->>>>>>> e6aea1e339f59d02e5c065b4e7a72b0848aa342f
     testCampaign: {
         title: { type: String },
         mediaUrl: { type: String },

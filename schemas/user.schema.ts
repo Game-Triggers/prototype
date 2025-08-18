@@ -48,7 +48,6 @@ export interface IUser extends IUserDocument {
   streakLongest?: number;
   streakLastDate?: Date | null;
   streakHistory?: Date[]; // store unique UTC dates of activity (last ~60 days)
-<<<<<<< HEAD
   
   // Energy Pack system for campaign joins
   energyPacks?: {
@@ -57,8 +56,6 @@ export interface IUser extends IUserDocument {
     lastReset: Date; // Last time energy packs were reset (24 hours)
     dailyUsed: number; // How many used today
   };
-=======
->>>>>>> e6aea1e339f59d02e5c065b4e7a72b0848aa342f
 }
 
 const userSchema = new Schema<IUser>(
@@ -127,7 +124,6 @@ const userSchema = new Schema<IUser>(
     streakLongest: { type: Number, default: 0 },
     streakLastDate: { type: Date, default: null },
     streakHistory: [{ type: Date }],
-<<<<<<< HEAD
     
     // Energy Pack system for campaign joins
     energyPacks: {
@@ -137,8 +133,6 @@ const userSchema = new Schema<IUser>(
       dailyUsed: { type: Number, default: 0 } // Track daily usage
     },
     
-=======
->>>>>>> e6aea1e339f59d02e5c065b4e7a72b0848aa342f
     // Test campaign data for overlay testing
     testCampaign: {
       title: { type: String },

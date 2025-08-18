@@ -72,7 +72,6 @@ const userSchema = new mongoose_1.Schema({
     streakLongest: { type: Number, default: 0 },
     streakLastDate: { type: Date, default: null },
     streakHistory: [{ type: Date }],
-<<<<<<< HEAD
     // Energy Pack system for campaign joins
     energyPacks: {
         current: { type: Number, default: 10 }, // Start with full energy
@@ -80,8 +79,6 @@ const userSchema = new mongoose_1.Schema({
         lastReset: { type: Date, default: Date.now }, // Initialize to current time
         dailyUsed: { type: Number, default: 0 } // Track daily usage
     },
-=======
->>>>>>> e6aea1e339f59d02e5c065b4e7a72b0848aa342f
     // Test campaign data for overlay testing
     testCampaign: {
         title: { type: String },

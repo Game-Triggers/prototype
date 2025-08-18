@@ -468,7 +468,6 @@
         ]
       }
     },
-<<<<<<< HEAD
     "/api/v1/users/me/energy-packs": {
       "get": {
         "operationId": "UsersController_getEnergyPacks",
@@ -539,8 +538,6 @@
         ]
       }
     },
-=======
->>>>>>> e6aea1e339f59d02e5c065b4e7a72b0848aa342f
     "/api/v1/auth/register": {
       "post": {
         "description": "Create a new user account with email/password or social provider",
