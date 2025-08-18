@@ -594,6 +594,7 @@ export class UsersService {
       last7Days,
     };
   }
+<<<<<<< HEAD
 
   // Helper function to calculate time until next reset (24 hours from last reset)
   private getTimeUntilReset(lastReset: Date) {
@@ -690,4 +691,6 @@ export class UsersService {
       remaining: user.energyPacks.current
     };
   }
+=======
+>>>>>>> e6aea1e339f59d02e5c065b4e7a72b0848aa342f
 }
