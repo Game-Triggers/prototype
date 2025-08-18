@@ -366,8 +366,7 @@ export class UsersController {
     }
     return this.usersService.getStreakSummary(userId);
   }
-<<<<<<< HEAD
-
+ 
   // Energy Pack endpoints
   @Get('me/energy-packs')
   @UseGuards(JwtAuthGuard)
@@ -409,6 +408,4 @@ export class UsersController {
     }
     return this.usersService.consumeEnergyPack(userId, dto.campaignId);
   }
-=======
->>>>>>> e6aea1e339f59d02e5c065b4e7a72b0848aa342f
 }
