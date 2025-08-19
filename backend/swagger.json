@@ -2551,6 +2551,305 @@
         ]
       }
     },
+    "/api/v1/notifications": {
+      "get": {
+        "operationId": "NotificationController_getUserNotifications",
+        "parameters": [
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "Notification type filter",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "isRead",
+            "required": false,
+            "in": "query",
+            "description": "Read status filter",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": false,
+            "in": "query",
+            "description": "Items per page",
+            "schema": {}
+          },
+          {
+            "name": "page",
+            "required": false,
+            "in": "query",
+            "description": "Page number",
+            "schema": {}
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notifications retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get user notifications with pagination",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/v1/notifications/latest": {
+      "get": {
+        "operationId": "NotificationController_getLatestNotifications",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Latest notifications retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get latest notifications for preview",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/v1/notifications/count/unread": {
+      "get": {
+        "operationId": "NotificationController_getUnreadCount",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Unread count retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get unread notification count",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/v1/notifications/{id}/read": {
+      "put": {
+        "operationId": "NotificationController_markAsRead",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Notification ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notification marked as read successfully"
+          },
+          "404": {
+            "description": "Notification not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mark notification as read",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/v1/notifications/read/batch": {
+      "put": {
+        "operationId": "NotificationController_markMultipleAsRead",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Notifications marked as read successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mark multiple notifications as read",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/v1/notifications/read/all": {
+      "put": {
+        "operationId": "NotificationController_markAllAsRead",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "All notifications marked as read successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Mark all notifications as read",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/v1/notifications/{id}": {
+      "delete": {
+        "operationId": "NotificationController_deleteNotification",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Notification ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Notification deleted successfully"
+          },
+          "404": {
+            "description": "Notification not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a notification",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/v1/notifications/test/create": {
+      "post": {
+        "operationId": "NotificationController_createTestNotification",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Test notification created successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a test notification (development only)",
+        "tags": [
+          "notifications"
+        ]
+      }
+    },
+    "/api/v1/admin/test-notifications/campaign-activated": {
+      "post": {
+        "operationId": "TestNotificationController_testCampaignActivated",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Test notification triggered"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Test campaign activation notification",
+        "tags": [
+          "admin-test-notifications"
+        ]
+      }
+    },
+    "/api/v1/admin/test-notifications/earnings-credited": {
+      "post": {
+        "operationId": "TestNotificationController_testEarningsCredited",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Test notification triggered"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Test earnings credited notification",
+        "tags": [
+          "admin-test-notifications"
+        ]
+      }
+    },
+    "/api/v1/admin/test-notifications/streak-warning": {
+      "post": {
+        "operationId": "TestNotificationController_testStreakWarning",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Test notification triggered"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Test streak warning notification",
+        "tags": [
+          "admin-test-notifications"
+        ]
+      }
+    },
+    "/api/v1/admin/test-notifications/campaign-budget-low": {
+      "post": {
+        "operationId": "TestNotificationController_testCampaignBudgetLow",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Test notification triggered"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Test low budget warning notification",
+        "tags": [
+          "admin-test-notifications"
+        ]
+      }
+    },
     "/api/v1/analytics/dashboard": {
       "get": {
         "description": "Retrieve analytics data for the user's dashboard based on their role",

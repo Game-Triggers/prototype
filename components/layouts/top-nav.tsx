@@ -5,9 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { signOut } from "next-auth/react";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
-import { Bell, Menu, ChevronDown, LogOut, User as UserIcon, Settings } from "lucide-react";
+import { Menu, ChevronDown, LogOut, User as UserIcon, Settings } from "lucide-react";
 import StreakBadge from "@/components/ui/streak";
 import { EnergyPack } from "@/components/ui/energy-pack";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 
 interface UserType {
   name?: string;
@@ -51,15 +52,7 @@ export function TopNav({ toggleSidebar, user }: TopNavProps) {
         </div>
 
         <div className="flex items-center gap-2">
-          <div className="relative">
-            <button
-              className="p-2 rounded-md hover:bg-accent"
-              aria-label="Notifications"
-            >
-              <Bell className="h-5 w-5" />
-              <span className="absolute top-1 right-1 w-2 h-2 bg-primary rounded-full"></span>
-            </button>
-          </div>
+          <NotificationBell />
 
           <EnergyPack />
 

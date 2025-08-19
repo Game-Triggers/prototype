@@ -182,7 +182,7 @@ export default function CampaignDetailPage() {
             if (resp.ok) {
               let detail: any = null;
               try { detail = await resp.json(); } catch {}
-              if (typeof window !== 'undefined') {
+              if (typeof window !== 'undefined' && detail?.updated) {
                 window.dispatchEvent(new CustomEvent('streak:updated', { detail }));
               }
             }

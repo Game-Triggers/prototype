@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { EventEmitterModule } from '@nestjs/event-emitter';
 import { join } from 'path';
 
 import { AppController } from './app.controller';
@@ -18,6 +19,7 @@ import { ImpressionTrackingModule } from './modules/impression-tracking/impressi
 import { WalletModule } from './modules/wallet/wallet.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { ConflictRulesModule } from './modules/conflict-rules/conflict-rules.module';
+import { NotificationModule } from './modules/notifications/notification.module';
 
 @Module({
   imports: [
@@ -26,6 +28,9 @@ import { ConflictRulesModule } from './modules/conflict-rules/conflict-rules.mod
       isGlobal: true,
       envFilePath: ['.env', '.env.local', '../.env', '../.env.local'], // Check both local and parent directory
     }),
+
+    // Global Event Emitter
+    EventEmitterModule.forRoot(),
 
     // MongoDB connection
     MongooseModule.forRootAsync({
@@ -71,6 +76,7 @@ import { ConflictRulesModule } from './modules/conflict-rules/conflict-rules.mod
     WalletModule,
     AdminModule,
     ConflictRulesModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

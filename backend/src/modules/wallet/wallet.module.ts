@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { EventEmitterModule } from '@nestjs/event-emitter';
 import { WalletService } from './wallet.service';
 import { WalletController } from './wallet.controller';
 import { PaymentService } from './payment.service';
@@ -18,6 +17,7 @@ import { DisputeSchema, InvoiceSchema } from '@schemas/billing.schema';
 import { CampaignSchema } from '@schemas/campaign.schema';
 import { CampaignParticipationSchema } from '@schemas/campaign-participation.schema';
 import { UserSchema } from '@schemas/user.schema';
+import { NotificationModule } from '../notifications/notification.module';
 
 @Module({
   imports: [
@@ -31,7 +31,7 @@ import { UserSchema } from '@schemas/user.schema';
       { name: 'Campaign', schema: CampaignSchema },
       { name: 'CampaignParticipation', schema: CampaignParticipationSchema },
     ]),
-    EventEmitterModule.forRoot(),
+    NotificationModule,
   ],
   controllers: [
     WalletController,

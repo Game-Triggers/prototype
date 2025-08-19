@@ -505,12 +505,15 @@ export class UsersService {
     lastDate: string | null;
     updated: boolean;
     history: string[]; // ISO dates (UTC midnight)
+    last7Days: { date: string; active: boolean }[];
   }> {
     const user = await this.userModel.findById(userId).exec();
     if (!user) throw new NotFoundException(`User with ID ${userId} not found`);
 
     const today = this.toUtcDay(new Date());
-    const last = user.streakLastDate ? this.toUtcDay(new Date(user.streakLastDate)) : null;
+    const last = user.streakLastDate
+      ? this.toUtcDay(new Date(user.streakLastDate))
+      : null;
 
     let current = user.streakCurrent || 0;
     let longest = user.streakLongest || 0;
@@ -518,12 +521,23 @@ export class UsersService {
 
     // If already updated today, return summary
     if (last && last.getTime() === today.getTime()) {
+      const historySet = new Set(
+        (user.streakHistory || []).map((d) =>
+          this.toUtcDay(new Date(d)).toISOString(),
+        ),
+      );
+      const last7Days = Array.from({ length: 7 }, (_, i) => {
+        const date = this.addDaysUTC(today, i - 6);
+        const iso = date.toISOString();
+        return { date: iso, active: historySet.has(iso) };
+      });
       return {
         current,
         longest,
         lastDate: last.toISOString(),
         updated: false,
-        history: (user.streakHistory || []).map((d) => this.toUtcDay(new Date(d)).toISOString()),
+        history: Array.from(historySet),
+        last7Days,
       };
     }
 
@@ -538,7 +552,9 @@ export class UsersService {
     if (current > longest) longest = current;
 
     // Maintain history with unique UTC days, keep last 60 days
-    const historyDates = (user.streakHistory || []).map((d) => this.toUtcDay(new Date(d)).toISOString());
+    const historyDates = (user.streakHistory || []).map((d) =>
+      this.toUtcDay(new Date(d)).toISOString(),
+    );
     const todayIso = today.toISOString();
     const set = new Set(historyDates);
     set.add(todayIso);
@@ -556,12 +572,19 @@ export class UsersService {
     await user.save();
     updated = true;
 
+    const last7Days = Array.from({ length: 7 }, (_, i) => {
+      const date = this.addDaysUTC(today, i - 6);
+      const iso = date.toISOString();
+      return { date: iso, active: set.has(iso) };
+    });
+
     return {
       current,
       longest,
       lastDate: todayIso,
       updated,
       history,
+      last7Days,
     };
   }
 
@@ -596,20 +619,28 @@ export class UsersService {
   }
 
 
-  // Helper function to calculate time until next reset (24 hours from last reset)
+  // Helper function to calculate time until next reset (at midnight 12:00 AM)
   private getTimeUntilReset(lastReset: Date) {
     const now = new Date();
-    const nextReset = new Date(lastReset);
-    nextReset.setHours(nextReset.getHours() + 24);
+    const lastResetDay = new Date(lastReset.getFullYear(), lastReset.getMonth(), lastReset.getDate());
+    const currentDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     
-    const diffMs = nextReset.getTime() - now.getTime();
+    // Check if we need to reset (if it's a new day since last reset)
+    const shouldReset = currentDay.getTime() > lastResetDay.getTime();
+    
+    // Calculate time until next midnight
+    const nextMidnight = new Date(now);
+    nextMidnight.setDate(nextMidnight.getDate() + 1);
+    nextMidnight.setHours(0, 0, 0, 0);
+    
+    const diffMs = nextMidnight.getTime() - now.getTime();
     const hoursUntilReset = Math.floor(diffMs / (1000 * 60 * 60));
     const minutesUntilReset = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
     
     return {
       hoursUntilReset: Math.max(0, hoursUntilReset),
       minutesUntilReset: Math.max(0, minutesUntilReset),
-      shouldReset: diffMs <= 0
+      shouldReset
     };
   }
 
