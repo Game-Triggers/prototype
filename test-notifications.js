@@ -9,7 +9,12 @@ async function createTestNotifications() {
   const baseUrl = 'http://localhost:3001/notifications';
   
   // Sample user ID - you'll need to replace this with a real user ID from your database
-  const testUserId = '68a2cdc87d0ab3cc7b7336ba'; // Replace with actual user ID
+  // Get user ID from environment variable
+  const testUserId = process.env.TEST_USER_ID;
+  if (!testUserId) {
+    console.error('Error: Please set the TEST_USER_ID environment variable.');
+    process.exit(1);
+  }
   
   // Sample notifications to create
   const notifications = [
