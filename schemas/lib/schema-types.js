@@ -43,3 +43,4 @@ var ParticipationStatus;
     ParticipationStatus["REMOVED"] = "removed";
     ParticipationStatus["PARTICIPATION_PAUSED"] = "participation_paused";
 })(ParticipationStatus || (exports.ParticipationStatus = ParticipationStatus = {}));
+//# sourceMappingURL=schema-types.js.map

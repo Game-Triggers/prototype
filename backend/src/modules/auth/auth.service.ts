@@ -12,6 +12,7 @@ import * as bcrypt from 'bcrypt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AuthTokenService } from './services/auth-token.service';
+import { XP_REWARDS } from '../../constants/xp-constants';
 
 /**
  * Auth service responsible for authentication and user management
@@ -59,6 +60,14 @@ export class AuthService {
       language: [],
       description: '',
     });
+
+    // Award signup XP for new OAuth users
+    try {
+      await this.usersService.addXP(newUser._id.toString(), 'SIGNUP', XP_REWARDS.SIGNUP);
+    } catch (error) {
+      // Log error but don't fail registration if XP addition fails
+      console.error('Failed to add signup XP for OAuth user:', error);
+    }
 
     return newUser;
   }
@@ -111,6 +120,14 @@ export class AuthService {
     });
 
     await newUser.save();
+
+    // Award signup XP
+    try {
+      await this.usersService.addXP(newUser._id.toString(), 'SIGNUP', XP_REWARDS.SIGNUP);
+    } catch (error) {
+      // Log error but don't fail registration if XP addition fails
+      console.error('Failed to add signup XP:', error);
+    }
 
     // Remove password from returned user object
     const result = newUser.toObject();

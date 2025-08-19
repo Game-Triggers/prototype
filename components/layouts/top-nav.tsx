@@ -8,6 +8,7 @@ import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Menu, ChevronDown, LogOut, User as UserIcon, Settings } from "lucide-react";
 import StreakBadge from "@/components/ui/streak";
 import { EnergyPack } from "@/components/ui/energy-pack";
+import { XPDisplay } from "@/components/ui/xp-display";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 
 interface UserType {
@@ -55,6 +56,8 @@ export function TopNav({ toggleSidebar, user }: TopNavProps) {
           <NotificationBell />
 
           <EnergyPack />
+
+          <XPDisplay />
 
           <StreakBadge />
 

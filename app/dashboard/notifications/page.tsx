@@ -221,7 +221,6 @@ export default function NotificationsPage() {
     markMultipleAsRead,
     markAllAsRead,
     deleteNotification,
-    createTestNotification,
   } = useNotifications();
 
   // Load notifications on component mount and filter changes
@@ -299,15 +298,6 @@ export default function NotificationsPage() {
         </div>
         
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => createTestNotification()}
-            className="hidden md:flex"
-          >
-            <Bell className="h-4 w-4 mr-2" />
-            Test Notification
-          </Button>
-          
           <Button
             variant="outline"
             onClick={loadNotifications}
@@ -478,15 +468,7 @@ export default function NotificationsPage() {
                 >
                   Clear Filters
                 </Button>
-              ) : (
-                <Button
-                  variant="outline"
-                  onClick={() => createTestNotification()}
-                >
-                  <Bell className="h-4 w-4 mr-2" />
-                  Create Test Notification
-                </Button>
-              )}
+              ) : null}
             </CardContent>
           </Card>
         )}

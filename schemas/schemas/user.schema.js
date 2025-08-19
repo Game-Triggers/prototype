@@ -79,6 +79,18 @@ const userSchema = new mongoose_1.Schema({
         lastReset: { type: Date, default: Date.now }, // Initialize to current time
         dailyUsed: { type: Number, default: 0 } // Track daily usage
     },
+    // XP (Experience Points) system
+    xp: {
+        total: { type: Number, default: 0 }, // Total XP accumulated
+        level: { type: Number, default: 1 }, // Start at level 1
+        earnedToday: { type: Number, default: 0 }, // XP earned today
+        lastEarned: { type: Date, default: null }, // Last time XP was earned
+        activities: [{
+                type: { type: String }, // Activity type
+                amount: { type: Number }, // XP amount earned
+                earnedAt: { type: Date } // When it was earned
+            }] // XP activity history (keep last 50)
+    },
     // Test campaign data for overlay testing
     testCampaign: {
         title: { type: String },
@@ -105,3 +117,4 @@ function getUserModel() {
 // Define a named export for backward compatibility
 exports.User = getUserModel();
 // No default export to avoid TypeScript issues
+//# sourceMappingURL=user.schema.js.map
