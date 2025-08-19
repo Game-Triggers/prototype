@@ -333,7 +333,38 @@ export function useNotifications() {
       console.error('Error creating test notification:', err);
       return false;
     }
-  }, [session, fetchNotifications]);
+  const createTestNotification =
+    process.env.NODE_ENV === 'development'
+      ? useCallback(async (): Promise<boolean> => {
+          if (!session) return false;
+
+          try {
+            const response = await fetch(`${API_BASE}/test`, {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${session.accessToken}`,
+                'Content-Type': 'application/json',
+              },
+            });
+
+            if (!response.ok) {
+              throw new Error(`Failed to create test notification: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            
+            if (data.success) {
+              // Refresh notifications
+              await fetchNotifications();
+              return true;
+            }
+            return false;
+          } catch (err) {
+            console.error('Error creating test notification:', err);
+            return false;
+          }
+        }, [session, fetchNotifications])
+      : undefined;
 
   // Auto-fetch unread count on session change
   useEffect(() => {
