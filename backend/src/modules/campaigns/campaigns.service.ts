@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { EventEmitter2 } from '@nestjs/event-emitter';
 import * as crypto from 'crypto';
 import { ICampaign, CampaignStatus } from '@schemas/campaign.schema';
 import {
@@ -47,6 +48,7 @@ export class CampaignsService {
     private readonly usersService: UsersService,
     @Inject(CampaignEventsService)
     private readonly campaignEventsService: CampaignEventsService,
+    private readonly eventEmitter: EventEmitter2,
     @Optional()
     @Inject('ConflictRulesService')
     private readonly conflictRulesService?: ConflictRulesServiceInterface,
@@ -607,7 +609,26 @@ export class CampaignsService {
       browserSourceToken,
     });
 
-    return participation.save();
+    const savedParticipation = await participation.save();
+
+    // Emit campaign joined event for notifications
+    console.log('🚀 Emitting campaign.joined event for:', {
+      campaignId,
+      campaignName: campaign.title,
+      streamerId,
+      streamerName: streamer.name || streamer.email
+    });
+    
+    this.eventEmitter.emit('campaign.joined', {
+      campaignId,
+      campaignName: campaign.title,
+      streamerId,
+      streamerName: streamer.name || streamer.email,
+      participationId: savedParticipation._id.toString(),
+      browserSourceUrl,
+    });
+
+    return savedParticipation;
   }
 
   async leaveCampaign(
