@@ -49,7 +49,7 @@ export class NotificationService {
       return notification;
     } catch (error) {
       this.logger.error(`Failed to create notification: ${error.message}`, error.stack);
-      throw new Error('Failed to create notification');
+      throw new Error(`Failed to create notification: ${error.message}`);
     }
   }
 
