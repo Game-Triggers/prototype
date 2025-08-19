@@ -37,6 +37,10 @@ import {
   EnergyPacksResponseDto,
   ConsumeEnergyPackDto,
 } from './dto/energy-packs.dto';
+import {
+  XPResponseDto,
+  AddXPDto,
+} from './dto/xp.dto';
 import { Request } from 'express';
 
 // Define the Request with user interface
@@ -396,16 +400,65 @@ export class UsersController {
     schema: {
       example: {
         success: true,
-        remaining: 9
-      }
-    }
+        remaining: 9,
+      },
+    },
   })
   @ApiResponse({ status: 400, description: 'No energy packs available' })
-  async consumeEnergyPack(@Req() req: RequestWithUser, @Body() dto: ConsumeEnergyPackDto) {
+  async consumeEnergyPack(
+    @Req() req: RequestWithUser,
+    @Body() dto: ConsumeEnergyPackDto,
+  ) {
     const userId = req.user?.userId;
     if (!userId) {
-      throw new UnauthorizedException('User ID is missing from authentication token');
+      throw new UnauthorizedException(
+        'User ID is missing from authentication token',
+      );
     }
     return this.usersService.consumeEnergyPack(userId, dto.campaignId);
+  }
+
+  // XP (Experience Points) endpoints
+  @Get('me/xp')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current user XP data' })
+  @ApiResponse({
+    status: 200,
+    description: 'XP data retrieved successfully',
+    type: XPResponseDto,
+  })
+  async getXP(@Req() req: RequestWithUser) {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new UnauthorizedException(
+        'User ID is missing from authentication token',
+      );
+    }
+    return this.usersService.getXP(userId);
+  }
+
+  @Post('me/xp')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Add XP for an activity' })
+  @ApiBody({ type: AddXPDto })
+  @ApiResponse({
+    status: 200,
+    description: 'XP added successfully',
+    type: XPResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid activity type or amount' })
+  async addXP(
+    @Req() req: RequestWithUser,
+    @Body() dto: AddXPDto,
+  ) {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new UnauthorizedException(
+        'User ID is missing from authentication token',
+      );
+    }
+    return this.usersService.addXP(userId, dto.activityType, dto.amount);
   }
 }

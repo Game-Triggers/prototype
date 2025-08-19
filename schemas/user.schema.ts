@@ -56,6 +56,19 @@ export interface IUser extends IUserDocument {
     lastReset: Date; // Last time energy packs were reset (24 hours)
     dailyUsed: number; // How many used today
   };
+  
+  // XP (Experience Points) system
+  xp?: {
+    total: number; // Total XP accumulated
+    level: number; // Current level based on XP
+    earnedToday: number; // XP earned today
+    lastEarned: Date | null; // Last time XP was earned
+    activities: Array<{
+      type: string; // Activity type (e.g., 'signup', 'campaign_complete')
+      amount: number; // XP amount earned
+      earnedAt: Date; // When it was earned
+    }>; // Last 50 XP activities for history
+  };
 }
 
 const userSchema = new Schema<IUser>(
@@ -131,6 +144,19 @@ const userSchema = new Schema<IUser>(
       maximum: { type: Number, default: 10 }, // Default maximum of 10
       lastReset: { type: Date, default: Date.now }, // Initialize to current time
       dailyUsed: { type: Number, default: 0 } // Track daily usage
+    },
+    
+    // XP (Experience Points) system
+    xp: {
+      total: { type: Number, default: 0 }, // Total XP accumulated
+      level: { type: Number, default: 1 }, // Start at level 1
+      earnedToday: { type: Number, default: 0 }, // XP earned today
+      lastEarned: { type: Date, default: null }, // Last time XP was earned
+      activities: [{
+        type: { type: String }, // Activity type
+        amount: { type: Number }, // XP amount earned
+        earnedAt: { type: Date } // When it was earned
+      }] // XP activity history (keep last 50)
     },
     
     // Test campaign data for overlay testing

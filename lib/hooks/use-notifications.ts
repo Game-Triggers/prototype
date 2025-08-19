@@ -32,7 +32,7 @@ export interface LatestNotificationsResponse {
   unreadCount: number;
 }
 
-const API_BASE = '/api/nest/notifications';
+const API_BASE = '/api/notifications';
 
 export function useNotifications() {
   const { data: session } = useSession();

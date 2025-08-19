@@ -23,6 +23,10 @@ import {
   EnergyPacksResponseDto,
   ConsumeEnergyPackDto,
 } from './dto/energy-packs.dto';
+import {
+  XPResponseDto,
+  AddXPDto,
+} from './dto/xp.dto';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -719,7 +723,110 @@ export class UsersService {
 
     return {
       success: true,
-      remaining: user.energyPacks.current
+      remaining: user.energyPacks.current,
+    };
+  }
+
+  // XP (Experience Points) methods
+  async getXP(userId: string): Promise<XPResponseDto> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const document = ensureDocument<IUser>(user);
+
+    // Initialize XP if not exists
+    if (!document.xp) {
+      document.xp = {
+        total: 0,
+        level: 1,
+        earnedToday: 0,
+        lastEarned: null,
+        activities: [],
+      };
+      await document.save();
+    }
+
+    // Reset daily XP if it's a new day
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const lastEarnedDate = document.xp.lastEarned 
+      ? new Date(document.xp.lastEarned.getFullYear(), document.xp.lastEarned.getMonth(), document.xp.lastEarned.getDate())
+      : null;
+
+    if (!lastEarnedDate || lastEarnedDate < today) {
+      document.xp.earnedToday = 0;
+      await document.save();
+    }
+
+    return {
+      total: document.xp.total,
+      level: document.xp.level,
+      earnedToday: document.xp.earnedToday,
+      lastEarned: document.xp.lastEarned,
+      activities: document.xp.activities.slice(-10), // Return last 10 activities
+    };
+  }
+
+  async addXP(userId: string, activityType: string, amount: number): Promise<XPResponseDto> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const document = ensureDocument<IUser>(user);
+
+    // Initialize XP if not exists
+    if (!document.xp) {
+      document.xp = {
+        total: 0,
+        level: 1,
+        earnedToday: 0,
+        lastEarned: null,
+        activities: [],
+      };
+    }
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const lastEarnedDate = document.xp.lastEarned 
+      ? new Date(document.xp.lastEarned.getFullYear(), document.xp.lastEarned.getMonth(), document.xp.lastEarned.getDate())
+      : null;
+
+    // Reset daily XP if it's a new day
+    if (!lastEarnedDate || lastEarnedDate < today) {
+      document.xp.earnedToday = 0;
+    }
+
+    // Add XP
+    document.xp.total += amount;
+    document.xp.earnedToday += amount;
+    document.xp.lastEarned = now;
+
+    // Calculate new level (simple level calculation: level = floor(total / 100) + 1)
+    const newLevel = Math.floor(document.xp.total / 100) + 1;
+    document.xp.level = newLevel;
+
+    // Add to activities (keep only last 50)
+    document.xp.activities.push({
+      type: activityType,
+      amount: amount,
+      earnedAt: now,
+    });
+
+    if (document.xp.activities.length > 50) {
+      document.xp.activities = document.xp.activities.slice(-50);
+    }
+
+    await document.save();
+
+    return {
+      total: document.xp.total,
+      level: document.xp.level,
+      earnedToday: document.xp.earnedToday,
+      lastEarned: document.xp.lastEarned,
+      activities: document.xp.activities.slice(-10), // Return last 10 activities
     };
   }
 }
