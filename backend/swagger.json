@@ -668,6 +668,7 @@
         ]
       }
     },
+<<<<<<< HEAD
     "/api/v1/users/me/level": {
       "get": {
         "operationId": "UsersController_getMyLevel",
@@ -4963,7 +4964,6 @@
         },
         "required": [
           "total",
-          "level",
           "earnedToday",
           "activities"
         ]

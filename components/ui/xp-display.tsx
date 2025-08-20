@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Trophy, Star, TrendingUp } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useXP } from "@/lib/contexts/xp-context";
-import { getXPProgress } from "@/lib/xp-constants";
 
 
 export function XPDisplay() {
@@ -46,7 +45,6 @@ export function XPDisplay() {
           </div>
           
           {/* XP Info */}
-          {/* Level and XP Info */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -57,12 +55,11 @@ export function XPDisplay() {
                 {xpData.total} XP
               </span>
             </div>
+
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Level {progress.currentLevel}</span>
-            </div>
-            <div className="flex items-center justify-between">
               <span className="text-xs text-muted-foreground">
-                {xpData.total} XP total
+                {progress.currentLevelXP}/{progress.nextLevelXP} XP
               </span>
             </div>
 
@@ -120,3 +117,39 @@ export function XPDisplay() {
     </div>
   );
 }
+function getXPProgress(total: number) {
+  // XP levels follow an exponential curve: level n requires n^2 * 100 XP
+  // Level 1: 100 XP, Level 2: 400 XP, Level 3: 900 XP, etc.
+  
+  let currentLevel = 1;
+  let totalRequiredForCurrentLevel = 0;
+  
+  // Find current level
+  while (true) {
+    const xpRequiredForLevel = currentLevel * currentLevel * 100;
+    if (total < xpRequiredForLevel) {
+      break;
+    }
+    totalRequiredForCurrentLevel = xpRequiredForLevel;
+    currentLevel++;
+  }
+  
+  // Calculate XP within current level
+  const xpInCurrentLevel = total - totalRequiredForCurrentLevel;
+  
+  // Calculate XP needed for next level
+  const nextLevelTotalXP = currentLevel * currentLevel * 100;
+  const xpNeededForNextLevel = nextLevelTotalXP - totalRequiredForCurrentLevel;
+  
+  // Calculate progress percentage
+  const progressPercentage = (xpInCurrentLevel / xpNeededForNextLevel) * 100;
+  
+  return {
+    currentLevel: currentLevel - 1, // Adjust since we incremented to find the break point
+    currentLevelXP: xpInCurrentLevel,
+    nextLevelXP: xpNeededForNextLevel,
+    progressPercentage: Math.max(0, progressPercentage),
+    totalRequiredForCurrentLevel
+  };
+}
+
