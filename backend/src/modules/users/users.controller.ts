@@ -506,4 +506,5 @@ export class UsersController {
     }
     return this.usersService.addRP(userId, dto.activityType, dto.amount);
   }
+
 }

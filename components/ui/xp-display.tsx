@@ -4,6 +4,8 @@ import { useState } from "react";
 import { Trophy, Star, TrendingUp } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useXP } from "@/lib/contexts/xp-context";
+import { getXPProgress } from "@/lib/xp-constants";
+
 
 export function XPDisplay() {
   const { data: session } = useSession();
@@ -24,6 +26,7 @@ export function XPDisplay() {
     );
   }
 
+  const progress = getXPProgress(xpData.total);
   return (
     <div className="relative">
       <div
@@ -43,6 +46,7 @@ export function XPDisplay() {
           </div>
           
           {/* XP Info */}
+          {/* Level and XP Info */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -53,7 +57,27 @@ export function XPDisplay() {
                 {xpData.total} XP
               </span>
             </div>
+            
+                <span className="text-sm font-medium">Level {progress.currentLevel}</span>
+              </div>
+              <span className="text-xs text-muted-foreground">
+                {xpData.total} XP total
+              </span>
+            </div>
 
+            {/* Progress Bar */}
+            <div className="space-y-1">
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span>{progress.currentLevelXP} XP</span>
+                <span>{progress.nextLevelXP} XP to next level</span>
+              </div>
+              <div className="w-full bg-muted rounded-full h-2">
+                <div 
+                  className="bg-blue-500 h-2 rounded-full transition-all duration-300"
+                  style={{ width: `${Math.min(progress.progressPercentage, 100)}%` }}
+                />
+              </div>
+            </div>
             {/* Stats */}
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="bg-muted/50 rounded p-2">

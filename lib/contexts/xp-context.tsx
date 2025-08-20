@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 
 interface XPData {
   total: number;
+  level: number;
   earnedToday: number;
   lastEarned: Date | null;
   activities: Array<{

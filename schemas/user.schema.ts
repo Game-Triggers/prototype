@@ -60,6 +60,7 @@ export interface IUser extends IUserDocument {
   // XP (Experience Points) system
   xp?: {
     total: number; // Total XP accumulated
+    level: number; // Current level based on XP
     earnedToday: number; // XP earned today
     lastEarned: Date | null; // Last time XP was earned
     activities: Array<{
@@ -68,7 +69,7 @@ export interface IUser extends IUserDocument {
       earnedAt: Date; // When it was earned
     }>; // Last 50 XP activities for history
   };
-  
+
   // RP (Reputation Points) system
   rp?: {
     total: number; // Total RP accumulated
@@ -160,6 +161,7 @@ const userSchema = new Schema<IUser>(
     // XP (Experience Points) system
     xp: {
       total: { type: Number, default: 0 }, // Total XP accumulated
+      level: { type: Number, default: 1 }, // Start at level 1
       earnedToday: { type: Number, default: 0 }, // XP earned today
       lastEarned: { type: Date, default: null }, // Last time XP was earned
       activities: [{
@@ -168,7 +170,7 @@ const userSchema = new Schema<IUser>(
         earnedAt: { type: Date } // When it was earned
       }] // XP activity history (keep last 50)
     },
-    
+
     // RP (Reputation Points) system
     rp: {
       total: { type: Number, default: 0 }, // Total RP accumulated
@@ -180,7 +182,7 @@ const userSchema = new Schema<IUser>(
         earnedAt: { type: Date } // When it was earned
       }] // RP activity history (keep last 50)
     },
-    
+
     // Test campaign data for overlay testing
     testCampaign: {
       title: { type: String },

@@ -146,6 +146,7 @@ export class AuthService {
       console.error('Failed to add signup RP:', error);
     }
 
+
     // Remove password from returned user object
     const result = newUser.toObject();
     delete result.password;

@@ -60,8 +60,8 @@ export function TopNav({ toggleSidebar, user }: TopNavProps) {
 
           <XPDisplay />
 
-          <RPDisplay />
 
+          <RPDisplay />
           <StreakBadge />
 
           <ThemeToggle />

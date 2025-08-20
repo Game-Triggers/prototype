@@ -741,6 +741,8 @@ export class UsersService {
     if (!document.xp) {
       document.xp = {
         total: 0,
+
+        level: 1,
         earnedToday: 0,
         lastEarned: null,
         activities: [],
@@ -762,6 +764,8 @@ export class UsersService {
 
     return {
       total: document.xp.total,
+
+      level: document.xp.level,
       earnedToday: document.xp.earnedToday,
       lastEarned: document.xp.lastEarned,
       activities: document.xp.activities.slice(-10), // Return last 10 activities
@@ -780,6 +784,8 @@ export class UsersService {
     if (!document.xp) {
       document.xp = {
         total: 0,
+
+        level: 1,
         earnedToday: 0,
         lastEarned: null,
         activities: [],
@@ -802,6 +808,11 @@ export class UsersService {
     document.xp.earnedToday += amount;
     document.xp.lastEarned = now;
 
+
+    // Calculate new level (simple level calculation: level = floor(total / 100) + 1)
+    const newLevel = Math.floor(document.xp.total / 100) + 1;
+    document.xp.level = newLevel;
+
     // Add to activities (keep only last 50)
     document.xp.activities.push({
       type: activityType,
@@ -817,6 +828,7 @@ export class UsersService {
 
     return {
       total: document.xp.total,
+
       earnedToday: document.xp.earnedToday,
       lastEarned: document.xp.lastEarned,
       activities: document.xp.activities.slice(-10), // Return last 10 activities
@@ -915,6 +927,11 @@ export class UsersService {
       earnedToday: document.rp.earnedToday,
       lastEarned: document.rp.lastEarned,
       activities: document.rp.activities.slice(-10), // Return last 10 activities
+
+      level: document.xp.level,
+      earnedToday: document.xp.earnedToday,
+      lastEarned: document.xp.lastEarned,
+      activities: document.xp.activities.slice(-10), // Return last 10 activities
     };
   }
 }
