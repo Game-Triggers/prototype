@@ -21,10 +21,11 @@ export interface IUserDocument extends Omit<IUserData, '_id'>, Document {
 }
 
 export interface ICampaignDocument
-  extends Omit<ICampaignData, '_id' | 'brandId'>,
+  extends Omit<ICampaignData, '_id' | 'brandId' | 'verifiedBy'>,
     Document {
   _id: Types.ObjectId;
   brandId: Types.ObjectId;
+  verifiedBy?: Types.ObjectId;
 }
 
 export interface ICampaignParticipationDocument
