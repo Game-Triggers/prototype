@@ -42,7 +42,10 @@ import {
   AddXPDto,
 } from './dto/xp.dto';
 import { RPResponseDto, AddRPDto } from './dto/rp.dto';
+<<<<<<< HEAD
 import { LevelService } from './services/level.service'; 
+=======
+>>>>>>> 4ce3f0d (feat: implement comprehensive RP (Reputation Points) system- Add RP context and state management with daily reset functionality- Create RP display component with green shield icon and hover tooltip- Implement RP constants with level calculation and activity rewards- Add backend RP DTOs, services, and API endpoints- Integrate RP system into navbar alongside XP, Energy, and Streak- Add RP field to user schema with activity tracking- Implement automatic RP rewards on user signup (5 RP)- Create debug/test interface for RP functionality- Design extensible system for future activity-based RP rewards- Add comprehensive error handling and loading states- Include real-time RP updates and daily progress tracking)
 import { Request } from 'express';
 
 // Define the Request with user interface
@@ -510,6 +513,7 @@ export class UsersController {
     }
     return this.usersService.addRP(userId, dto.activityType, dto.amount);
   }
+<<<<<<< HEAD
 
   // Level System endpoints
   @Get('me/level')
@@ -547,4 +551,6 @@ export class UsersController {
     }
     return await this.levelService.checkForLevelUp(userId);
   }
+=======
+>>>>>>> 4ce3f0d (feat: implement comprehensive RP (Reputation Points) system- Add RP context and state management with daily reset functionality- Create RP display component with green shield icon and hover tooltip- Implement RP constants with level calculation and activity rewards- Add backend RP DTOs, services, and API endpoints- Integrate RP system into navbar alongside XP, Energy, and Streak- Add RP field to user schema with activity tracking- Implement automatic RP rewards on user signup (5 RP)- Create debug/test interface for RP functionality- Design extensible system for future activity-based RP rewards- Add comprehensive error handling and loading states- Include real-time RP updates and daily progress tracking)
 }

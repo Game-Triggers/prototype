@@ -4,7 +4,6 @@ import { useState } from "react";
 import { Trophy, Star, TrendingUp } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useXP } from "@/lib/contexts/xp-context";
-import { getXPProgress } from "@/lib/xp-constants";
 
 
 export function XPDisplay() {
@@ -26,7 +25,10 @@ export function XPDisplay() {
     );
   }
 
+<<<<<<< HEAD
   const progress = getXPProgress(xpData.total);
+=======
+>>>>>>> 4ce3f0d (feat: implement comprehensive RP (Reputation Points) system- Add RP context and state management with daily reset functionality- Create RP display component with green shield icon and hover tooltip- Implement RP constants with level calculation and activity rewards- Add backend RP DTOs, services, and API endpoints- Integrate RP system into navbar alongside XP, Energy, and Streak- Add RP field to user schema with activity tracking- Implement automatic RP rewards on user signup (5 RP)- Create debug/test interface for RP functionality- Design extensible system for future activity-based RP rewards- Add comprehensive error handling and loading states- Include real-time RP updates and daily progress tracking)
   return (
     <div className="relative">
       <div
@@ -46,12 +48,16 @@ export function XPDisplay() {
           </div>
           
           {/* XP Info */}
+<<<<<<< HEAD
           {/* Level and XP Info */}
+=======
+>>>>>>> 4ce3f0d (feat: implement comprehensive RP (Reputation Points) system- Add RP context and state management with daily reset functionality- Create RP display component with green shield icon and hover tooltip- Implement RP constants with level calculation and activity rewards- Add backend RP DTOs, services, and API endpoints- Integrate RP system into navbar alongside XP, Energy, and Streak- Add RP field to user schema with activity tracking- Implement automatic RP rewards on user signup (5 RP)- Create debug/test interface for RP functionality- Design extensible system for future activity-based RP rewards- Add comprehensive error handling and loading states- Include real-time RP updates and daily progress tracking)
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Star className="h-4 w-4 text-yellow-500" />
                 <span className="text-sm font-medium">Total XP</span>
+<<<<<<< HEAD
               </div>
               <span className="text-xs text-muted-foreground">
                 {xpData.total} XP
@@ -59,12 +65,15 @@ export function XPDisplay() {
             </div>
             
                 <span className="text-sm font-medium">Level {progress.currentLevel}</span>
+=======
+>>>>>>> 4ce3f0d (feat: implement comprehensive RP (Reputation Points) system- Add RP context and state management with daily reset functionality- Create RP display component with green shield icon and hover tooltip- Implement RP constants with level calculation and activity rewards- Add backend RP DTOs, services, and API endpoints- Integrate RP system into navbar alongside XP, Energy, and Streak- Add RP field to user schema with activity tracking- Implement automatic RP rewards on user signup (5 RP)- Create debug/test interface for RP functionality- Design extensible system for future activity-based RP rewards- Add comprehensive error handling and loading states- Include real-time RP updates and daily progress tracking)
               </div>
               <span className="text-xs text-muted-foreground">
-                {xpData.total} XP total
+                {xpData.total} XP
               </span>
             </div>
 
+<<<<<<< HEAD
             {/* Progress Bar */}
             <div className="space-y-1">
               <div className="flex justify-between text-xs text-muted-foreground">
@@ -78,6 +87,8 @@ export function XPDisplay() {
                 />
               </div>
             </div>
+=======
+>>>>>>> 4ce3f0d (feat: implement comprehensive RP (Reputation Points) system- Add RP context and state management with daily reset functionality- Create RP display component with green shield icon and hover tooltip- Implement RP constants with level calculation and activity rewards- Add backend RP DTOs, services, and API endpoints- Integrate RP system into navbar alongside XP, Energy, and Streak- Add RP field to user schema with activity tracking- Implement automatic RP rewards on user signup (5 RP)- Create debug/test interface for RP functionality- Design extensible system for future activity-based RP rewards- Add comprehensive error handling and loading states- Include real-time RP updates and daily progress tracking)
             {/* Stats */}
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="bg-muted/50 rounded p-2">
