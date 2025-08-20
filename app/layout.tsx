@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { SessionProvider } from "@/components/session-provider";
 import { EnergyPackProvider } from "@/lib/contexts/energy-pack-context";
 import { XPProvider } from "@/lib/contexts/xp-context";
+import { RPProvider } from "@/lib/contexts/rp-context";
 import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
@@ -35,15 +36,17 @@ export default function RootLayout({
         <SessionProvider>
           <EnergyPackProvider>
             <XPProvider>
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="system"
-                enableSystem
-                disableTransitionOnChange
-              >
-                {children}
-                <Toaster position="top-right" />
-              </ThemeProvider>
+              <RPProvider>
+                <ThemeProvider
+                  attribute="class"
+                  defaultTheme="system"
+                  enableSystem
+                  disableTransitionOnChange
+                >
+                  {children}
+                  <Toaster position="top-right" />
+                </ThemeProvider>
+              </RPProvider>
             </XPProvider>
           </EnergyPackProvider>
         </SessionProvider>

@@ -41,6 +41,7 @@ import {
   XPResponseDto,
   AddXPDto,
 } from './dto/xp.dto';
+import { RPResponseDto, AddRPDto } from './dto/rp.dto';
 import { Request } from 'express';
 
 // Define the Request with user interface
@@ -460,5 +461,49 @@ export class UsersController {
       );
     }
     return this.usersService.addXP(userId, dto.activityType, dto.amount);
+  }
+
+  // RP (Reputation Points) endpoints
+  @Get('me/rp')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current user RP data' })
+  @ApiResponse({
+    status: 200,
+    description: 'RP data retrieved successfully',
+    type: RPResponseDto,
+  })
+  async getMyRP(@Req() req: RequestWithUser) {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new UnauthorizedException(
+        'User ID is missing from authentication token',
+      );
+    }
+    return this.usersService.getRP(userId);
+  }
+
+  @Post('me/rp')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Add RP for an activity' })
+  @ApiBody({ type: AddRPDto })
+  @ApiResponse({
+    status: 200,
+    description: 'RP added successfully',
+    type: RPResponseDto,
+  })
+  @ApiResponse({ status: 400, description: 'Invalid activity type or amount' })
+  async addRP(
+    @Req() req: RequestWithUser,
+    @Body() dto: AddRPDto,
+  ) {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new UnauthorizedException(
+        'User ID is missing from authentication token',
+      );
+    }
+    return this.usersService.addRP(userId, dto.activityType, dto.amount);
   }
 }

@@ -3,7 +3,7 @@
 import { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useSession } from 'next-auth/react';
 
-interface XPData {
+interface RPData {
   total: number;
   earnedToday: number;
   lastEarned: Date | null;
@@ -14,31 +14,31 @@ interface XPData {
   }>;
 }
 
-interface XPContextType {
-  xpData: XPData | null;
+interface RPContextType {
+  rpData: RPData | null;
   loading: boolean;
-  addXP: (activityType: string, amount: number) => Promise<void>;
-  refreshXP: () => Promise<void>;
+  addRP: (activityType: string, amount: number) => Promise<void>;
+  refreshRP: () => Promise<void>;
 }
 
-const XPContext = createContext<XPContextType | undefined>(undefined);
+const RPContext = createContext<RPContextType | undefined>(undefined);
 
-export function XPProvider({ children }: { children: React.ReactNode }) {
+export function RPProvider({ children }: { children: React.ReactNode }) {
   const { data: session, status } = useSession();
-  const [xpData, setXPData] = useState<XPData | null>(null);
+  const [rpData, setRPData] = useState<RPData | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchXPData = useCallback(async () => {
+  const fetchRPData = useCallback(async () => {
     if (status === 'loading') return;
     
     if (!session?.user) {
-      setXPData(null);
+      setRPData(null);
       setLoading(false);
       return;
     }
 
     try {
-      const response = await fetch('/api/users/me/xp', {
+      const response = await fetch('/api/users/me/rp', {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -47,24 +47,24 @@ export function XPProvider({ children }: { children: React.ReactNode }) {
 
       if (response.ok) {
         const data = await response.json();
-        setXPData(data);
+        setRPData(data);
       } else {
-        console.error('Failed to fetch XP data:', response.statusText);
-        setXPData(null);
+        console.error('Failed to fetch RP data:', response.statusText);
+        setRPData(null);
       }
     } catch (error) {
-      console.error('Error fetching XP data:', error);
-      setXPData(null);
+      console.error('Error fetching RP data:', error);
+      setRPData(null);
     } finally {
       setLoading(false);
     }
   }, [session, status]);
 
-  const addXP = useCallback(async (activityType: string, amount: number) => {
+  const addRP = useCallback(async (activityType: string, amount: number) => {
     if (!session?.user) return;
 
     try {
-      const response = await fetch('/api/users/me/xp', {
+      const response = await fetch('/api/users/me/rp', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -77,39 +77,39 @@ export function XPProvider({ children }: { children: React.ReactNode }) {
 
       if (response.ok) {
         const updatedData = await response.json();
-        setXPData(updatedData);
+        setRPData(updatedData);
       } else {
-        console.error('Failed to add XP:', response.statusText);
+        console.error('Failed to add RP:', response.statusText);
       }
     } catch (error) {
-      console.error('Error adding XP:', error);
+      console.error('Error adding RP:', error);
     }
   }, [session]);
 
-  const refreshXP = useCallback(async () => {
-    await fetchXPData();
-  }, [fetchXPData]);
+  const refreshRP = useCallback(async () => {
+    await fetchRPData();
+  }, [fetchRPData]);
 
   useEffect(() => {
-    fetchXPData();
-  }, [fetchXPData]);
+    fetchRPData();
+  }, [fetchRPData]);
 
   return (
-    <XPContext.Provider value={{
-      xpData,
+    <RPContext.Provider value={{
+      rpData,
       loading,
-      addXP,
-      refreshXP,
+      addRP,
+      refreshRP,
     }}>
       {children}
-    </XPContext.Provider>
+    </RPContext.Provider>
   );
 }
 
-export function useXP() {
-  const context = useContext(XPContext);
+export function useRP() {
+  const context = useContext(RPContext);
   if (context === undefined) {
-    throw new Error('useXP must be used within an XPProvider');
+    throw new Error('useRP must be used within an RPProvider');
   }
   return context;
 }

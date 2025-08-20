@@ -60,7 +60,6 @@ export interface IUser extends IUserDocument {
   // XP (Experience Points) system
   xp?: {
     total: number; // Total XP accumulated
-    level: number; // Current level based on XP
     earnedToday: number; // XP earned today
     lastEarned: Date | null; // Last time XP was earned
     activities: Array<{
@@ -68,6 +67,18 @@ export interface IUser extends IUserDocument {
       amount: number; // XP amount earned
       earnedAt: Date; // When it was earned
     }>; // Last 50 XP activities for history
+  };
+  
+  // RP (Reputation Points) system
+  rp?: {
+    total: number; // Total RP accumulated
+    earnedToday: number; // RP earned today
+    lastEarned: Date | null; // Last time RP was earned
+    activities: Array<{
+      type: string; // Activity type (e.g., 'signup', 'campaign_complete')
+      amount: number; // RP amount earned
+      earnedAt: Date; // When it was earned
+    }>; // Last 50 RP activities for history
   };
 }
 
@@ -149,7 +160,6 @@ const userSchema = new Schema<IUser>(
     // XP (Experience Points) system
     xp: {
       total: { type: Number, default: 0 }, // Total XP accumulated
-      level: { type: Number, default: 1 }, // Start at level 1
       earnedToday: { type: Number, default: 0 }, // XP earned today
       lastEarned: { type: Date, default: null }, // Last time XP was earned
       activities: [{
@@ -157,6 +167,18 @@ const userSchema = new Schema<IUser>(
         amount: { type: Number }, // XP amount earned
         earnedAt: { type: Date } // When it was earned
       }] // XP activity history (keep last 50)
+    },
+    
+    // RP (Reputation Points) system
+    rp: {
+      total: { type: Number, default: 0 }, // Total RP accumulated
+      earnedToday: { type: Number, default: 0 }, // RP earned today
+      lastEarned: { type: Date, default: null }, // Last time RP was earned
+      activities: [{
+        type: { type: String }, // Activity type
+        amount: { type: Number }, // RP amount earned
+        earnedAt: { type: Date } // When it was earned
+      }] // RP activity history (keep last 50)
     },
     
     // Test campaign data for overlay testing
