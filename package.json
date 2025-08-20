@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "dev:unified": "node server.js",
-    "build": "npm run build:schemas && next build && cd backend && npm run build",
+    "build": "next build && cd backend && npm run build",
     "build:schemas": "cd schemas && tsc",
     "build:schemas:watch": "cd schemas && tsc --watch",
     "start": "next start",
