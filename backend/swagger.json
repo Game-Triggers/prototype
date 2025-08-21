@@ -668,7 +668,6 @@
         ]
       }
     },
-<<<<<<< HEAD
     "/api/v1/users/me/level": {
       "get": {
         "operationId": "UsersController_getMyLevel",
@@ -709,6 +708,7 @@
         ]
       }
     },
+ 
     "/api/v1/auth/register": {
       "post": {
         "description": "Create a new user account with email/password or social provider",
@@ -4939,6 +4939,8 @@
             "description": "Total XP accumulated",
             "example": 150
           },
+<<<<<<< HEAD
+
           "level": {
             "type": "number",
             "description": "Current level based on XP",
