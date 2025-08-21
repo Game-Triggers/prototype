@@ -13,6 +13,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { AuthTokenService } from './services/auth-token.service';
 import { XP_REWARDS } from '../../constants/xp-constants';
+import { RP_REWARDS } from '../../constants/rp-constants';
 
 /**
  * Auth service responsible for authentication and user management
@@ -67,6 +68,14 @@ export class AuthService {
     } catch (error) {
       // Log error but don't fail registration if XP addition fails
       console.error('Failed to add signup XP for OAuth user:', error);
+    }
+
+    // Award signup RP for new OAuth users
+    try {
+      await this.usersService.addRP(newUser._id.toString(), 'SIGNUP', RP_REWARDS.SIGNUP);
+    } catch (error) {
+      // Log error but don't fail registration if RP addition fails
+      console.error('Failed to add signup RP for OAuth user:', error);
     }
 
     return newUser;
@@ -128,6 +137,15 @@ export class AuthService {
       // Log error but don't fail registration if XP addition fails
       console.error('Failed to add signup XP:', error);
     }
+
+    // Award signup RP
+    try {
+      await this.usersService.addRP(newUser._id.toString(), 'SIGNUP', RP_REWARDS.SIGNUP);
+    } catch (error) {
+      // Log error but don't fail registration if RP addition fails
+      console.error('Failed to add signup RP:', error);
+    }
+
 
     // Remove password from returned user object
     const result = newUser.toObject();

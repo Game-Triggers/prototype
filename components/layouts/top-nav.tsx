@@ -9,6 +9,7 @@ import { Menu, ChevronDown, LogOut, User as UserIcon, Settings } from "lucide-re
 import StreakBadge from "@/components/ui/streak";
 import { EnergyPack } from "@/components/ui/energy-pack";
 import { XPDisplay } from "@/components/ui/xp-display";
+import { RPDisplay } from "@/components/ui/rp-display";
 import { NotificationBell } from "@/components/notifications/notification-bell";
 
 interface UserType {
@@ -59,6 +60,8 @@ export function TopNav({ toggleSidebar, user }: TopNavProps) {
 
           <XPDisplay />
 
+
+          <RPDisplay />
           <StreakBadge />
 
           <ThemeToggle />

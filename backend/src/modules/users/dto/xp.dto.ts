@@ -34,6 +34,7 @@ export class XPDto {
   total: number;
 
   @ApiProperty({
+
     description: 'Current level based on XP',
     example: 3,
   })
@@ -73,6 +74,7 @@ export class XPResponseDto {
   total: number;
 
   @ApiProperty({
+
     description: 'Current level based on XP',
     example: 3,
   })

@@ -27,6 +27,7 @@ import {
   XPResponseDto,
   AddXPDto,
 } from './dto/xp.dto';
+import { RPResponseDto, AddRPDto } from './dto/rp.dto';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -740,6 +741,7 @@ export class UsersService {
     if (!document.xp) {
       document.xp = {
         total: 0,
+
         level: 1,
         earnedToday: 0,
         lastEarned: null,
@@ -762,6 +764,7 @@ export class UsersService {
 
     return {
       total: document.xp.total,
+
       level: document.xp.level,
       earnedToday: document.xp.earnedToday,
       lastEarned: document.xp.lastEarned,
@@ -781,6 +784,7 @@ export class UsersService {
     if (!document.xp) {
       document.xp = {
         total: 0,
+
         level: 1,
         earnedToday: 0,
         lastEarned: null,
@@ -804,6 +808,7 @@ export class UsersService {
     document.xp.earnedToday += amount;
     document.xp.lastEarned = now;
 
+
     // Calculate new level (simple level calculation: level = floor(total / 100) + 1)
     const newLevel = Math.floor(document.xp.total / 100) + 1;
     document.xp.level = newLevel;
@@ -823,6 +828,106 @@ export class UsersService {
 
     return {
       total: document.xp.total,
+
+      earnedToday: document.xp.earnedToday,
+      lastEarned: document.xp.lastEarned,
+      activities: document.xp.activities.slice(-10), // Return last 10 activities
+    };
+  }
+
+  // RP (Reputation Points) methods
+  async getRP(userId: string): Promise<RPResponseDto> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const document = ensureDocument<IUser>(user);
+
+    // Initialize RP if not exists
+    if (!document.rp) {
+      document.rp = {
+        total: 0,
+        earnedToday: 0,
+        lastEarned: null,
+        activities: [],
+      };
+      await document.save();
+    }
+
+    // Reset daily RP if it's a new day
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const lastEarnedDate = document.rp.lastEarned 
+      ? new Date(document.rp.lastEarned.getFullYear(), document.rp.lastEarned.getMonth(), document.rp.lastEarned.getDate())
+      : null;
+
+    if (!lastEarnedDate || lastEarnedDate < today) {
+      document.rp.earnedToday = 0;
+      await document.save();
+    }
+
+    return {
+      total: document.rp.total,
+      earnedToday: document.rp.earnedToday,
+      lastEarned: document.rp.lastEarned,
+      activities: document.rp.activities.slice(-10), // Return last 10 activities
+    };
+  }
+
+  async addRP(userId: string, activityType: string, amount: number): Promise<RPResponseDto> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const document = ensureDocument<IUser>(user);
+
+    // Initialize RP if not exists
+    if (!document.rp) {
+      document.rp = {
+        total: 0,
+        earnedToday: 0,
+        lastEarned: null,
+        activities: [],
+      };
+    }
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const lastEarnedDate = document.rp.lastEarned 
+      ? new Date(document.rp.lastEarned.getFullYear(), document.rp.lastEarned.getMonth(), document.rp.lastEarned.getDate())
+      : null;
+
+    // Reset daily RP if it's a new day
+    if (!lastEarnedDate || lastEarnedDate < today) {
+      document.rp.earnedToday = 0;
+    }
+
+    // Add RP
+    document.rp.total += amount;
+    document.rp.earnedToday += amount;
+    document.rp.lastEarned = now;
+
+    // Add to activities (keep only last 50)
+    document.rp.activities.push({
+      type: activityType,
+      amount: amount,
+      earnedAt: now,
+    });
+
+    if (document.rp.activities.length > 50) {
+      document.rp.activities = document.rp.activities.slice(-50);
+    }
+
+    await document.save();
+
+    return {
+      total: document.rp.total,
+      earnedToday: document.rp.earnedToday,
+      lastEarned: document.rp.lastEarned,
+      activities: document.rp.activities.slice(-10), // Return last 10 activities
+
       level: document.xp.level,
       earnedToday: document.xp.earnedToday,
       lastEarned: document.xp.lastEarned,

@@ -69,6 +69,18 @@ export interface IUser extends IUserDocument {
       earnedAt: Date; // When it was earned
     }>; // Last 50 XP activities for history
   };
+
+  // RP (Reputation Points) system
+  rp?: {
+    total: number; // Total RP accumulated
+    earnedToday: number; // RP earned today
+    lastEarned: Date | null; // Last time RP was earned
+    activities: Array<{
+      type: string; // Activity type (e.g., 'signup', 'campaign_complete')
+      amount: number; // RP amount earned
+      earnedAt: Date; // When it was earned
+    }>; // Last 50 RP activities for history
+  };
 }
 
 const userSchema = new Schema<IUser>(
@@ -158,7 +170,19 @@ const userSchema = new Schema<IUser>(
         earnedAt: { type: Date } // When it was earned
       }] // XP activity history (keep last 50)
     },
-    
+
+    // RP (Reputation Points) system
+    rp: {
+      total: { type: Number, default: 0 }, // Total RP accumulated
+      earnedToday: { type: Number, default: 0 }, // RP earned today
+      lastEarned: { type: Date, default: null }, // Last time RP was earned
+      activities: [{
+        type: { type: String }, // Activity type
+        amount: { type: Number }, // RP amount earned
+        earnedAt: { type: Date } // When it was earned
+      }] // RP activity history (keep last 50)
+    },
+
     // Test campaign data for overlay testing
     testCampaign: {
       title: { type: String },

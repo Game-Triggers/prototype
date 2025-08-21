@@ -333,6 +333,7 @@ export function useNotifications() {
       console.error('Error creating test notification:', err);
       return false;
     }
+  }, [session, fetchNotifications]);
   const createTestNotification =
     process.env.NODE_ENV === 'development'
       ? useCallback(async (): Promise<boolean> => {
@@ -365,7 +366,6 @@ export function useNotifications() {
           }
         }, [session, fetchNotifications])
       : undefined;
-
   // Auto-fetch unread count on session change
   useEffect(() => {
     if (session) {

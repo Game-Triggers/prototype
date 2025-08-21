@@ -4,6 +4,7 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { RPTestActions } from "./rp-test-actions";
 
 export default function SessionDebugContent() {
   const { data: session, status, update } = useSession();
@@ -96,6 +97,14 @@ export default function SessionDebugContent() {
             </div>
           )}
         </Card>
+
+        {/* RP Test Actions */}
+        {session?.user && (
+          <Card className="p-6">
+            <h2 className="text-xl font-semibold mb-4">RP System Testing</h2>
+            <RPTestActions />
+          </Card>
+        )}
       </div>
     </div>
   );
