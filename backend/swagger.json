@@ -708,6 +708,7 @@
         ]
       }
     },
+ 
     "/api/v1/auth/register": {
       "post": {
         "description": "Create a new user account with email/password or social provider",
@@ -4843,11 +4844,13 @@
             "description": "Total XP accumulated",
             "example": 150
           },
+
           "level": {
             "type": "number",
             "description": "Current level based on XP",
             "example": 3
           },
+
           "earnedToday": {
             "type": "number",
             "description": "XP earned today",

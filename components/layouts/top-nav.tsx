@@ -63,12 +63,10 @@ export function TopNav({ toggleSidebar, user }: TopNavProps) {
 
           <RPDisplay />
 
-          <LevelDisplay />
-          
+          <LevelDisplay />       
+          <RPDisplay />
           <StreakBadge />
-
           <ThemeToggle />
-
           {user && (
             <div className="relative">
               <button

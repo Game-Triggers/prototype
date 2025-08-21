@@ -50,6 +50,25 @@ export default function RootLayout({
                   </ThemeProvider>
                 </LevelProvider>
               </RPProvider>
+                <ThemeProvider
+                  attribute="class"
+                  defaultTheme="system"
+                  enableSystem
+                  disableTransitionOnChange
+                >
+                  {children}
+                  <Toaster position="top-right" />
+                </ThemeProvider>
+              </RPProvider>
+              <ThemeProvider
+                attribute="class"
+                defaultTheme="system"
+                enableSystem
+                disableTransitionOnChange
+              >
+                {children}
+                <Toaster position="top-right" />
+              </ThemeProvider>
             </XPProvider>
           </EnergyPackProvider>
         </SessionProvider>

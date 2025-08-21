@@ -45,11 +45,19 @@ export function XPDisplay() {
             Experience Points
           </div>
           
+          {/* XP Info */}
           {/* Level and XP Info */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Star className="h-4 w-4 text-yellow-500" />
+                <span className="text-sm font-medium">Total XP</span>
+              </div>
+              <span className="text-xs text-muted-foreground">
+                {xpData.total} XP
+              </span>
+            </div>
+            
                 <span className="text-sm font-medium">Level {progress.currentLevel}</span>
               </div>
               <span className="text-xs text-muted-foreground">
