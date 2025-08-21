@@ -94,7 +94,7 @@ export class ConflictRulesService {
           await this.saveViolation(violation);
 
           // Update rule statistics
-          await this.updateRuleStats(rule._id as string, violation.severity);
+          await this.updateRuleStats(rule._id, violation.severity);
         }
       }
 

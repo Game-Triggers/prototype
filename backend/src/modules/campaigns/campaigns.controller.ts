@@ -456,9 +456,15 @@ export class CampaignsController {
   @Roles(UserRole.ADMIN)
   @ApiOperation({ summary: 'Admin approves a pending campaign' })
   @ApiParam({ name: 'id', description: 'Campaign ID' })
-  @ApiResponse({ status: 200, description: 'Campaign approved and activated successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Campaign approved and activated successfully',
+  })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required',
+  })
   @ApiResponse({ status: 404, description: 'Campaign not found' })
   @ApiBearerAuth()
   async approveCampaign(@Param('id') id: string, @Req() req: RequestWithUser) {
@@ -488,13 +494,16 @@ export class CampaignsController {
   })
   @ApiResponse({ status: 200, description: 'Campaign rejected successfully' })
   @ApiResponse({ status: 400, description: 'Bad request' })
-  @ApiResponse({ status: 403, description: 'Forbidden - Admin access required' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required',
+  })
   @ApiResponse({ status: 404, description: 'Campaign not found' })
   @ApiBearerAuth()
   async rejectCampaign(
     @Param('id') id: string,
     @Body() body: { reason?: string },
-    @Req() req: RequestWithUser
+    @Req() req: RequestWithUser,
   ) {
     const adminId = req.user?.id;
     return this.campaignsService.rejectCampaign(id, adminId, body.reason);

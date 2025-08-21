@@ -22,7 +22,7 @@ export class NotificationService {
       payload.campaignId,
       'Campaign Activated',
       `Your campaign has been activated with a budget of ₹${payload.budget}`,
-      'medium'
+      'medium',
     );
 
     // For now, just log the event
@@ -46,7 +46,7 @@ export class NotificationService {
       payload.streamerId,
       payload.amount,
       payload.campaignId,
-      'medium'
+      'medium',
     );
 
     console.log('💰 Earnings Credited Notification:', {
@@ -72,7 +72,11 @@ export class NotificationService {
       message: `₹${payload.amount} has been charged from your campaign budget`,
       type: 'payment',
       priority: 'medium',
-      data: { amount: payload.amount, campaignId: payload.campaignId, streamerId: payload.streamerId },
+      data: {
+        amount: payload.amount,
+        campaignId: payload.campaignId,
+        streamerId: payload.streamerId,
+      },
       actionUrl: `/dashboard/campaigns/${payload.campaignId}`,
     });
 
@@ -96,7 +100,7 @@ export class NotificationService {
       payload.campaignId,
       'Campaign Completed',
       `Your campaign has been completed with ${payload.participantCount} participants`,
-      'high'
+      'high',
     );
 
     console.log('🎯 Campaign Completed Notification:', {
@@ -119,7 +123,10 @@ export class NotificationService {
       message: `Your campaign has been cancelled. ₹${payload.refundAmount} has been refunded to your wallet`,
       type: 'campaign',
       priority: 'high',
-      data: { campaignId: payload.campaignId, refundAmount: payload.refundAmount },
+      data: {
+        campaignId: payload.campaignId,
+        refundAmount: payload.refundAmount,
+      },
       actionUrl: '/dashboard/wallet',
     });
 
@@ -143,10 +150,10 @@ export class NotificationService {
       message: `Warning: Your campaign budget is running low. Remaining: ₹${payload.remainingBudget}`,
       type: 'campaign',
       priority: 'urgent',
-      data: { 
-        campaignId: payload.campaignId, 
-        remainingBudget: payload.remainingBudget, 
-        threshold: payload.threshold 
+      data: {
+        campaignId: payload.campaignId,
+        remainingBudget: payload.remainingBudget,
+        threshold: payload.threshold,
       },
       actionUrl: `/dashboard/campaigns/${payload.campaignId}`,
     });
@@ -173,7 +180,7 @@ export class NotificationService {
       payload.amount,
       'approved',
       undefined,
-      'high'
+      'high',
     );
 
     console.log('✅ Withdrawal Approved Notification:', {
@@ -196,7 +203,7 @@ export class NotificationService {
       payload.amount,
       'rejected',
       payload.reason,
-      'high'
+      'high',
     );
 
     console.log('❌ Withdrawal Rejected Notification:', {
@@ -216,7 +223,8 @@ export class NotificationService {
     await this.coreNotificationService.createNotification({
       userId: payload.userId,
       title: 'KYC Approved',
-      message: 'Your KYC verification has been approved. You can now make withdrawals',
+      message:
+        'Your KYC verification has been approved. You can now make withdrawals',
       type: 'kyc',
       priority: 'high',
       actionUrl: '/dashboard/wallet',
@@ -292,10 +300,10 @@ export class NotificationService {
       message: `A dispute has been created for ₹${payload.amount}. Reason: ${payload.reason}`,
       type: 'dispute',
       priority: 'high',
-      data: { 
-        disputeId: payload.disputeId, 
-        amount: payload.amount, 
-        reason: payload.reason 
+      data: {
+        disputeId: payload.disputeId,
+        amount: payload.amount,
+        reason: payload.reason,
       },
       actionUrl: '/dashboard/disputes',
     });
@@ -321,9 +329,9 @@ export class NotificationService {
       message: `Your dispute has been resolved. Resolution: ${payload.resolution}`,
       type: 'dispute',
       priority: 'high',
-      data: { 
-        disputeId: payload.disputeId, 
-        resolution: payload.resolution 
+      data: {
+        disputeId: payload.disputeId,
+        resolution: payload.resolution,
       },
       actionUrl: '/dashboard/disputes',
     });

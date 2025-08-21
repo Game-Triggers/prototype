@@ -57,7 +57,11 @@ export const LEVEL_REQUIREMENTS: LevelRequirement[] = [
     minRP: 300,
     badge: '👥',
     color: '#8b5cf6', // violet-500
-    perks: ['Featured profile placement', 'Early campaign access', '15% bonus XP/RP'],
+    perks: [
+      'Featured profile placement',
+      'Early campaign access',
+      '15% bonus XP/RP',
+    ],
     icon: 'Users',
   },
   {
@@ -68,7 +72,11 @@ export const LEVEL_REQUIREMENTS: LevelRequirement[] = [
     minRP: 500,
     badge: '🤝',
     color: '#f59e0b', // amber-500
-    perks: ['Exclusive brand partnerships', 'Analytics dashboard', '20% bonus XP/RP'],
+    perks: [
+      'Exclusive brand partnerships',
+      'Analytics dashboard',
+      '20% bonus XP/RP',
+    ],
     icon: 'Handshake',
   },
   {
@@ -79,7 +87,11 @@ export const LEVEL_REQUIREMENTS: LevelRequirement[] = [
     minRP: 750,
     badge: '🎯',
     color: '#ef4444', // red-500
-    perks: ['Custom campaign negotiations', 'Personal account manager', '25% bonus XP/RP'],
+    perks: [
+      'Custom campaign negotiations',
+      'Personal account manager',
+      '25% bonus XP/RP',
+    ],
     icon: 'Target',
   },
   {
@@ -90,7 +102,11 @@ export const LEVEL_REQUIREMENTS: LevelRequirement[] = [
     minRP: 1100,
     badge: '⭐',
     color: '#dc2626', // red-600
-    perks: ['Beta feature access', 'Mentorship opportunities', '30% bonus XP/RP'],
+    perks: [
+      'Beta feature access',
+      'Mentorship opportunities',
+      '30% bonus XP/RP',
+    ],
     icon: 'Star',
   },
   {
@@ -101,7 +117,11 @@ export const LEVEL_REQUIREMENTS: LevelRequirement[] = [
     minRP: 1500,
     badge: '🏆',
     color: '#7c3aed', // violet-600
-    perks: ['Platform ambassador status', 'Event invitations', '35% bonus XP/RP'],
+    perks: [
+      'Platform ambassador status',
+      'Event invitations',
+      '35% bonus XP/RP',
+    ],
     icon: 'Trophy',
   },
   {
@@ -112,7 +132,11 @@ export const LEVEL_REQUIREMENTS: LevelRequirement[] = [
     minRP: 2000,
     badge: '💎',
     color: '#1d4ed8', // blue-700
-    perks: ['Elite campaign access', 'Revenue sharing program', '40% bonus XP/RP'],
+    perks: [
+      'Elite campaign access',
+      'Revenue sharing program',
+      '40% bonus XP/RP',
+    ],
     icon: 'Diamond',
   },
   {
@@ -123,9 +147,14 @@ export const LEVEL_REQUIREMENTS: LevelRequirement[] = [
     minRP: 2750,
     badge: '👑',
     color: '#facc15', // yellow-400
-    perks: ['Legendary status', 'Maximum benefits', '50% bonus XP/RP', 'Platform partnership'],
+    perks: [
+      'Legendary status',
+      'Maximum benefits',
+      '50% bonus XP/RP',
+      'Platform partnership',
+    ],
     icon: 'Crown',
-  }
+  },
 ];
 
 // Configuration for level requirements (easily changeable)
@@ -138,7 +167,10 @@ export const LEVEL_CONFIG = {
 } as const;
 
 // Calculate user's current level based on XP and RP
-export function calculateUserLevel(totalXP: number, totalRP: number): {
+export function calculateUserLevel(
+  totalXP: number,
+  totalRP: number,
+): {
   currentLevel: number;
   currentLevelData: LevelRequirement;
   nextLevelData: LevelRequirement | null;
@@ -148,14 +180,14 @@ export function calculateUserLevel(totalXP: number, totalRP: number): {
   missingRP: number;
 } {
   // Apply multipliers to requirements
-  const adjustedLevels = LEVEL_REQUIREMENTS.map(level => ({
+  const adjustedLevels = LEVEL_REQUIREMENTS.map((level) => ({
     ...level,
     minXP: Math.floor(level.minXP * LEVEL_CONFIG.XP_MULTIPLIER),
-    minRP: Math.floor(level.minRP * LEVEL_CONFIG.RP_MULTIPLIER)
+    minRP: Math.floor(level.minRP * LEVEL_CONFIG.RP_MULTIPLIER),
   }));
 
   let currentLevel = 1;
-  
+
   // Find the highest level the user qualifies for
   for (let i = adjustedLevels.length - 1; i >= 0; i--) {
     const level = adjustedLevels[i];
@@ -166,7 +198,8 @@ export function calculateUserLevel(totalXP: number, totalRP: number): {
   }
 
   const currentLevelData = adjustedLevels[currentLevel - 1];
-  const nextLevelData = currentLevel < LEVEL_CONFIG.MAX_LEVEL ? adjustedLevels[currentLevel] : null;
+  const nextLevelData =
+    currentLevel < LEVEL_CONFIG.MAX_LEVEL ? adjustedLevels[currentLevel] : null;
 
   let progressToNext = 0;
   let canAdvance = false;
@@ -176,11 +209,12 @@ export function calculateUserLevel(totalXP: number, totalRP: number): {
   if (nextLevelData) {
     const xpProgress = Math.min(totalXP / nextLevelData.minXP, 1);
     const rpProgress = Math.min(totalRP / nextLevelData.minRP, 1);
-    
+
     // Progress is based on the minimum of XP and RP progress (both requirements must be met)
     progressToNext = Math.min(xpProgress, rpProgress) * 100;
-    
-    canAdvance = totalXP >= nextLevelData.minXP && totalRP >= nextLevelData.minRP;
+
+    canAdvance =
+      totalXP >= nextLevelData.minXP && totalRP >= nextLevelData.minRP;
     missingXP = Math.max(0, nextLevelData.minXP - totalXP);
     missingRP = Math.max(0, nextLevelData.minRP - totalRP);
   }
@@ -192,12 +226,15 @@ export function calculateUserLevel(totalXP: number, totalRP: number): {
     progressToNext,
     canAdvance,
     missingXP,
-    missingRP
+    missingRP,
   };
 }
 
 // Get level progress including historical data
-export function getLevelProgress(totalXP: number, totalRP: number): {
+export function getLevelProgress(
+  totalXP: number,
+  totalRP: number,
+): {
   currentLevel: number;
   completedLevels: LevelRequirement[];
   currentLevelData: LevelRequirement;
@@ -205,8 +242,11 @@ export function getLevelProgress(totalXP: number, totalRP: number): {
   totalProgress: number;
 } {
   const levelInfo = calculateUserLevel(totalXP, totalRP);
-  
-  const completedLevels = LEVEL_REQUIREMENTS.slice(0, levelInfo.currentLevel - 1);
+
+  const completedLevels = LEVEL_REQUIREMENTS.slice(
+    0,
+    levelInfo.currentLevel - 1,
+  );
   const upcomingLevels = LEVEL_REQUIREMENTS.slice(levelInfo.currentLevel);
   const totalProgress = (levelInfo.currentLevel / LEVEL_CONFIG.MAX_LEVEL) * 100;
 
@@ -215,7 +255,7 @@ export function getLevelProgress(totalXP: number, totalRP: number): {
     completedLevels,
     currentLevelData: levelInfo.currentLevelData,
     upcomingLevels,
-    totalProgress
+    totalProgress,
   };
 }
 
@@ -224,11 +264,11 @@ export function getLevelBonus(currentLevel: number): {
   xpBonus: number;
   rpBonus: number;
 } {
-  const levelData = LEVEL_REQUIREMENTS.find(l => l.level === currentLevel);
+  const levelData = LEVEL_REQUIREMENTS.find((l) => l.level === currentLevel);
   if (!levelData) return { xpBonus: 0, rpBonus: 0 };
 
   // Extract bonus percentage from perks
-  const bonusText = levelData.perks.find(perk => perk.includes('bonus XP'));
+  const bonusText = levelData.perks.find((perk) => perk.includes('bonus XP'));
   if (!bonusText) return { xpBonus: 0, rpBonus: 0 };
 
   const match = bonusText.match(/(\d+)%/);
@@ -236,20 +276,20 @@ export function getLevelBonus(currentLevel: number): {
 
   return {
     xpBonus: LEVEL_CONFIG.BONUS_XP_ENABLED ? bonus : 0,
-    rpBonus: LEVEL_CONFIG.BONUS_RP_ENABLED ? bonus : 0
+    rpBonus: LEVEL_CONFIG.BONUS_RP_ENABLED ? bonus : 0,
   };
 }
 
 // Utility function to get level color by level number
 export function getLevelColor(level: number): string {
-  const levelData = LEVEL_REQUIREMENTS.find(l => l.level === level);
-  return levelData?.color || "#6b7280"; // gray-500 as fallback
+  const levelData = LEVEL_REQUIREMENTS.find((l) => l.level === level);
+  return levelData?.color || '#6b7280'; // gray-500 as fallback
 }
 
 // Utility function to get level badge by level number
 export function getLevelBadge(level: number): string {
-  const levelData = LEVEL_REQUIREMENTS.find(l => l.level === level);
-  return levelData?.badge || "🔰"; // beginner badge as fallback
+  const levelData = LEVEL_REQUIREMENTS.find((l) => l.level === level);
+  return levelData?.badge || '🔰'; // beginner badge as fallback
 }
 
 // Activity type definitions for type safety

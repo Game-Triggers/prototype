@@ -7,7 +7,14 @@ interface CreateNotificationDto {
   userId: string;
   title: string;
   message: string;
-  type: 'campaign' | 'earnings' | 'withdrawal' | 'kyc' | 'system' | 'payment' | 'dispute';
+  type:
+    | 'campaign'
+    | 'earnings'
+    | 'withdrawal'
+    | 'kyc'
+    | 'system'
+    | 'payment'
+    | 'dispute';
   priority?: 'low' | 'medium' | 'high' | 'urgent';
   data?: Record<string, unknown>;
   actionUrl?: string;
@@ -44,11 +51,16 @@ export class NotificationService {
       });
 
       await notification.save();
-      this.logger.log(`Notification created for user ${dto.userId}: ${dto.title}`);
-      
+      this.logger.log(
+        `Notification created for user ${dto.userId}: ${dto.title}`,
+      );
+
       return notification;
     } catch (error) {
-      this.logger.error(`Failed to create notification: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to create notification: ${error.message}`,
+        error.stack,
+      );
       throw new Error(`Failed to create notification: ${error.message}`);
     }
   }
@@ -63,11 +75,11 @@ export class NotificationService {
   }> {
     try {
       const query: Record<string, unknown> = { userId: filters.userId };
-      
+
       if (filters.isRead !== undefined) {
         query.isRead = filters.isRead;
       }
-      
+
       if (filters.type) {
         query.type = filters.type;
       }
@@ -84,9 +96,9 @@ export class NotificationService {
           .lean()
           .exec(),
         this.notificationModel.countDocuments(query),
-        this.notificationModel.countDocuments({ 
-          userId: filters.userId, 
-          isRead: false 
+        this.notificationModel.countDocuments({
+          userId: filters.userId,
+          isRead: false,
         }),
       ]);
 
@@ -96,7 +108,10 @@ export class NotificationService {
         unreadCount,
       };
     } catch (error) {
-      this.logger.error(`Failed to get user notifications: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to get user notifications: ${error.message}`,
+        error.stack,
+      );
       throw new Error('Failed to get notifications');
     }
   }
@@ -116,9 +131,9 @@ export class NotificationService {
           .limit(2)
           .lean()
           .exec(),
-        this.notificationModel.countDocuments({ 
-          userId, 
-          isRead: false 
+        this.notificationModel.countDocuments({
+          userId,
+          isRead: false,
         }),
       ]);
 
@@ -127,7 +142,10 @@ export class NotificationService {
         unreadCount,
       };
     } catch (error) {
-      this.logger.error(`Failed to get latest notifications: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to get latest notifications: ${error.message}`,
+        error.stack,
+      );
       throw new Error('Failed to get latest notifications');
     }
   }
@@ -135,24 +153,35 @@ export class NotificationService {
   /**
    * Mark notification as read
    */
-  async markAsRead(notificationId: string, userId: string): Promise<INotification | null> {
+  async markAsRead(
+    notificationId: string,
+    userId: string,
+  ): Promise<INotification | null> {
     try {
-      const notification = await this.notificationModel.findOneAndUpdate(
-        { _id: notificationId, userId },
-        { 
-          isRead: true, 
-          readAt: new Date() 
-        },
-        { new: true }
-      ).lean().exec();
+      const notification = await this.notificationModel
+        .findOneAndUpdate(
+          { _id: notificationId, userId },
+          {
+            isRead: true,
+            readAt: new Date(),
+          },
+          { new: true },
+        )
+        .lean()
+        .exec();
 
       if (notification) {
-        this.logger.log(`Notification ${notificationId} marked as read for user ${userId}`);
+        this.logger.log(
+          `Notification ${notificationId} marked as read for user ${userId}`,
+        );
       }
 
       return notification as INotification;
     } catch (error) {
-      this.logger.error(`Failed to mark notification as read: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to mark notification as read: ${error.message}`,
+        error.stack,
+      );
       throw new Error('Failed to mark notification as read');
     }
   }
@@ -160,24 +189,32 @@ export class NotificationService {
   /**
    * Mark multiple notifications as read
    */
-  async markMultipleAsRead(notificationIds: string[], userId: string): Promise<number> {
+  async markMultipleAsRead(
+    notificationIds: string[],
+    userId: string,
+  ): Promise<number> {
     try {
       const result = await this.notificationModel.updateMany(
-        { 
-          _id: { $in: notificationIds }, 
+        {
+          _id: { $in: notificationIds },
           userId,
-          isRead: false 
+          isRead: false,
         },
-        { 
-          isRead: true, 
-          readAt: new Date() 
-        }
+        {
+          isRead: true,
+          readAt: new Date(),
+        },
       );
 
-      this.logger.log(`${result.modifiedCount} notifications marked as read for user ${userId}`);
+      this.logger.log(
+        `${result.modifiedCount} notifications marked as read for user ${userId}`,
+      );
       return result.modifiedCount;
     } catch (error) {
-      this.logger.error(`Failed to mark multiple notifications as read: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to mark multiple notifications as read: ${error.message}`,
+        error.stack,
+      );
       throw new Error('Failed to mark notifications as read');
     }
   }
@@ -189,16 +226,21 @@ export class NotificationService {
     try {
       const result = await this.notificationModel.updateMany(
         { userId, isRead: false },
-        { 
-          isRead: true, 
-          readAt: new Date() 
-        }
+        {
+          isRead: true,
+          readAt: new Date(),
+        },
       );
 
-      this.logger.log(`${result.modifiedCount} notifications marked as read for user ${userId}`);
+      this.logger.log(
+        `${result.modifiedCount} notifications marked as read for user ${userId}`,
+      );
       return result.modifiedCount;
     } catch (error) {
-      this.logger.error(`Failed to mark all notifications as read: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to mark all notifications as read: ${error.message}`,
+        error.stack,
+      );
       throw new Error('Failed to mark all notifications as read');
     }
   }
@@ -206,7 +248,10 @@ export class NotificationService {
   /**
    * Delete notification
    */
-  async deleteNotification(notificationId: string, userId: string): Promise<boolean> {
+  async deleteNotification(
+    notificationId: string,
+    userId: string,
+  ): Promise<boolean> {
     try {
       const result = await this.notificationModel.deleteOne({
         _id: notificationId,
@@ -215,12 +260,17 @@ export class NotificationService {
 
       const success = result.deletedCount > 0;
       if (success) {
-        this.logger.log(`Notification ${notificationId} deleted for user ${userId}`);
+        this.logger.log(
+          `Notification ${notificationId} deleted for user ${userId}`,
+        );
       }
 
       return success;
     } catch (error) {
-      this.logger.error(`Failed to delete notification: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to delete notification: ${error.message}`,
+        error.stack,
+      );
       throw new Error('Failed to delete notification');
     }
   }
@@ -235,7 +285,10 @@ export class NotificationService {
         isRead: false,
       });
     } catch (error) {
-      this.logger.error(`Failed to get unread count: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to get unread count: ${error.message}`,
+        error.stack,
+      );
       throw new Error('Failed to get unread count');
     }
   }
@@ -249,10 +302,15 @@ export class NotificationService {
         expiresAt: { $lt: new Date() },
       });
 
-      this.logger.log(`Cleaned up ${result.deletedCount} expired notifications`);
+      this.logger.log(
+        `Cleaned up ${result.deletedCount} expired notifications`,
+      );
       return result.deletedCount;
     } catch (error) {
-      this.logger.error(`Failed to cleanup expired notifications: ${error.message}`, error.stack);
+      this.logger.error(
+        `Failed to cleanup expired notifications: ${error.message}`,
+        error.stack,
+      );
       throw new Error('Failed to cleanup expired notifications');
     }
   }
@@ -260,11 +318,11 @@ export class NotificationService {
   // Helper methods for creating specific notification types
 
   async createCampaignNotification(
-    userId: string, 
-    campaignId: string, 
-    title: string, 
+    userId: string,
+    campaignId: string,
+    title: string,
     message: string,
-    priority: 'low' | 'medium' | 'high' | 'urgent' = 'medium'
+    priority: 'low' | 'medium' | 'high' | 'urgent' = 'medium',
   ): Promise<INotification> {
     return this.createNotification({
       userId,
@@ -278,10 +336,10 @@ export class NotificationService {
   }
 
   async createEarningsNotification(
-    userId: string, 
-    amount: number, 
+    userId: string,
+    amount: number,
     campaignId?: string,
-    priority: 'low' | 'medium' | 'high' | 'urgent' = 'medium'
+    priority: 'low' | 'medium' | 'high' | 'urgent' = 'medium',
   ): Promise<INotification> {
     return this.createNotification({
       userId,
@@ -295,16 +353,18 @@ export class NotificationService {
   }
 
   async createWithdrawalNotification(
-    userId: string, 
-    amount: number, 
+    userId: string,
+    amount: number,
     status: 'approved' | 'rejected',
     reason?: string,
-    priority: 'low' | 'medium' | 'high' | 'urgent' = 'high'
+    priority: 'low' | 'medium' | 'high' | 'urgent' = 'high',
   ): Promise<INotification> {
-    const title = status === 'approved' ? 'Withdrawal Approved' : 'Withdrawal Rejected';
-    const message = status === 'approved' 
-      ? `Your withdrawal request of ₹${amount} has been approved`
-      : `Your withdrawal request of ₹${amount} has been rejected${reason ? `: ${reason}` : ''}`;
+    const title =
+      status === 'approved' ? 'Withdrawal Approved' : 'Withdrawal Rejected';
+    const message =
+      status === 'approved'
+        ? `Your withdrawal request of ₹${amount} has been approved`
+        : `Your withdrawal request of ₹${amount} has been rejected${reason ? `: ${reason}` : ''}`;
 
     return this.createNotification({
       userId,
@@ -318,11 +378,11 @@ export class NotificationService {
   }
 
   async createSystemNotification(
-    userId: string, 
-    title: string, 
+    userId: string,
+    title: string,
     message: string,
     priority: 'low' | 'medium' | 'high' | 'urgent' = 'medium',
-    actionUrl?: string
+    actionUrl?: string,
   ): Promise<INotification> {
     return this.createNotification({
       userId,

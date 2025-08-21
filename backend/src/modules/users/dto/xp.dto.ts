@@ -1,5 +1,12 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNumber, IsOptional, IsDateString, IsArray, ValidateNested } from 'class-validator';
+import {
+  IsString,
+  IsNumber,
+  IsOptional,
+  IsDateString,
+  IsArray,
+  ValidateNested,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class XPActivityDto {
@@ -34,7 +41,6 @@ export class XPDto {
   total: number;
 
   @ApiProperty({
-
     description: 'Current level based on XP',
     example: 3,
   })
@@ -74,7 +80,6 @@ export class XPResponseDto {
   total: number;
 
   @ApiProperty({
-
     description: 'Current level based on XP',
     example: 3,
   })

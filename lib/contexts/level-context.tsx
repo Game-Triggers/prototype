@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { usersApi } from "@/lib/api-client";
 import { calculateUserLevel } from "@/lib/level-constants";
 import { useXP } from "@/lib/contexts/xp-context";
 import { useRP } from "@/lib/contexts/rp-context";
@@ -60,38 +59,54 @@ export function LevelProvider({ children }: { children: React.ReactNode }) {
   }, [xpData, rpData]);
 
   const checkForLevelUp = useCallback(async () => {
-    if (!session?.user) return;
+    if (!session?.user) {
+      console.log('Level context: No session user available');
+      return;
+    }
+
+    console.log('Level context: Calling checkLevelUp via Next.js API route');
 
     try {
-      const result = await usersApi.checkLevelUp() as {
-        leveledUp: boolean;
-        oldLevel: number;
-        newLevel: number;
-      };
-      
-      if (result.leveledUp) {
-        // Refresh the level data
-        const newLevelInfo = calculateLevel();
-        if (newLevelInfo) {
-          setLevelData(newLevelInfo);
-        }
+      const response = await fetch('/api/users/me/level/check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        const result = await response.json() as {
+          leveledUp: boolean;
+          oldLevel: number;
+          newLevel: number;
+        };
         
-        // Show level up notification
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('levelUp', {
-            detail: {
-              oldLevel: result.oldLevel,
-              newLevel: result.newLevel
-            }
-          }));
+        if (result.leveledUp) {
+          // Refresh the level data
+          const newLevelInfo = calculateLevel();
+          if (newLevelInfo) {
+            setLevelData(newLevelInfo);
+          }
+          
+          // Show level up notification
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('levelUp', {
+              detail: {
+                oldLevel: result.oldLevel,
+                newLevel: result.newLevel
+              }
+            }));
+          }
         }
+      } else {
+        console.error('Level check failed:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Failed to check for level up:', error);
       // Don't throw the error - just log it and continue
       // This prevents authentication errors from breaking the UI
     }
-  }, [session?.user, calculateLevel]);
+  }, [session, calculateLevel]);
 
   useEffect(() => {
     if (!session?.user || !xpData || !rpData) {

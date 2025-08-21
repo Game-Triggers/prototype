@@ -67,30 +67,18 @@ export interface IUser extends IUserDocument {
             earnedAt: Date;
         }>;
     };
-    levelHistory?: Array<{
-        level: number;
-        achievedAt: Date;
-        totalXP: number;
-        totalRP: number;
-    }>;
-    currentLevel?: {
-        level: number;
-        lastUpdated: Date;
-        totalXP: number;
-        totalRP: number;
-    };
 }
-export declare const UserSchema: Schema<IUser, Model<IUser, any, any, any, import("mongoose").Document<unknown, any, IUser> & IUser & Required<{
+export declare const UserSchema: Schema<IUser, Model<IUser, any, any, any, import("mongoose").Document<unknown, any, IUser, any, {}> & IUser & Required<{
     _id: import("mongoose").Types.ObjectId;
 }> & {
     __v: number;
-}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, IUser, import("mongoose").Document<unknown, {}, import("mongoose").FlatRecord<IUser>> & import("mongoose").FlatRecord<IUser> & Required<{
+}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, IUser, import("mongoose").Document<unknown, {}, import("mongoose").FlatRecord<IUser>, {}, import("mongoose").ResolveSchemaOptions<import("mongoose").DefaultSchemaOptions>> & import("mongoose").FlatRecord<IUser> & Required<{
     _id: import("mongoose").Types.ObjectId;
 }> & {
     __v: number;
 }>;
 export declare function getUserModel(): Model<IUser> | null;
-export declare const User: Model<IUser, {}, {}, {}, import("mongoose").Document<unknown, {}, IUser> & IUser & Required<{
+export declare const User: Model<IUser, {}, {}, {}, import("mongoose").Document<unknown, {}, IUser, {}, {}> & IUser & Required<{
     _id: import("mongoose").Types.ObjectId;
 }> & {
     __v: number;

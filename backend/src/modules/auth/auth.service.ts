@@ -64,7 +64,11 @@ export class AuthService {
 
     // Award signup XP for new OAuth users
     try {
-      await this.usersService.addXP(newUser._id.toString(), 'SIGNUP', XP_REWARDS.SIGNUP);
+      await this.usersService.addXP(
+        newUser._id.toString(),
+        'SIGNUP',
+        XP_REWARDS.SIGNUP,
+      );
     } catch (error) {
       // Log error but don't fail registration if XP addition fails
       console.error('Failed to add signup XP for OAuth user:', error);
@@ -72,7 +76,11 @@ export class AuthService {
 
     // Award signup RP for new OAuth users
     try {
-      await this.usersService.addRP(newUser._id.toString(), 'SIGNUP', RP_REWARDS.SIGNUP);
+      await this.usersService.addRP(
+        newUser._id.toString(),
+        'SIGNUP',
+        RP_REWARDS.SIGNUP,
+      );
     } catch (error) {
       // Log error but don't fail registration if RP addition fails
       console.error('Failed to add signup RP for OAuth user:', error);
@@ -132,7 +140,11 @@ export class AuthService {
 
     // Award signup XP
     try {
-      await this.usersService.addXP(newUser._id.toString(), 'SIGNUP', XP_REWARDS.SIGNUP);
+      await this.usersService.addXP(
+        newUser._id.toString(),
+        'SIGNUP',
+        XP_REWARDS.SIGNUP,
+      );
     } catch (error) {
       // Log error but don't fail registration if XP addition fails
       console.error('Failed to add signup XP:', error);
@@ -140,12 +152,15 @@ export class AuthService {
 
     // Award signup RP
     try {
-      await this.usersService.addRP(newUser._id.toString(), 'SIGNUP', RP_REWARDS.SIGNUP);
+      await this.usersService.addRP(
+        newUser._id.toString(),
+        'SIGNUP',
+        RP_REWARDS.SIGNUP,
+      );
     } catch (error) {
       // Log error but don't fail registration if RP addition fails
       console.error('Failed to add signup RP:', error);
     }
-
 
     // Remove password from returned user object
     const result = newUser.toObject();

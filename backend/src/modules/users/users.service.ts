@@ -23,10 +23,7 @@ import {
   EnergyPacksResponseDto,
   ConsumeEnergyPackDto,
 } from './dto/energy-packs.dto';
-import {
-  XPResponseDto,
-  AddXPDto,
-} from './dto/xp.dto';
+import { XPResponseDto, AddXPDto } from './dto/xp.dto';
 import { RPResponseDto, AddRPDto } from './dto/rp.dto';
 import { getLevelFromXP } from '../../constants/xp-constants';
 import { RP_REWARDS, getLevelFromRP } from '../../constants/rp-constants';
@@ -495,7 +492,9 @@ export class UsersService {
 
   /** Normalize a date to UTC midnight */
   private toUtcDay(d: Date): Date {
-    return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()));
+    return new Date(
+      Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()),
+    );
   }
 
   /** Returns date for N days before given date (UTC) */
@@ -607,8 +606,9 @@ export class UsersService {
 
     const today = this.toUtcDay(new Date());
     const historySet = new Set(
-      (user.streakHistory || [])
-        .map((d) => this.toUtcDay(new Date(d)).toISOString())
+      (user.streakHistory || []).map((d) =>
+        this.toUtcDay(new Date(d)).toISOString(),
+      ),
     );
 
     const last7Days = Array.from({ length: 7 }, (_, i) => {
@@ -620,34 +620,45 @@ export class UsersService {
     return {
       current: user.streakCurrent || 0,
       longest: user.streakLongest || 0,
-      lastDate: user.streakLastDate ? this.toUtcDay(new Date(user.streakLastDate)).toISOString() : null,
+      lastDate: user.streakLastDate
+        ? this.toUtcDay(new Date(user.streakLastDate)).toISOString()
+        : null,
       last7Days,
     };
   }
 
-
   // Helper function to calculate time until next reset (at midnight 12:00 AM)
   private getTimeUntilReset(lastReset: Date) {
     const now = new Date();
-    const lastResetDay = new Date(lastReset.getFullYear(), lastReset.getMonth(), lastReset.getDate());
-    const currentDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    
+    const lastResetDay = new Date(
+      lastReset.getFullYear(),
+      lastReset.getMonth(),
+      lastReset.getDate(),
+    );
+    const currentDay = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate(),
+    );
+
     // Check if we need to reset (if it's a new day since last reset)
     const shouldReset = currentDay.getTime() > lastResetDay.getTime();
-    
+
     // Calculate time until next midnight
     const nextMidnight = new Date(now);
     nextMidnight.setDate(nextMidnight.getDate() + 1);
     nextMidnight.setHours(0, 0, 0, 0);
-    
+
     const diffMs = nextMidnight.getTime() - now.getTime();
     const hoursUntilReset = Math.floor(diffMs / (1000 * 60 * 60));
-    const minutesUntilReset = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
-    
+    const minutesUntilReset = Math.floor(
+      (diffMs % (1000 * 60 * 60)) / (1000 * 60),
+    );
+
     return {
       hoursUntilReset: Math.max(0, hoursUntilReset),
       minutesUntilReset: Math.max(0, minutesUntilReset),
-      shouldReset
+      shouldReset,
     };
   }
 
@@ -663,12 +674,13 @@ export class UsersService {
         current: 10,
         maximum: 10,
         lastReset: new Date(),
-        dailyUsed: 0
+        dailyUsed: 0,
       };
       await user.save();
     }
 
-    const { hoursUntilReset, minutesUntilReset, shouldReset } = this.getTimeUntilReset(user.energyPacks.lastReset);
+    const { hoursUntilReset, minutesUntilReset, shouldReset } =
+      this.getTimeUntilReset(user.energyPacks.lastReset);
 
     // Reset energy packs if 24 hours have passed
     if (shouldReset) {
@@ -684,11 +696,14 @@ export class UsersService {
       lastReset: user.energyPacks.lastReset.toISOString(),
       dailyUsed: user.energyPacks.dailyUsed,
       hoursUntilReset,
-      minutesUntilReset
+      minutesUntilReset,
     };
   }
 
-  async consumeEnergyPack(userId: string, campaignId: string): Promise<{ success: boolean; remaining: number }> {
+  async consumeEnergyPack(
+    userId: string,
+    campaignId: string,
+  ): Promise<{ success: boolean; remaining: number }> {
     const user = await this.userModel.findById(userId);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -700,7 +715,7 @@ export class UsersService {
         current: 10,
         maximum: 10,
         lastReset: new Date(),
-        dailyUsed: 0
+        dailyUsed: 0,
       };
     }
 
@@ -715,7 +730,9 @@ export class UsersService {
 
     // Check if user has energy packs available
     if (user.energyPacks.current <= 0) {
-      throw new BadRequestException('No energy packs available. Energy packs reset every 24 hours.');
+      throw new BadRequestException(
+        'No energy packs available. Energy packs reset every 24 hours.',
+      );
     }
 
     // Consume one energy pack
@@ -755,8 +772,12 @@ export class UsersService {
     // Reset daily XP if it's a new day
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const lastEarnedDate = document.xp.lastEarned 
-      ? new Date(document.xp.lastEarned.getFullYear(), document.xp.lastEarned.getMonth(), document.xp.lastEarned.getDate())
+    const lastEarnedDate = document.xp.lastEarned
+      ? new Date(
+          document.xp.lastEarned.getFullYear(),
+          document.xp.lastEarned.getMonth(),
+          document.xp.lastEarned.getDate(),
+        )
       : null;
 
     if (!lastEarnedDate || lastEarnedDate < today) {
@@ -767,15 +788,17 @@ export class UsersService {
     return {
       total: document.xp.total,
       level: getLevelFromXP(document.xp.total),
-
-      level: document.xp.level,
       earnedToday: document.xp.earnedToday,
       lastEarned: document.xp.lastEarned,
       activities: document.xp.activities.slice(-10), // Return last 10 activities
     };
   }
 
-  async addXP(userId: string, activityType: string, amount: number): Promise<XPResponseDto> {
+  async addXP(
+    userId: string,
+    activityType: string,
+    amount: number,
+  ): Promise<XPResponseDto> {
     const user = await this.userModel.findById(userId);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -797,8 +820,12 @@ export class UsersService {
 
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const lastEarnedDate = document.xp.lastEarned 
-      ? new Date(document.xp.lastEarned.getFullYear(), document.xp.lastEarned.getMonth(), document.xp.lastEarned.getDate())
+    const lastEarnedDate = document.xp.lastEarned
+      ? new Date(
+          document.xp.lastEarned.getFullYear(),
+          document.xp.lastEarned.getMonth(),
+          document.xp.lastEarned.getDate(),
+        )
       : null;
 
     // Reset daily XP if it's a new day
@@ -810,7 +837,6 @@ export class UsersService {
     document.xp.total += amount;
     document.xp.earnedToday += amount;
     document.xp.lastEarned = now;
-
 
     // Calculate new level (simple level calculation: level = floor(total / 100) + 1)
     const newLevel = Math.floor(document.xp.total / 100) + 1;
@@ -832,7 +858,6 @@ export class UsersService {
     return {
       total: document.xp.total,
       level: getLevelFromXP(document.xp.total),
-
       earnedToday: document.xp.earnedToday,
       lastEarned: document.xp.lastEarned,
       activities: document.xp.activities.slice(-10), // Return last 10 activities
@@ -862,8 +887,12 @@ export class UsersService {
     // Reset daily RP if it's a new day
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const lastEarnedDate = document.rp.lastEarned 
-      ? new Date(document.rp.lastEarned.getFullYear(), document.rp.lastEarned.getMonth(), document.rp.lastEarned.getDate())
+    const lastEarnedDate = document.rp.lastEarned
+      ? new Date(
+          document.rp.lastEarned.getFullYear(),
+          document.rp.lastEarned.getMonth(),
+          document.rp.lastEarned.getDate(),
+        )
       : null;
 
     if (!lastEarnedDate || lastEarnedDate < today) {
@@ -879,7 +908,11 @@ export class UsersService {
     };
   }
 
-  async addRP(userId: string, activityType: string, amount: number): Promise<RPResponseDto> {
+  async addRP(
+    userId: string,
+    activityType: string,
+    amount: number,
+  ): Promise<RPResponseDto> {
     const user = await this.userModel.findById(userId);
     if (!user) {
       throw new NotFoundException('User not found');
@@ -899,108 +932,12 @@ export class UsersService {
 
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const lastEarnedDate = document.rp.lastEarned 
-      ? new Date(document.rp.lastEarned.getFullYear(), document.rp.lastEarned.getMonth(), document.rp.lastEarned.getDate())
-      : null;
-
-    // Reset daily RP if it's a new day
-    if (!lastEarnedDate || lastEarnedDate < today) {
-      document.rp.earnedToday = 0;
-    }
-
-    // Add RP
-    document.rp.total += amount;
-    document.rp.earnedToday += amount;
-    document.rp.lastEarned = now;
-
-    // Add to activities (keep only last 50)
-    document.rp.activities.push({
-      type: activityType,
-      amount: amount,
-      earnedAt: now,
-    });
-
-    if (document.rp.activities.length > 50) {
-      document.rp.activities = document.rp.activities.slice(-50);
-    }
-
-    await document.save();
-
-    return {
-      total: document.rp.total,
-      earnedToday: document.rp.earnedToday,
-      lastEarned: document.rp.lastEarned,
-      activities: document.rp.activities.slice(-10), // Return last 10 activities
-
-      level: document.xp.level,
-      earnedToday: document.xp.earnedToday,
-      lastEarned: document.xp.lastEarned,
-      activities: document.xp.activities.slice(-10), // Return last 10 activities
-    };
-  }
-
-  // RP (Reputation Points) methods
-  async getRP(userId: string): Promise<RPResponseDto> {
-    const user = await this.userModel.findById(userId);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    const document = ensureDocument<IUser>(user);
-
-    // Initialize RP if not exists
-    if (!document.rp) {
-      document.rp = {
-        total: 0,
-        earnedToday: 0,
-        lastEarned: null,
-        activities: [],
-      };
-      await document.save();
-    }
-
-    // Reset daily RP if it's a new day
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const lastEarnedDate = document.rp.lastEarned 
-      ? new Date(document.rp.lastEarned.getFullYear(), document.rp.lastEarned.getMonth(), document.rp.lastEarned.getDate())
-      : null;
-
-    if (!lastEarnedDate || lastEarnedDate < today) {
-      document.rp.earnedToday = 0;
-      await document.save();
-    }
-
-    return {
-      total: document.rp.total,
-      earnedToday: document.rp.earnedToday,
-      lastEarned: document.rp.lastEarned,
-      activities: document.rp.activities.slice(-10), // Return last 10 activities
-    };
-  }
-
-  async addRP(userId: string, activityType: string, amount: number): Promise<RPResponseDto> {
-    const user = await this.userModel.findById(userId);
-    if (!user) {
-      throw new NotFoundException('User not found');
-    }
-
-    const document = ensureDocument<IUser>(user);
-
-    // Initialize RP if not exists
-    if (!document.rp) {
-      document.rp = {
-        total: 0,
-        earnedToday: 0,
-        lastEarned: null,
-        activities: [],
-      };
-    }
-
-    const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-    const lastEarnedDate = document.rp.lastEarned 
-      ? new Date(document.rp.lastEarned.getFullYear(), document.rp.lastEarned.getMonth(), document.rp.lastEarned.getDate())
+    const lastEarnedDate = document.rp.lastEarned
+      ? new Date(
+          document.rp.lastEarned.getFullYear(),
+          document.rp.lastEarned.getMonth(),
+          document.rp.lastEarned.getDate(),
+        )
       : null;
 
     // Reset daily RP if it's a new day
