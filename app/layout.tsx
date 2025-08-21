@@ -6,10 +6,7 @@ import { SessionProvider } from "@/components/session-provider";
 import { EnergyPackProvider } from "@/lib/contexts/energy-pack-context";
 import { XPProvider } from "@/lib/contexts/xp-context";
 import { RPProvider } from "@/lib/contexts/rp-context";
-<<<<<<< HEAD
 import { LevelProvider } from "@/lib/contexts/level-context";
-=======
->>>>>>> 4ce3f0d (feat: implement comprehensive RP (Reputation Points) system- Add RP context and state management with daily reset functionality- Create RP display component with green shield icon and hover tooltip- Implement RP constants with level calculation and activity rewards- Add backend RP DTOs, services, and API endpoints- Integrate RP system into navbar alongside XP, Energy, and Streak- Add RP field to user schema with activity tracking- Implement automatic RP rewards on user signup (5 RP)- Create debug/test interface for RP functionality- Design extensible system for future activity-based RP rewards- Add comprehensive error handling and loading states- Include real-time RP updates and daily progress tracking)
 import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
@@ -41,7 +38,6 @@ export default function RootLayout({
           <EnergyPackProvider>
             <XPProvider>
               <RPProvider>
-<<<<<<< HEAD
                 <LevelProvider>
                   <ThemeProvider
                     attribute="class"
@@ -54,30 +50,6 @@ export default function RootLayout({
                   </ThemeProvider>
                 </LevelProvider>
               </RPProvider>
-=======
->>>>>>> 4ce3f0d (feat: implement comprehensive RP (Reputation Points) system- Add RP context and state management with daily reset functionality- Create RP display component with green shield icon and hover tooltip- Implement RP constants with level calculation and activity rewards- Add backend RP DTOs, services, and API endpoints- Integrate RP system into navbar alongside XP, Energy, and Streak- Add RP field to user schema with activity tracking- Implement automatic RP rewards on user signup (5 RP)- Create debug/test interface for RP functionality- Design extensible system for future activity-based RP rewards- Add comprehensive error handling and loading states- Include real-time RP updates and daily progress tracking)
-                <ThemeProvider
-                  attribute="class"
-                  defaultTheme="system"
-                  enableSystem
-                  disableTransitionOnChange
-                >
-                  {children}
-                  <Toaster position="top-right" />
-                </ThemeProvider>
-              </RPProvider>
-<<<<<<< HEAD
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="system"
-                enableSystem
-                disableTransitionOnChange
-              >
-                {children}
-                <Toaster position="top-right" />
-              </ThemeProvider>
-=======
->>>>>>> 4ce3f0d (feat: implement comprehensive RP (Reputation Points) system- Add RP context and state management with daily reset functionality- Create RP display component with green shield icon and hover tooltip- Implement RP constants with level calculation and activity rewards- Add backend RP DTOs, services, and API endpoints- Integrate RP system into navbar alongside XP, Energy, and Streak- Add RP field to user schema with activity tracking- Implement automatic RP rewards on user signup (5 RP)- Create debug/test interface for RP functionality- Design extensible system for future activity-based RP rewards- Add comprehensive error handling and loading states- Include real-time RP updates and daily progress tracking)
             </XPProvider>
           </EnergyPackProvider>
         </SessionProvider>
