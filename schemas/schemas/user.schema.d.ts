@@ -57,6 +57,28 @@ export interface IUser extends IUserDocument {
             earnedAt: Date;
         }>;
     };
+    rp?: {
+        total: number;
+        earnedToday: number;
+        lastEarned: Date | null;
+        activities: Array<{
+            type: string;
+            amount: number;
+            earnedAt: Date;
+        }>;
+    };
+    levelHistory?: Array<{
+        level: number;
+        achievedAt: Date;
+        totalXP: number;
+        totalRP: number;
+    }>;
+    currentLevel?: {
+        level: number;
+        lastUpdated: Date;
+        totalXP: number;
+        totalRP: number;
+    };
 }
 export declare const UserSchema: Schema<IUser, Model<IUser, any, any, any, import("mongoose").Document<unknown, any, IUser> & IUser & Required<{
     _id: import("mongoose").Types.ObjectId;

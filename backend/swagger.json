@@ -668,7 +668,47 @@
         ]
       }
     },
-
+    "/api/v1/users/me/level": {
+      "get": {
+        "operationId": "UsersController_getMyLevel",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Level data retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get current user level data",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+    "/api/v1/users/me/level/check": {
+      "post": {
+        "operationId": "UsersController_checkMyLevelUp",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Level check completed"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Check for level up and update if necessary",
+        "tags": [
+          "users"
+        ]
+      }
+    },
+ 
     "/api/v1/auth/register": {
       "post": {
         "description": "Create a new user account with email/password or social provider",

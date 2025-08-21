@@ -91,6 +91,31 @@ const userSchema = new mongoose_1.Schema({
                 earnedAt: { type: Date } // When it was earned
             }] // XP activity history (keep last 50)
     },
+    // RP (Reputation Points) system
+    rp: {
+        total: { type: Number, default: 0 }, // Total RP accumulated
+        earnedToday: { type: Number, default: 0 }, // RP earned today
+        lastEarned: { type: Date, default: null }, // Last time RP was earned
+        activities: [{
+                type: { type: String }, // Activity type
+                amount: { type: Number }, // RP amount earned
+                earnedAt: { type: Date } // When it was earned
+            }] // RP activity history (keep last 50)
+    },
+    // Level tracking system - stores historical level progression
+    levelHistory: [{
+            level: { type: Number }, // Level achieved
+            achievedAt: { type: Date }, // When this level was reached
+            totalXP: { type: Number }, // Total XP at the time of level up
+            totalRP: { type: Number } // Total RP at the time of level up
+        }], // Historical record of level achievements
+    // Current level information (calculated from XP/RP)
+    currentLevel: {
+        level: { type: Number, default: 1 }, // Current calculated level (start at level 1)
+        lastUpdated: { type: Date, default: Date.now }, // Last time level was calculated
+        totalXP: { type: Number, default: 0 }, // XP at last calculation
+        totalRP: { type: Number, default: 0 } // RP at last calculation
+    },
     // Test campaign data for overlay testing
     testCampaign: {
         title: { type: String },
@@ -105,6 +130,11 @@ userSchema.index({ updatedAt: 1 });
 // Index for streak leaderboard queries (for future leaderboard features)
 userSchema.index({ streakLongest: -1 });
 userSchema.index({ streakCurrent: -1 });
+// Index for level-related queries
+userSchema.index({ 'currentLevel.level': -1 }); // For level leaderboards
+userSchema.index({ 'levelHistory.achievedAt': -1 }); // For level progression history
+userSchema.index({ 'xp.total': -1 }); // For XP leaderboards
+userSchema.index({ 'rp.total': -1 }); // For RP leaderboards
 // Explicitly export the schema for NestJS
 exports.UserSchema = userSchema;
 // Use a function to safely get the User model

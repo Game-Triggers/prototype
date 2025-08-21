@@ -589,4 +589,23 @@ export const usersApi = {
       headers: params?.token ? { Authorization: `Bearer ${params.token}` } : {},
     });
   },
+
+  /**
+   * Get the current user's level data
+   */
+  getLevel: async (token?: string) => {
+    return fetchApi("/users/me/level", {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+  },
+
+  /**
+   * Check for level up and update if necessary
+   */
+  checkLevelUp: async (token?: string) => {
+    return fetchApi("/users/me/level/check", {
+      method: "POST",
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    });
+  },
 };

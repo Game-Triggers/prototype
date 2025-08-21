@@ -14,7 +14,8 @@ import {
   Video,
   Target,
   Wallet,
-  MonitorPlay
+  MonitorPlay,
+  Crown
 } from "lucide-react";
 
 interface SidebarProps {
@@ -33,6 +34,11 @@ export function Sidebar({ isOpen, toggleSidebar, userRole }: SidebarProps) {
         name: "Dashboard",
         href: "/dashboard",
         icon: <LayoutDashboard className="h-5 w-5" />,
+      },
+      {
+        name: "Levels",
+        href: "/dashboard/levels",
+        icon: <Crown className="h-5 w-5" />,
       },
       {
         name: "Analytics",
@@ -100,6 +106,11 @@ export function Sidebar({ isOpen, toggleSidebar, userRole }: SidebarProps) {
         name: "Users",
         href: "/dashboard/admin/users",
         icon: <Users className="h-5 w-5" />,
+      },
+      {
+        name: "Level Config",
+        href: "/dashboard/admin/levels/config",
+        icon: <Crown className="h-5 w-5" />,
       },
       {
         name: "Finance",
