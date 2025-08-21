@@ -142,7 +142,7 @@ export class WalletService {
     }
 
     return await this.createTransaction({
-      walletId: wallet._id!,
+      walletId: wallet._id,
       transactionType: TransactionType.DEPOSIT,
       amount,
       paymentMethod,
@@ -172,7 +172,7 @@ export class WalletService {
     }
 
     return await this.createTransaction({
-      walletId: wallet._id!,
+      walletId: wallet._id,
       transactionType: TransactionType.CAMPAIGN_RESERVE,
       amount: -amount, // Negative to move from balance to reserved
       campaignId,
@@ -201,7 +201,7 @@ export class WalletService {
     }
 
     return await this.createTransaction({
-      walletId: wallet._id!,
+      walletId: wallet._id,
       transactionType: TransactionType.CAMPAIGN_CHARGE,
       amount: -amount, // Negative to deduct from reserved balance
       campaignId,
@@ -232,7 +232,7 @@ export class WalletService {
 
     // First create earnings hold transaction
     const holdTransaction = await this.createTransaction({
-      walletId: wallet._id!,
+      walletId: wallet._id,
       transactionType: TransactionType.EARNINGS_HOLD,
       amount,
       campaignId,
@@ -337,7 +337,7 @@ export class WalletService {
     }
 
     return await this.createTransaction({
-      walletId: wallet._id!,
+      walletId: wallet._id,
       transactionType: TransactionType.WITHDRAWAL,
       amount: -amount, // Negative to deduct from withdrawable balance
       description: `Withdrawal request to ${kyc.bankDetails.bankName}`,
@@ -565,7 +565,7 @@ export class WalletService {
 
     // Create release transaction
     const transaction = await this.createTransaction({
-      walletId: wallet._id!.toString(),
+      walletId: wallet._id.toString(),
       transactionType: TransactionType.CAMPAIGN_REFUND,
       amount,
       campaignId,
@@ -633,12 +633,12 @@ export class WalletService {
     // Create release transactions for audit trail
     for (const earning of heldEarnings) {
       await this.createTransaction({
-        walletId: wallet._id!.toString(),
+        walletId: wallet._id.toString(),
         transactionType: TransactionType.EARNINGS_RELEASE,
         amount: earning.amount,
         campaignId: earning.campaignId,
         description: `Released earnings from campaign ${earning.campaignId}`,
-        metadata: { originalTransactionId: earning._id!.toString() },
+        metadata: { originalTransactionId: earning._id.toString() },
         createdBy: 'system',
       });
     }
@@ -675,7 +675,7 @@ export class WalletService {
     // Create cancellation transactions for audit trail
     for (const earning of heldEarnings) {
       await this.createTransaction({
-        walletId: wallet._id!.toString(),
+        walletId: wallet._id.toString(),
         transactionType: TransactionType.EARNINGS_CREDIT,
         amount: -earning.amount,
         campaignId: earning.campaignId,

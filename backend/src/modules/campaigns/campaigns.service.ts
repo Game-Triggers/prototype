@@ -148,8 +148,8 @@ export class CampaignsService {
 
     // For admin access with pagination, return paginated results with total count
     if (adminAccess === 'true' && page && limit) {
-      const pageNum = parseInt(page as string, 10) || 1;
-      const limitNum = parseInt(limit as string, 10) || 10;
+      const pageNum = parseInt(page, 10) || 1;
+      const limitNum = parseInt(limit, 10) || 10;
       const skip = (pageNum - 1) * limitNum;
 
       const [campaigns, totalCount] = await Promise.all([
@@ -540,7 +540,8 @@ export class CampaignsService {
     } catch (error) {
       // If energy pack consumption fails, prevent campaign join
       throw new BadRequestException(
-        error.message || 'Failed to consume energy pack. You need energy packs to join campaigns.'
+        error.message ||
+          'Failed to consume energy pack. You need energy packs to join campaigns.',
       );
     }
 
@@ -619,9 +620,9 @@ export class CampaignsService {
       campaignId,
       campaignName: campaign.title,
       streamerId,
-      streamerName: streamer.name || streamer.email
+      streamerName: streamer.name || streamer.email,
     });
-    
+
     this.eventEmitter.emit('campaign.joined', {
       campaignId,
       campaignName: campaign.title,
@@ -956,19 +957,21 @@ export class CampaignsService {
     }
 
     try {
-      this.logger.debug(`Attempting to update campaign ${id} to PENDING status`);
+      this.logger.debug(
+        `Attempting to update campaign ${id} to PENDING status`,
+      );
       this.logger.debug(`Campaign status before update: ${campaign.status}`);
       this.logger.debug(`Campaign ID type: ${typeof id}, value: ${id}`);
-      
+
       // Try a more direct update approach
       const result = await this.campaignModel.updateOne(
-        { _id: id }, 
-        { 
+        { _id: id },
+        {
           status: CampaignStatus.PENDING,
-          submittedForReviewAt: new Date() 
-        }
+          submittedForReviewAt: new Date(),
+        },
       );
-      
+
       this.logger.debug(`Update result:`, result);
 
       if (result.matchedCount === 0) {
@@ -983,13 +986,20 @@ export class CampaignsService {
 
       // Fetch the updated campaign
       const updatedCampaign = await this.campaignModel.findById(id).exec();
-      
+
       if (!updatedCampaign) {
-        throw new NotFoundException(`Campaign with ID ${id} not found after update`);
+        throw new NotFoundException(
+          `Campaign with ID ${id} not found after update`,
+        );
       }
 
-      this.logger.debug(`Successfully updated campaign ${id}. New status: ${updatedCampaign.status}`);
-      this.logger.debug(`Updated campaign object:`, JSON.stringify(updatedCampaign, null, 2));
+      this.logger.debug(
+        `Successfully updated campaign ${id}. New status: ${updatedCampaign.status}`,
+      );
+      this.logger.debug(
+        `Updated campaign object:`,
+        JSON.stringify(updatedCampaign, null, 2),
+      );
 
       // Emit event for admin notifications
       this.eventEmitter.emit('campaign.pending_review', {
@@ -999,7 +1009,9 @@ export class CampaignsService {
         budget: updatedCampaign.budget,
       });
 
-      this.logger.log(`Campaign ${id} moved to pending status for admin review`);
+      this.logger.log(
+        `Campaign ${id} moved to pending status for admin review`,
+      );
 
       return updatedCampaign;
     } catch (error) {
@@ -1103,13 +1115,13 @@ export class CampaignsService {
       // Update campaign status to active
       const updatedCampaign = await this.campaignModel
         .findByIdAndUpdate(
-          id, 
-          { 
+          id,
+          {
             status: CampaignStatus.ACTIVE,
             approvedAt: new Date(),
-            approvedBy: adminId
-          }, 
-          { new: true }
+            approvedBy: adminId,
+          },
+          { new: true },
         )
         .exec();
 
@@ -1126,7 +1138,9 @@ export class CampaignsService {
         budget: updatedCampaign.budget,
       });
 
-      this.logger.log(`Campaign ${id} approved and activated by admin ${adminId}`);
+      this.logger.log(
+        `Campaign ${id} approved and activated by admin ${adminId}`,
+      );
 
       return updatedCampaign;
     } catch (error) {
@@ -1141,7 +1155,11 @@ export class CampaignsService {
   /**
    * Admin rejects a pending campaign
    */
-  async rejectCampaign(id: string, adminId: string, reason?: string): Promise<ICampaign> {
+  async rejectCampaign(
+    id: string,
+    adminId: string,
+    reason?: string,
+  ): Promise<ICampaign> {
     const campaign = await this.findOne(id);
 
     // Can only reject pending campaigns
@@ -1153,14 +1171,14 @@ export class CampaignsService {
       // Update campaign status to rejected
       const updatedCampaign = await this.campaignModel
         .findByIdAndUpdate(
-          id, 
-          { 
+          id,
+          {
             status: CampaignStatus.REJECTED,
             rejectedAt: new Date(),
             rejectedBy: adminId,
-            rejectionReason: reason
-          }, 
-          { new: true }
+            rejectionReason: reason,
+          },
+          { new: true },
         )
         .exec();
 
@@ -1177,7 +1195,9 @@ export class CampaignsService {
         reason,
       });
 
-      this.logger.log(`Campaign ${id} rejected by admin ${adminId}. Reason: ${reason || 'No reason provided'}`);
+      this.logger.log(
+        `Campaign ${id} rejected by admin ${adminId}. Reason: ${reason || 'No reason provided'}`,
+      );
 
       return updatedCampaign;
     } catch (error) {

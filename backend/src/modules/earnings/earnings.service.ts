@@ -68,7 +68,7 @@ export class EarningsService {
   ): Promise<number> {
     // Use the payment type from the campaign schema
     const paymentType = campaign.paymentType || 'cpm';
-    let earnings = 0;
+    const earnings = 0;
 
     // Only account for clicks in CPC model, which we'll add as a custom handling
     // In the current schema, we only have cpm and fixed, so returning 0

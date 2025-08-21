@@ -37,12 +37,9 @@ import {
   EnergyPacksResponseDto,
   ConsumeEnergyPackDto,
 } from './dto/energy-packs.dto';
-import {
-  XPResponseDto,
-  AddXPDto,
-} from './dto/xp.dto';
+import { XPResponseDto, AddXPDto } from './dto/xp.dto';
 import { RPResponseDto, AddRPDto } from './dto/rp.dto';
-import { LevelService } from './services/level.service'; 
+import { LevelService } from './services/level.service';
 import { Request } from 'express';
 
 // Define the Request with user interface
@@ -355,11 +352,15 @@ export class UsersController {
   @Post('me/streak/ping')
   @UseGuards(JwtAuthGuard)
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Ping today activity to update streak once per day' })
+  @ApiOperation({
+    summary: 'Ping today activity to update streak once per day',
+  })
   async pingStreak(@Req() req: RequestWithUser) {
     const userId = req.user?.userId;
     if (!userId) {
-      throw new UnauthorizedException('User ID is missing from authentication token');
+      throw new UnauthorizedException(
+        'User ID is missing from authentication token',
+      );
     }
     return this.usersService.pingDailyStreak(userId);
   }
@@ -371,11 +372,13 @@ export class UsersController {
   async getMyStreak(@Req() req: RequestWithUser) {
     const userId = req.user?.userId;
     if (!userId) {
-      throw new UnauthorizedException('User ID is missing from authentication token');
+      throw new UnauthorizedException(
+        'User ID is missing from authentication token',
+      );
     }
     return this.usersService.getStreakSummary(userId);
   }
- 
+
   // Energy Pack endpoints
   @Get('me/energy-packs')
   @UseGuards(JwtAuthGuard)
@@ -389,7 +392,9 @@ export class UsersController {
   async getEnergyPacks(@Req() req: RequestWithUser) {
     const userId = req.user?.userId;
     if (!userId) {
-      throw new UnauthorizedException('User ID is missing from authentication token');
+      throw new UnauthorizedException(
+        'User ID is missing from authentication token',
+      );
     }
     return this.usersService.getEnergyPacks(userId);
   }
@@ -454,10 +459,7 @@ export class UsersController {
     type: XPResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Invalid activity type or amount' })
-  async addXP(
-    @Req() req: RequestWithUser,
-    @Body() dto: AddXPDto,
-  ) {
+  async addXP(@Req() req: RequestWithUser, @Body() dto: AddXPDto) {
     const userId = req.user?.userId;
     if (!userId) {
       throw new UnauthorizedException(
@@ -498,10 +500,7 @@ export class UsersController {
     type: RPResponseDto,
   })
   @ApiResponse({ status: 400, description: 'Invalid activity type or amount' })
-  async addRP(
-    @Req() req: RequestWithUser,
-    @Body() dto: AddRPDto,
-  ) {
+  async addRP(@Req() req: RequestWithUser, @Body() dto: AddRPDto) {
     const userId = req.user?.userId;
     if (!userId) {
       throw new UnauthorizedException(

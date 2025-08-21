@@ -100,7 +100,7 @@ export function useNotifications(
         });
       }
 
-      const url = `/api/v1/notifications${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const url = `/api/notifications${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${session.accessToken}`,
@@ -130,7 +130,7 @@ export function useNotifications(
     if (!session) return false;
 
     try {
-      const response = await fetch(`/api/v1/notifications/${notificationId}/read`, {
+      const response = await fetch(`/api/notifications/${notificationId}/read`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${session.accessToken}`,
@@ -163,7 +163,7 @@ export function useNotifications(
     if (!session || notificationIds.length === 0) return false;
 
     try {
-      const response = await fetch('/api/v1/notifications/read/batch', {
+      const response = await fetch('/api/notifications/read/batch', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${session.accessToken}`,
@@ -197,7 +197,7 @@ export function useNotifications(
     if (!session) return false;
 
     try {
-      const response = await fetch('/api/v1/notifications/read/all', {
+      const response = await fetch('/api/notifications/read/all', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${session.accessToken}`,
@@ -226,7 +226,7 @@ export function useNotifications(
     if (!session) return false;
 
     try {
-      const response = await fetch(`/api/v1/notifications/${notificationId}`, {
+      const response = await fetch(`/api/notifications/${notificationId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${session.accessToken}`,
@@ -301,7 +301,7 @@ export function useUnreadNotificationCount(): {
     setError(null);
 
     try {
-      const response = await fetch('/api/v1/notifications/count/unread', {
+      const response = await fetch('/api/notifications/count/unread', {
         headers: {
           'Authorization': `Bearer ${session.accessToken}`,
           'Content-Type': 'application/json',
@@ -323,39 +323,6 @@ export function useUnreadNotificationCount(): {
     }
   }, [session]);
 
-  }, [session, fetchNotifications]);
-  const createTestNotification =
-    process.env.NODE_ENV === 'development'
-      ? useCallback(async (): Promise<boolean> => {
-          if (!session) return false;
-
-          try {
-            const response = await fetch(`${API_BASE}/test`, {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${session.accessToken}`,
-                'Content-Type': 'application/json',
-              },
-            });
-
-            if (!response.ok) {
-              throw new Error(`Failed to create test notification: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            
-            if (data.success) {
-              // Refresh notifications
-              await fetchNotifications();
-              return true;
-            }
-            return false;
-          } catch (err) {
-            console.error('Error creating test notification:', err);
-            return false;
-          }
-        }, [session, fetchNotifications])
-      : undefined;
   // Auto-fetch unread count on session change
   useEffect(() => {
     fetchUnreadCount();
@@ -383,7 +350,7 @@ export function useNotificationRealtime(
     // For now, we'll use polling as a fallback
     const pollInterval = setInterval(async () => {
       try {
-        const response = await fetch('/api/v1/notifications/latest', {
+        const response = await fetch('/api/notifications/latest', {
           headers: {
             'Authorization': `Bearer ${session.accessToken}`,
             'Content-Type': 'application/json',
