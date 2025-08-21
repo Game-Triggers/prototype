@@ -91,6 +91,7 @@ const userSchema = new mongoose_1.Schema({
                 earnedAt: { type: Date } // When it was earned
             }] // XP activity history (keep last 50)
     },
+<<<<<<< HEAD
     // RP (Reputation Points) system
     rp: {
         total: { type: Number, default: 0 }, // Total RP accumulated
@@ -116,6 +117,7 @@ const userSchema = new mongoose_1.Schema({
         totalXP: { type: Number, default: 0 }, // XP at last calculation
         totalRP: { type: Number, default: 0 } // RP at last calculation
     },
+
     // Test campaign data for overlay testing
     testCampaign: {
         title: { type: String },

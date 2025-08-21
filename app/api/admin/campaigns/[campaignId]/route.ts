@@ -10,9 +10,19 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { campaignId: string } }
+  { params }: { params: Promise<{ campaignId: string }> }
 ) {
   try {
+    // Extract campaign ID from params
+    const { campaignId } = await params;
+    
+    if (!campaignId) {
+      return NextResponse.json(
+        { error: 'Campaign ID is required' }, 
+        { status: 400 }
+      );
+    }
+
     // Verify JWT token
     const token = await getToken({ req: request });
     
@@ -30,16 +40,6 @@ export async function GET(
       return NextResponse.json(
         { error: 'Admin access required', currentRole: userRole },
         { status: 403 }
-      );
-    }
-
-    // Extract campaign ID from params
-    const campaignId = params.campaignId;
-    
-    if (!campaignId) {
-      return NextResponse.json(
-        { error: 'Campaign ID is required' }, 
-        { status: 400 }
       );
     }
 
