@@ -38,6 +38,13 @@ const campaignSchema = new Schema<ICampaign>(
       enum: ['cpm', 'fixed'], 
       required: true 
     },
+    // Admin review fields
+    submittedForReviewAt: { type: Date },
+    approvedAt: { type: Date },
+    approvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    rejectedAt: { type: Date },
+    rejectedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    rejectionReason: { type: String },
   },
   { timestamps: true }
 );

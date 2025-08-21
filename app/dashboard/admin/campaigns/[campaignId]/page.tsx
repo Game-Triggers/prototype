@@ -155,7 +155,7 @@ export default function AdminCampaignDetail() {
         case 'approve':
         case 'activate':
           // Approve/activate pending campaign
-          response = await fetch(`/api/admin/campaigns/${campaign._id}/activate`, {
+          response = await fetch(`/api/admin/campaigns/${campaign._id}/approve`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -164,13 +164,13 @@ export default function AdminCampaignDetail() {
           if (response.ok) {
             // Refresh the campaign data
             setCampaign(prev => prev ? { ...prev, status: CampaignStatus.ACTIVE } : null);
-            setSuccess('Campaign activated successfully');
+            setSuccess('Campaign approved and activated successfully');
             // Auto-clear success message after 3 seconds
             setTimeout(() => setSuccess(null), 3000);
-            console.log('Campaign activated successfully');
+            console.log('Campaign approved and activated successfully');
           } else {
             const errorData = await response.json();
-            setError(`Failed to activate campaign: ${errorData.message || 'Unknown error'}`);
+            setError(`Failed to approve campaign: ${errorData.message || 'Unknown error'}`);
           }
           break;
           
@@ -217,11 +217,26 @@ export default function AdminCampaignDetail() {
           break;
           
         case 'reject':
-          // Reject campaign - for now, just show a placeholder
-          setSuccess('Reject functionality will be implemented soon');
-          // Auto-clear success message after 3 seconds
-          setTimeout(() => setSuccess(null), 3000);
-          console.log('Reject functionality not implemented yet');
+          // Reject campaign with optional reason
+          const rejectionReason = window.prompt('Please enter a reason for rejection (optional):');
+          response = await fetch(`/api/admin/campaigns/${campaign._id}/reject`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ reason: rejectionReason }),
+          });
+          if (response.ok) {
+            // Refresh the campaign data
+            setCampaign(prev => prev ? { ...prev, status: CampaignStatus.REJECTED } : null);
+            setSuccess('Campaign rejected successfully');
+            // Auto-clear success message after 3 seconds
+            setTimeout(() => setSuccess(null), 3000);
+            console.log('Campaign rejected successfully');
+          } else {
+            const errorData = await response.json();
+            setError(`Failed to reject campaign: ${errorData.message || 'Unknown error'}`);
+          }
           break;
           
         case 'delete':
@@ -374,7 +389,14 @@ export default function AdminCampaignDetail() {
               {(campaign.status === CampaignStatus.DRAFT || campaign.status === CampaignStatus.PENDING) && (
                 <DropdownMenuItem onClick={() => handleCampaignAction('approve')}>
                   <Play className="mr-2 h-4 w-4" />
-                  <span>Activate Campaign</span>
+                  <span>Approve & Activate</span>
+                </DropdownMenuItem>
+              )}
+              
+              {campaign.status === CampaignStatus.PENDING && (
+                <DropdownMenuItem onClick={() => handleCampaignAction('reject')} className="text-red-600">
+                  <Ban className="mr-2 h-4 w-4" />
+                  <span>Reject Campaign</span>
                 </DropdownMenuItem>
               )}
               

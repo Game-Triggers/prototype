@@ -6,6 +6,7 @@ import {
   BadRequestException,
   Inject,
   Optional,
+  Logger,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -41,6 +42,8 @@ interface ConflictRulesServiceInterface {
 
 @Injectable()
 export class CampaignsService {
+  private readonly logger = new Logger(CampaignsService.name);
+
   constructor(
     @InjectModel('Campaign') private readonly campaignModel: Model<ICampaign>,
     @InjectModel('CampaignParticipation')
@@ -937,7 +940,7 @@ export class CampaignsService {
   }
 
   /**
-   * Activate a draft campaign - Reserve funds from brand wallet
+   * Activate a draft campaign - Move to pending status for admin review
    */
   async activateCampaign(id: string, userId: string): Promise<ICampaign> {
     const campaign = await this.findOne(id);
@@ -953,17 +956,50 @@ export class CampaignsService {
     }
 
     try {
-      // Reserve campaign funds
-      await this.campaignEventsService.handleCampaignActivation(id);
+      this.logger.debug(`Attempting to update campaign ${id} to PENDING status`);
+      this.logger.debug(`Campaign status before update: ${campaign.status}`);
+      this.logger.debug(`Campaign ID type: ${typeof id}, value: ${id}`);
+      
+      // Try a more direct update approach
+      const result = await this.campaignModel.updateOne(
+        { _id: id }, 
+        { 
+          status: CampaignStatus.PENDING,
+          submittedForReviewAt: new Date() 
+        }
+      );
+      
+      this.logger.debug(`Update result:`, result);
 
-      // Update campaign status to active
-      const updatedCampaign = await this.campaignModel
-        .findByIdAndUpdate(id, { status: CampaignStatus.ACTIVE }, { new: true })
-        .exec();
-
-      if (!updatedCampaign) {
+      if (result.matchedCount === 0) {
+        this.logger.error(`Campaign with ID ${id} not found during update`);
         throw new NotFoundException(`Campaign with ID ${id} not found`);
       }
+
+      if (result.modifiedCount === 0) {
+        this.logger.error(`Campaign with ID ${id} was not modified`);
+        throw new BadRequestException(`Failed to update campaign status`);
+      }
+
+      // Fetch the updated campaign
+      const updatedCampaign = await this.campaignModel.findById(id).exec();
+      
+      if (!updatedCampaign) {
+        throw new NotFoundException(`Campaign with ID ${id} not found after update`);
+      }
+
+      this.logger.debug(`Successfully updated campaign ${id}. New status: ${updatedCampaign.status}`);
+      this.logger.debug(`Updated campaign object:`, JSON.stringify(updatedCampaign, null, 2));
+
+      // Emit event for admin notifications
+      this.eventEmitter.emit('campaign.pending_review', {
+        campaignId: id,
+        campaignName: updatedCampaign.title,
+        brandUserId: userId,
+        budget: updatedCampaign.budget,
+      });
+
+      this.logger.log(`Campaign ${id} moved to pending status for admin review`);
 
       return updatedCampaign;
     } catch (error) {
@@ -1046,6 +1082,110 @@ export class CampaignsService {
       const errorMessage =
         error instanceof Error ? error.message : 'Unknown error';
       throw new BadRequestException(`Campaign resume failed: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Admin approves a pending campaign - Activates it and reserves funds
+   */
+  async approveCampaign(id: string, adminId: string): Promise<ICampaign> {
+    const campaign = await this.findOne(id);
+
+    // Can only approve pending campaigns
+    if (campaign.status !== CampaignStatus.PENDING) {
+      throw new BadRequestException('Can only approve pending campaigns');
+    }
+
+    try {
+      // Reserve campaign funds from brand wallet
+      await this.campaignEventsService.handleCampaignActivation(id);
+
+      // Update campaign status to active
+      const updatedCampaign = await this.campaignModel
+        .findByIdAndUpdate(
+          id, 
+          { 
+            status: CampaignStatus.ACTIVE,
+            approvedAt: new Date(),
+            approvedBy: adminId
+          }, 
+          { new: true }
+        )
+        .exec();
+
+      if (!updatedCampaign) {
+        throw new NotFoundException(`Campaign with ID ${id} not found`);
+      }
+
+      // Emit event for notifications
+      this.eventEmitter.emit('campaign.approved', {
+        campaignId: id,
+        campaignName: updatedCampaign.title,
+        brandUserId: updatedCampaign.brandId.toString(),
+        adminId,
+        budget: updatedCampaign.budget,
+      });
+
+      this.logger.log(`Campaign ${id} approved and activated by admin ${adminId}`);
+
+      return updatedCampaign;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(
+        `Campaign approval failed: ${errorMessage}`,
+      );
+    }
+  }
+
+  /**
+   * Admin rejects a pending campaign
+   */
+  async rejectCampaign(id: string, adminId: string, reason?: string): Promise<ICampaign> {
+    const campaign = await this.findOne(id);
+
+    // Can only reject pending campaigns
+    if (campaign.status !== CampaignStatus.PENDING) {
+      throw new BadRequestException('Can only reject pending campaigns');
+    }
+
+    try {
+      // Update campaign status to rejected
+      const updatedCampaign = await this.campaignModel
+        .findByIdAndUpdate(
+          id, 
+          { 
+            status: CampaignStatus.REJECTED,
+            rejectedAt: new Date(),
+            rejectedBy: adminId,
+            rejectionReason: reason
+          }, 
+          { new: true }
+        )
+        .exec();
+
+      if (!updatedCampaign) {
+        throw new NotFoundException(`Campaign with ID ${id} not found`);
+      }
+
+      // Emit event for notifications
+      this.eventEmitter.emit('campaign.rejected', {
+        campaignId: id,
+        campaignName: updatedCampaign.title,
+        brandUserId: updatedCampaign.brandId.toString(),
+        adminId,
+        reason,
+      });
+
+      this.logger.log(`Campaign ${id} rejected by admin ${adminId}. Reason: ${reason || 'No reason provided'}`);
+
+      return updatedCampaign;
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
+      throw new BadRequestException(
+        `Campaign rejection failed: ${errorMessage}`,
+      );
     }
   }
 }
