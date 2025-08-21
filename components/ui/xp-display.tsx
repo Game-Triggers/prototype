@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Trophy, Star, TrendingUp } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useXP } from "@/lib/contexts/xp-context";
-
+import { getXPProgress } from "@/lib/constants/xp-constants"; // make sure this exists
 
 export function XPDisplay() {
   const { data: session } = useSession();
@@ -25,10 +25,8 @@ export function XPDisplay() {
     );
   }
 
-<<<<<<< HEAD
   const progress = getXPProgress(xpData.total);
-=======
->>>>>>> 4ce3f0d (feat: implement comprehensive RP (Reputation Points) system- Add RP context and state management with daily reset functionality- Create RP display component with green shield icon and hover tooltip- Implement RP constants with level calculation and activity rewards- Add backend RP DTOs, services, and API endpoints- Integrate RP system into navbar alongside XP, Energy, and Streak- Add RP field to user schema with activity tracking- Implement automatic RP rewards on user signup (5 RP)- Create debug/test interface for RP functionality- Design extensible system for future activity-based RP rewards- Add comprehensive error handling and loading states- Include real-time RP updates and daily progress tracking)
+
   return (
     <div className="relative">
       <div
@@ -46,34 +44,21 @@ export function XPDisplay() {
             <Trophy className="h-4 w-4 text-blue-500" />
             Experience Points
           </div>
-          
-          {/* XP Info */}
-<<<<<<< HEAD
-          {/* Level and XP Info */}
-=======
->>>>>>> 4ce3f0d (feat: implement comprehensive RP (Reputation Points) system- Add RP context and state management with daily reset functionality- Create RP display component with green shield icon and hover tooltip- Implement RP constants with level calculation and activity rewards- Add backend RP DTOs, services, and API endpoints- Integrate RP system into navbar alongside XP, Energy, and Streak- Add RP field to user schema with activity tracking- Implement automatic RP rewards on user signup (5 RP)- Create debug/test interface for RP functionality- Design extensible system for future activity-based RP rewards- Add comprehensive error handling and loading states- Include real-time RP updates and daily progress tracking)
+
           <div className="space-y-3">
+            {/* Total XP and Level */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Star className="h-4 w-4 text-yellow-500" />
-                <span className="text-sm font-medium">Total XP</span>
-<<<<<<< HEAD
-              </div>
-              <span className="text-xs text-muted-foreground">
-                {xpData.total} XP
-              </span>
-            </div>
-            
-                <span className="text-sm font-medium">Level {progress.currentLevel}</span>
-=======
->>>>>>> 4ce3f0d (feat: implement comprehensive RP (Reputation Points) system- Add RP context and state management with daily reset functionality- Create RP display component with green shield icon and hover tooltip- Implement RP constants with level calculation and activity rewards- Add backend RP DTOs, services, and API endpoints- Integrate RP system into navbar alongside XP, Energy, and Streak- Add RP field to user schema with activity tracking- Implement automatic RP rewards on user signup (5 RP)- Create debug/test interface for RP functionality- Design extensible system for future activity-based RP rewards- Add comprehensive error handling and loading states- Include real-time RP updates and daily progress tracking)
+                <span className="text-sm font-medium">
+                  Level {progress.currentLevel}
+                </span>
               </div>
               <span className="text-xs text-muted-foreground">
                 {xpData.total} XP
               </span>
             </div>
 
-<<<<<<< HEAD
             {/* Progress Bar */}
             <div className="space-y-1">
               <div className="flex justify-between text-xs text-muted-foreground">
@@ -81,14 +66,15 @@ export function XPDisplay() {
                 <span>{progress.nextLevelXP} XP to next level</span>
               </div>
               <div className="w-full bg-muted rounded-full h-2">
-                <div 
+                <div
                   className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-                  style={{ width: `${Math.min(progress.progressPercentage, 100)}%` }}
+                  style={{
+                    width: `${Math.min(progress.progressPercentage, 100)}%`,
+                  }}
                 />
               </div>
             </div>
-=======
->>>>>>> 4ce3f0d (feat: implement comprehensive RP (Reputation Points) system- Add RP context and state management with daily reset functionality- Create RP display component with green shield icon and hover tooltip- Implement RP constants with level calculation and activity rewards- Add backend RP DTOs, services, and API endpoints- Integrate RP system into navbar alongside XP, Energy, and Streak- Add RP field to user schema with activity tracking- Implement automatic RP rewards on user signup (5 RP)- Create debug/test interface for RP functionality- Design extensible system for future activity-based RP rewards- Add comprehensive error handling and loading states- Include real-time RP updates and daily progress tracking)
+
             {/* Stats */}
             <div className="grid grid-cols-2 gap-2 text-xs">
               <div className="bg-muted/50 rounded p-2">
@@ -96,29 +82,40 @@ export function XPDisplay() {
                   <TrendingUp className="h-3 w-3 text-green-500" />
                   <span className="font-medium">Today</span>
                 </div>
-                <span className="text-muted-foreground">+{xpData.earnedToday} XP</span>
+                <span className="text-muted-foreground">
+                  +{xpData.earnedToday} XP
+                </span>
               </div>
-              
+
               <div className="bg-muted/50 rounded p-2">
                 <div className="flex items-center gap-1 mb-1">
                   <Trophy className="h-3 w-3 text-blue-500" />
                   <span className="font-medium">Activities</span>
                 </div>
-                <span className="text-muted-foreground">{xpData.activities.length}</span>
+                <span className="text-muted-foreground">
+                  {xpData.activities.length}
+                </span>
               </div>
             </div>
 
             {/* Recent Activities */}
             {xpData.activities.length > 0 && (
               <div>
-                <div className="text-xs font-medium mb-2 text-muted-foreground">Recent Activities</div>
+                <div className="text-xs font-medium mb-2 text-muted-foreground">
+                  Recent Activities
+                </div>
                 <div className="space-y-1 max-h-20 overflow-y-auto">
                   {xpData.activities.slice(0, 3).map((activity, index) => (
-                    <div key={index} className="flex justify-between text-xs">
+                    <div
+                      key={index}
+                      className="flex justify-between text-xs"
+                    >
                       <span className="capitalize">
-                        {activity.type.replace('_', ' ')}
+                        {activity.type.replace("_", " ")}
                       </span>
-                      <span className="text-green-500 font-medium">+{activity.amount} XP</span>
+                      <span className="text-green-500 font-medium">
+                        +{activity.amount} XP
+                      </span>
                     </div>
                   ))}
                 </div>

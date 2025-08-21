@@ -60,16 +60,15 @@ export function useNotifications(
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Calculate stats from notifications - ensure notifications is always an array
-  const notificationsArray = Array.isArray(notifications) ? notifications : [];
+  // Calculate stats
   const stats: NotificationStats = {
-    total: notificationsArray.length,
-    unread: notificationsArray.filter(n => !n.isRead).length,
-    byType: notificationsArray.reduce((acc, n) => {
+    total: notifications.length,
+    unread: notifications.filter(n => !n.isRead).length,
+    byType: notifications.reduce((acc, n) => {
       acc[n.type] = (acc[n.type] || 0) + 1;
       return acc;
     }, {} as Record<string, number>),
-    byPriority: notificationsArray.reduce((acc, n) => {
+    byPriority: notifications.reduce((acc, n) => {
       const priority = n.data?.priority || 'medium';
       acc[priority] = (acc[priority] || 0) + 1;
       return acc;
@@ -91,7 +90,7 @@ export function useNotifications(
     try {
       const queryParams = new URLSearchParams();
       const filtersToUse = fetchFilters || filters;
-      
+
       if (filtersToUse) {
         Object.entries(filtersToUse).forEach(([key, value]) => {
           if (value !== undefined && value !== null) {
@@ -115,7 +114,6 @@ export function useNotifications(
 
       const data = await response.json();
       const notificationsData = data.notifications || data;
-      // Ensure we always set an array
       setNotifications(Array.isArray(notificationsData) ? notificationsData : []);
     } catch (err) {
       console.error('Error fetching notifications:', err);
@@ -128,7 +126,6 @@ export function useNotifications(
 
   const markAsRead = useCallback(async (notificationId: string): Promise<boolean> => {
     if (!session) return false;
-
     try {
       const response = await fetch(`/api/v1/notifications/${notificationId}/read`, {
         method: 'PUT',
@@ -137,20 +134,13 @@ export function useNotifications(
           'Content-Type': 'application/json',
         },
       });
+      if (!response.ok) throw new Error(`Failed to mark notification as read: ${response.status}`);
 
-      if (!response.ok) {
-        throw new Error(`Failed to mark notification as read: ${response.status}`);
-      }
-
-      // Update local state
-      setNotifications(prev => 
-        prev.map(notification => 
-          notification.id === notificationId 
-            ? { ...notification, isRead: true }
-            : notification
+      setNotifications(prev =>
+        prev.map(notification =>
+          notification.id === notificationId ? { ...notification, isRead: true } : notification
         )
       );
-
       return true;
     } catch (err) {
       console.error('Error marking notification as read:', err);
@@ -161,7 +151,6 @@ export function useNotifications(
 
   const markMultipleAsRead = useCallback(async (notificationIds: string[]): Promise<boolean> => {
     if (!session || notificationIds.length === 0) return false;
-
     try {
       const response = await fetch('/api/v1/notifications/read/batch', {
         method: 'PUT',
@@ -171,20 +160,13 @@ export function useNotifications(
         },
         body: JSON.stringify({ notificationIds }),
       });
+      if (!response.ok) throw new Error(`Failed to mark notifications as read: ${response.status}`);
 
-      if (!response.ok) {
-        throw new Error(`Failed to mark notifications as read: ${response.status}`);
-      }
-
-      // Update local state
-      setNotifications(prev => 
-        prev.map(notification => 
-          notificationIds.includes(notification.id)
-            ? { ...notification, isRead: true }
-            : notification
+      setNotifications(prev =>
+        prev.map(notification =>
+          notificationIds.includes(notification.id) ? { ...notification, isRead: true } : notification
         )
       );
-
       return true;
     } catch (err) {
       console.error('Error marking notifications as read:', err);
@@ -195,7 +177,6 @@ export function useNotifications(
 
   const markAllAsRead = useCallback(async (): Promise<boolean> => {
     if (!session) return false;
-
     try {
       const response = await fetch('/api/v1/notifications/read/all', {
         method: 'PUT',
@@ -204,16 +185,9 @@ export function useNotifications(
           'Content-Type': 'application/json',
         },
       });
+      if (!response.ok) throw new Error(`Failed to mark all notifications as read: ${response.status}`);
 
-      if (!response.ok) {
-        throw new Error(`Failed to mark all notifications as read: ${response.status}`);
-      }
-
-      // Update local state
-      setNotifications(prev => 
-        prev.map(notification => ({ ...notification, isRead: true }))
-      );
-
+      setNotifications(prev => prev.map(notification => ({ ...notification, isRead: true })));
       return true;
     } catch (err) {
       console.error('Error marking all notifications as read:', err);
@@ -224,7 +198,6 @@ export function useNotifications(
 
   const deleteNotification = useCallback(async (notificationId: string): Promise<boolean> => {
     if (!session) return false;
-
     try {
       const response = await fetch(`/api/v1/notifications/${notificationId}`, {
         method: 'DELETE',
@@ -233,14 +206,9 @@ export function useNotifications(
           'Content-Type': 'application/json',
         },
       });
+      if (!response.ok) throw new Error(`Failed to delete notification: ${response.status}`);
 
-      if (!response.ok) {
-        throw new Error(`Failed to delete notification: ${response.status}`);
-      }
-
-      // Update local state
       setNotifications(prev => prev.filter(notification => notification.id !== notificationId));
-
       return true;
     } catch (err) {
       console.error('Error deleting notification:', err);
@@ -253,18 +221,12 @@ export function useNotifications(
     await fetchNotifications(filters);
   }, [fetchNotifications, filters]);
 
-  // Auto-fetch on mount and when session changes
   useEffect(() => {
-    if (autoFetch) {
-      fetchNotifications();
-    }
-  }, [
-    autoFetch,
-    fetchNotifications
-  ]);
+    if (autoFetch) fetchNotifications();
+  }, [autoFetch, fetchNotifications]);
 
   return {
-    notifications: notificationsArray,
+    notifications,
     unreadCount,
     stats,
     loading,
@@ -278,13 +240,8 @@ export function useNotifications(
   };
 }
 
-// Hook for getting just the unread count (useful for notification badges)
-export function useUnreadNotificationCount(): {
-  unreadCount: number;
-  loading: boolean;
-  error: string | null;
-  refetch: () => Promise<void>;
-} {
+// --- Unread count hook ---
+export function useUnreadNotificationCount() {
   const { data: session } = useSession();
   const [unreadCount, setUnreadCount] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -296,10 +253,7 @@ export function useUnreadNotificationCount(): {
       setError(null);
       return;
     }
-
     setLoading(true);
-    setError(null);
-
     try {
       const response = await fetch('/api/v1/notifications/count/unread', {
         headers: {
@@ -307,11 +261,7 @@ export function useUnreadNotificationCount(): {
           'Content-Type': 'application/json',
         },
       });
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch unread count: ${response.status}`);
-      }
-
+      if (!response.ok) throw new Error(`Failed to fetch unread count: ${response.status}`);
       const data = await response.json();
       setUnreadCount(data.count || 0);
     } catch (err) {
@@ -321,71 +271,23 @@ export function useUnreadNotificationCount(): {
     } finally {
       setLoading(false);
     }
-<<<<<<< HEAD
   }, [session]);
 
-  }, [session, fetchNotifications]);
-  const createTestNotification =
-    process.env.NODE_ENV === 'development'
-      ? useCallback(async (): Promise<boolean> => {
-          if (!session) return false;
-
-          try {
-            const response = await fetch(`${API_BASE}/test`, {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${session.accessToken}`,
-                'Content-Type': 'application/json',
-              },
-            });
-
-            if (!response.ok) {
-              throw new Error(`Failed to create test notification: ${response.statusText}`);
-            }
-
-            const data = await response.json();
-            
-            if (data.success) {
-              // Refresh notifications
-              await fetchNotifications();
-              return true;
-            }
-            return false;
-          } catch (err) {
-            console.error('Error creating test notification:', err);
-            return false;
-          }
-        }, [session, fetchNotifications])
-      : undefined;
-=======
-  }, [session, fetchNotifications]);
-
->>>>>>> 4ce3f0d (feat: implement comprehensive RP (Reputation Points) system- Add RP context and state management with daily reset functionality- Create RP display component with green shield icon and hover tooltip- Implement RP constants with level calculation and activity rewards- Add backend RP DTOs, services, and API endpoints- Integrate RP system into navbar alongside XP, Energy, and Streak- Add RP field to user schema with activity tracking- Implement automatic RP rewards on user signup (5 RP)- Create debug/test interface for RP functionality- Design extensible system for future activity-based RP rewards- Add comprehensive error handling and loading states- Include real-time RP updates and daily progress tracking)
-  // Auto-fetch unread count on session change
   useEffect(() => {
     fetchUnreadCount();
   }, [fetchUnreadCount]);
 
-  return {
-    unreadCount,
-    loading,
-    error,
-    refetch: fetchUnreadCount,
-  };
+  return { unreadCount, loading, error, refetch: fetchUnreadCount };
 }
 
-// Hook for real-time notification updates
+// --- Real-time hook (polling fallback) ---
 export function useNotificationRealtime(
-  onNewNotification?: (notification: Notification) => void,
-  onNotificationUpdate?: (notification: Notification) => void
+  onNewNotification?: (notification: Notification) => void
 ) {
   const { data: session } = useSession();
 
   useEffect(() => {
     if (!session) return;
-
-    // In a real implementation, you would set up WebSocket or SSE connection here
-    // For now, we'll use polling as a fallback
     const pollInterval = setInterval(async () => {
       try {
         const response = await fetch('/api/v1/notifications/latest', {
@@ -394,7 +296,6 @@ export function useNotificationRealtime(
             'Content-Type': 'application/json',
           },
         });
-
         if (response.ok) {
           const data = await response.json();
           if (data.notification && onNewNotification) {
@@ -404,8 +305,7 @@ export function useNotificationRealtime(
       } catch (err) {
         console.error('Error polling for new notifications:', err);
       }
-    }, 30000); // Poll every 30 seconds
-
+    }, 30000);
     return () => clearInterval(pollInterval);
-  }, [session, onNewNotification, onNotificationUpdate]);
+  }, [session, onNewNotification]);
 }
