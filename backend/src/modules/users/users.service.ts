@@ -28,6 +28,8 @@ import {
   AddXPDto,
 } from './dto/xp.dto';
 import { RPResponseDto, AddRPDto } from './dto/rp.dto';
+import { getLevelFromXP } from '../../constants/xp-constants';
+import { RP_REWARDS, getLevelFromRP } from '../../constants/rp-constants';
 import * as crypto from 'crypto';
 
 @Injectable()
@@ -764,8 +766,7 @@ export class UsersService {
 
     return {
       total: document.xp.total,
-
-      level: document.xp.level,
+      level: getLevelFromXP(document.xp.total),
       earnedToday: document.xp.earnedToday,
       lastEarned: document.xp.lastEarned,
       activities: document.xp.activities.slice(-10), // Return last 10 activities
@@ -828,7 +829,7 @@ export class UsersService {
 
     return {
       total: document.xp.total,
-
+      level: getLevelFromXP(document.xp.total),
       earnedToday: document.xp.earnedToday,
       lastEarned: document.xp.lastEarned,
       activities: document.xp.activities.slice(-10), // Return last 10 activities
@@ -927,11 +928,6 @@ export class UsersService {
       earnedToday: document.rp.earnedToday,
       lastEarned: document.rp.lastEarned,
       activities: document.rp.activities.slice(-10), // Return last 10 activities
-
-      level: document.xp.level,
-      earnedToday: document.xp.earnedToday,
-      lastEarned: document.xp.lastEarned,
-      activities: document.xp.activities.slice(-10), // Return last 10 activities
     };
   }
 }

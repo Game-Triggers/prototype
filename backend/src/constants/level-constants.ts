@@ -18,113 +18,113 @@ export interface LevelRequirement {
 export const LEVEL_REQUIREMENTS: LevelRequirement[] = [
   {
     level: 1,
-    title: "Novice Explorer",
-    description: "Welcome to the platform! Start your journey here.",
+    title: 'Novice Explorer',
+    description: 'Welcome to the platform! Start your journey here.',
     minXP: 0,
     minRP: 0,
-    badge: "🌱",
-    color: "#22c55e", // green-500
-    perks: ["Access to basic campaigns", "Standard support"],
-    icon: "Sprout"
+    badge: '🌱',
+    color: '#22c55e', // green-500
+    perks: ['Access to basic campaigns', 'Standard support'],
+    icon: 'Sprout',
   },
   {
     level: 2,
-    title: "Rising Streamer",
+    title: 'Rising Streamer',
     description: "You're getting the hang of things!",
     minXP: 100,
     minRP: 50,
-    badge: "🌿",
-    color: "#16a34a", // green-600
-    perks: ["Access to intermediate campaigns", "Profile badge", "5% bonus XP"],
-    icon: "Leaf"
+    badge: '🌿',
+    color: '#16a34a', // green-600
+    perks: ['Access to intermediate campaigns', 'Profile badge', '5% bonus XP'],
+    icon: 'Leaf',
   },
   {
     level: 3,
-    title: "Content Creator",
-    description: "Creating engaging content and building reputation.",
+    title: 'Content Creator',
+    description: 'Creating engaging content and building reputation.',
     minXP: 300,
     minRP: 150,
-    badge: "🎬",
-    color: "#3b82f6", // blue-500
-    perks: ["Premium campaign access", "Priority support", "10% bonus XP/RP"],
-    icon: "Video"
+    badge: '🎬',
+    color: '#3b82f6', // blue-500
+    perks: ['Premium campaign access', 'Priority support', '10% bonus XP/RP'],
+    icon: 'Video',
   },
   {
     level: 4,
-    title: "Community Builder",
-    description: "Building a strong community around your content.",
+    title: 'Community Builder',
+    description: 'Building a strong community around your content.',
     minXP: 600,
     minRP: 300,
-    badge: "👥",
-    color: "#8b5cf6", // violet-500
-    perks: ["Featured profile placement", "Early campaign access", "15% bonus XP/RP"],
-    icon: "Users"
+    badge: '👥',
+    color: '#8b5cf6', // violet-500
+    perks: ['Featured profile placement', 'Early campaign access', '15% bonus XP/RP'],
+    icon: 'Users',
   },
   {
     level: 5,
-    title: "Brand Partner",
-    description: "Trusted partner for brand collaborations.",
+    title: 'Brand Partner',
+    description: 'Trusted partner for brand collaborations.',
     minXP: 1000,
     minRP: 500,
-    badge: "🤝",
-    color: "#f59e0b", // amber-500
-    perks: ["Exclusive brand partnerships", "Analytics dashboard", "20% bonus XP/RP"],
-    icon: "Handshake"
+    badge: '🤝',
+    color: '#f59e0b', // amber-500
+    perks: ['Exclusive brand partnerships', 'Analytics dashboard', '20% bonus XP/RP'],
+    icon: 'Handshake',
   },
   {
     level: 6,
-    title: "Influence Master",
-    description: "Mastering the art of influence and engagement.",
+    title: 'Influence Master',
+    description: 'Mastering the art of influence and engagement.',
     minXP: 1500,
     minRP: 750,
-    badge: "🎯",
-    color: "#ef4444", // red-500
-    perks: ["Custom campaign negotiations", "Personal account manager", "25% bonus XP/RP"],
-    icon: "Target"
+    badge: '🎯',
+    color: '#ef4444', // red-500
+    perks: ['Custom campaign negotiations', 'Personal account manager', '25% bonus XP/RP'],
+    icon: 'Target',
   },
   {
     level: 7,
-    title: "Platform Expert",
-    description: "Expert level understanding of the platform.",
+    title: 'Platform Expert',
+    description: 'Expert level understanding of the platform.',
     minXP: 2200,
     minRP: 1100,
-    badge: "⭐",
-    color: "#dc2626", // red-600
-    perks: ["Beta feature access", "Mentorship opportunities", "30% bonus XP/RP"],
-    icon: "Star"
+    badge: '⭐',
+    color: '#dc2626', // red-600
+    perks: ['Beta feature access', 'Mentorship opportunities', '30% bonus XP/RP'],
+    icon: 'Star',
   },
   {
     level: 8,
-    title: "Digital Champion",
-    description: "Champion of digital content and community engagement.",
+    title: 'Digital Champion',
+    description: 'Champion of digital content and community engagement.',
     minXP: 3000,
     minRP: 1500,
-    badge: "🏆",
-    color: "#7c3aed", // violet-600
-    perks: ["Platform ambassador status", "Event invitations", "35% bonus XP/RP"],
-    icon: "Trophy"
+    badge: '🏆',
+    color: '#7c3aed', // violet-600
+    perks: ['Platform ambassador status', 'Event invitations', '35% bonus XP/RP'],
+    icon: 'Trophy',
   },
   {
     level: 9,
-    title: "Elite Influencer",
-    description: "Elite tier with exceptional influence and reach.",
+    title: 'Elite Influencer',
+    description: 'Elite tier with exceptional influence and reach.',
     minXP: 4000,
     minRP: 2000,
-    badge: "💎",
-    color: "#1d4ed8", // blue-700
-    perks: ["Elite campaign access", "Revenue sharing program", "40% bonus XP/RP"],
-    icon: "Diamond"
+    badge: '💎',
+    color: '#1d4ed8', // blue-700
+    perks: ['Elite campaign access', 'Revenue sharing program', '40% bonus XP/RP'],
+    icon: 'Diamond',
   },
   {
     level: 10,
-    title: "Legendary Creator",
-    description: "The pinnacle of content creation and influence.",
+    title: 'Legendary Creator',
+    description: 'The pinnacle of content creation and influence.',
     minXP: 5500,
     minRP: 2750,
-    badge: "👑",
-    color: "#facc15", // yellow-400
-    perks: ["Legendary status", "Maximum benefits", "50% bonus XP/RP", "Platform partnership"],
-    icon: "Crown"
+    badge: '👑',
+    color: '#facc15', // yellow-400
+    perks: ['Legendary status', 'Maximum benefits', '50% bonus XP/RP', 'Platform partnership'],
+    icon: 'Crown',
   }
 ];
 

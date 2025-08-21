@@ -42,6 +42,7 @@ import {
   AddXPDto,
 } from './dto/xp.dto';
 import { RPResponseDto, AddRPDto } from './dto/rp.dto';
+import { LevelService } from './services/level.service';
 import { Request } from 'express';
 
 // Define the Request with user interface
@@ -69,7 +70,10 @@ interface RequestWithUser extends Request {
 @ApiTags('users')
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly levelService: LevelService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Create a new user' })
@@ -507,4 +511,40 @@ export class UsersController {
     return this.usersService.addRP(userId, dto.activityType, dto.amount);
   }
 
+  // Level System endpoints
+  @Get('me/level')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Get current user level data' })
+  @ApiResponse({
+    status: 200,
+    description: 'Level data retrieved successfully',
+  })
+  async getMyLevel(@Req() req: RequestWithUser) {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new UnauthorizedException(
+        'User ID is missing from authentication token',
+      );
+    }
+    return await this.levelService.getUserLevelData(userId);
+  }
+
+  @Post('me/level/check')
+  @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @ApiOperation({ summary: 'Check for level up and update if necessary' })
+  @ApiResponse({
+    status: 200,
+    description: 'Level check completed',
+  })
+  async checkMyLevelUp(@Req() req: RequestWithUser) {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new UnauthorizedException(
+        'User ID is missing from authentication token',
+      );
+    }
+    return await this.levelService.checkForLevelUp(userId);
+  }
 }
