@@ -145,7 +145,7 @@ export default function FinancialReportsPage() {
     );
   }
 
-  if (session.user.role !== UserRole.ADMIN) {
+  if (session?.user?.role !== UserRole.ADMIN) {
     return (
       <div className="container mx-auto py-6">
         <Alert variant="destructive">

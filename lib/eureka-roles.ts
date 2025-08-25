@@ -1,0 +1,613 @@
+/**
+ * Eureka Role-Based Account System
+ * 
+ * This system implements a comprehensive role hierarchy across three portals:
+ * - E1: Brand Portal (advertiser roles)
+ * - E2: Admin Portal (internal/exchange roles)
+ * - E3: Publisher Portal (streamer/publisher roles)
+ */
+
+// Portal Enums - determines which UI/components to render
+export enum Portal {
+  BRAND = 'brand',      // E1 - Brand side portal
+  ADMIN = 'admin',      // E2 - Admin side portal  
+  PUBLISHER = 'publisher' // E3 - Publisher/Streamer side portal
+}
+
+// Core Role Categories for grouping permissions
+export enum RoleCategory {
+  SUPER_ADMIN = 'super_admin',
+  MANAGEMENT = 'management',
+  OPERATIONS = 'operations',
+  FINANCE = 'finance',
+  SUPPORT = 'support',
+  END_USER = 'end_user'
+}
+
+// Comprehensive Role Definitions
+export enum EurekaRole {
+  // E1: Brand Portal Roles
+  MARKETING_HEAD = 'marketing_head',
+  CAMPAIGN_MANAGER = 'campaign_manager',
+  ADMIN_BRAND = 'admin_brand',
+  FINANCE_MANAGER = 'finance_manager',
+  VALIDATOR_APPROVER = 'validator_approver',
+  CAMPAIGN_CONSULTANT = 'campaign_consultant',
+  SALES_REPRESENTATIVE = 'sales_representative',
+  SUPPORT_2_BRAND = 'support_2_brand',
+  SUPPORT_1_BRAND = 'support_1_brand',
+
+  // E2: Admin Portal Roles (Internal Exchange)
+  SUPER_ADMIN = 'super_admin',
+  ADMIN_EXCHANGE = 'admin_exchange',
+  PLATFORM_SUCCESS_MANAGER = 'platform_success_manager',
+  CUSTOMER_SUCCESS_MANAGER = 'customer_success_manager',
+  CAMPAIGN_SUCCESS_MANAGER = 'campaign_success_manager',
+  SUPPORT_2_ADMIN = 'support_2_admin',
+  SUPPORT_1_ADMIN = 'support_1_admin',
+
+  // E3: Publisher Portal Roles
+  INDEPENDENT_PUBLISHER = 'independent_publisher',
+  ARTISTE_MANAGER = 'artiste_manager',
+  STREAMER_INDIVIDUAL = 'streamer_individual',
+  LIAISON_MANAGER = 'liaison_manager',
+  SUPPORT_2_PUBLISHER = 'support_2_publisher',
+  SUPPORT_1_PUBLISHER = 'support_1_publisher',
+
+  // Legacy role mappings for backward compatibility
+  STREAMER_LEGACY = 'streamer',
+  BRAND_LEGACY = 'brand',
+  ADMIN_LEGACY = 'admin'
+}
+
+// Permission categories for fine-grained access control
+export enum Permission {
+  // User Management
+  CREATE_USER = 'create_user',
+  READ_USER = 'read_user',
+  UPDATE_USER = 'update_user',
+  DELETE_USER = 'delete_user',
+  ASSIGN_ROLES = 'assign_roles',
+  SUSPEND_USER = 'suspend_user',
+
+  // Campaign Management
+  CREATE_CAMPAIGN = 'create_campaign',
+  READ_CAMPAIGN = 'read_campaign',
+  UPDATE_CAMPAIGN = 'update_campaign',
+  DELETE_CAMPAIGN = 'delete_campaign',
+  APPROVE_CAMPAIGN = 'approve_campaign',
+  REJECT_CAMPAIGN = 'reject_campaign',
+  PAUSE_CAMPAIGN = 'pause_campaign',
+  OVERRIDE_CAMPAIGN = 'override_campaign',
+
+  // Financial Operations
+  VIEW_BILLING = 'view_billing',
+  MANAGE_BUDGET = 'manage_budget',
+  UPLOAD_FUNDS = 'upload_funds',
+  PROCESS_PAYOUTS = 'process_payouts',
+  VIEW_SPEND_HISTORY = 'view_spend_history',
+  MANAGE_PAYMENT_METHODS = 'manage_payment_methods',
+
+  // Analytics & Reporting
+  VIEW_ANALYTICS = 'view_analytics',
+  VIEW_DETAILED_ANALYTICS = 'view_detailed_analytics',
+  EXPORT_REPORTS = 'export_reports',
+  VIEW_PERFORMANCE_METRICS = 'view_performance_metrics',
+
+  // Support & CRM
+  ACCESS_CRM = 'access_crm',
+  EDIT_CRM = 'edit_crm',
+  RESOLVE_TICKETS = 'resolve_tickets',
+  ESCALATE_TICKETS = 'escalate_tickets',
+  VIEW_SUPPORT_HISTORY = 'view_support_history',
+
+  // Platform Configuration
+  MODIFY_PRICING_LOGIC = 'modify_pricing_logic',
+  CONFIGURE_PLATFORM = 'configure_platform',
+  OVERRIDE_SYSTEM = 'override_system',
+  VIEW_SYSTEM_LOGS = 'view_system_logs',
+
+  // Organization Management
+  CREATE_ORGANIZATION = 'create_organization',
+  MANAGE_ORGANIZATION = 'manage_organization',
+  ASSIGN_BUDGET_LIMITS = 'assign_budget_limits',
+  FORM_TEAMS = 'form_teams',
+
+  // Publisher Operations
+  BID_ON_CAMPAIGNS = 'bid_on_campaigns',
+  CONNECT_PLATFORMS = 'connect_platforms',
+  UPLOAD_CONTENT = 'upload_content',
+  MANAGE_PUBLISHERS = 'manage_publishers',
+  COORDINATE_ONBOARDING = 'coordinate_onboarding'
+}
+
+// Role configuration with portal, category, and permissions
+export interface RoleConfig {
+  portal: Portal;
+  category: RoleCategory;
+  permissions: Permission[];
+  description: string;
+  canDelete?: boolean;
+  canSuspend?: boolean;
+  requiresAgreement?: boolean;
+}
+
+// Role definitions with permissions mapping
+export const ROLE_CONFIGURATIONS: Record<EurekaRole, RoleConfig> = {
+  // E1: Brand Portal Roles
+  [EurekaRole.MARKETING_HEAD]: {
+    portal: Portal.BRAND,
+    category: RoleCategory.MANAGEMENT,
+    description: 'Creates advertiser organization, assigns user roles and budget limits, forms campaign teams',
+    permissions: [
+      Permission.CREATE_ORGANIZATION,
+      Permission.MANAGE_ORGANIZATION,
+      Permission.ASSIGN_ROLES,
+      Permission.ASSIGN_BUDGET_LIMITS,
+      Permission.FORM_TEAMS,
+      Permission.VIEW_ANALYTICS,
+      Permission.VIEW_DETAILED_ANALYTICS,
+      Permission.MANAGE_BUDGET,
+      Permission.CREATE_CAMPAIGN,
+      Permission.READ_CAMPAIGN,
+      Permission.UPDATE_CAMPAIGN,
+      Permission.DELETE_CAMPAIGN
+    ],
+    canDelete: true,
+    canSuspend: true
+  },
+
+  [EurekaRole.CAMPAIGN_MANAGER]: {
+    portal: Portal.BRAND,
+    category: RoleCategory.OPERATIONS,
+    description: 'Creates and manages campaigns, selects targeting, creatives, and bidding strategy',
+    permissions: [
+      Permission.CREATE_CAMPAIGN,
+      Permission.READ_CAMPAIGN,
+      Permission.UPDATE_CAMPAIGN,
+      Permission.VIEW_ANALYTICS,
+      Permission.VIEW_PERFORMANCE_METRICS
+    ]
+  },
+
+  [EurekaRole.ADMIN_BRAND]: {
+    portal: Portal.BRAND,
+    category: RoleCategory.MANAGEMENT,
+    description: 'Manages advertiser accounts, assigns sales representatives, supports campaign troubleshooting',
+    permissions: [
+      Permission.READ_USER,
+      Permission.UPDATE_USER,
+      Permission.ASSIGN_ROLES,
+      Permission.ACCESS_CRM,
+      Permission.EDIT_CRM,
+      Permission.READ_CAMPAIGN,
+      Permission.PAUSE_CAMPAIGN,
+      Permission.RESOLVE_TICKETS,
+      Permission.ESCALATE_TICKETS
+    ],
+    canSuspend: true
+  },
+
+  [EurekaRole.FINANCE_MANAGER]: {
+    portal: Portal.BRAND,
+    category: RoleCategory.FINANCE,
+    description: 'Uploads funds, budget management, manages payment methods, views spend history and billing',
+    permissions: [
+      Permission.UPLOAD_FUNDS,
+      Permission.MANAGE_BUDGET,
+      Permission.MANAGE_PAYMENT_METHODS,
+      Permission.VIEW_SPEND_HISTORY,
+      Permission.VIEW_BILLING,
+      Permission.PROCESS_PAYOUTS
+    ]
+  },
+
+  [EurekaRole.VALIDATOR_APPROVER]: {
+    portal: Portal.BRAND,
+    category: RoleCategory.OPERATIONS,
+    description: 'Reviews campaigns before approval, verifies budget, creatives, and targeting',
+    permissions: [
+      Permission.READ_CAMPAIGN,
+      Permission.APPROVE_CAMPAIGN,
+      Permission.REJECT_CAMPAIGN,
+      Permission.VIEW_ANALYTICS
+    ]
+  },
+
+  [EurekaRole.CAMPAIGN_CONSULTANT]: {
+    portal: Portal.BRAND,
+    category: RoleCategory.OPERATIONS,
+    description: 'Manages advertiser logistics of campaign setup, execution and analytics on behalf of the advertiser',
+    permissions: [
+      Permission.CREATE_CAMPAIGN,
+      Permission.READ_CAMPAIGN,
+      Permission.UPDATE_CAMPAIGN,
+      Permission.VIEW_ANALYTICS,
+      Permission.VIEW_PERFORMANCE_METRICS
+    ],
+    requiresAgreement: true
+  },
+
+  [EurekaRole.SALES_REPRESENTATIVE]: {
+    portal: Portal.BRAND,
+    category: RoleCategory.SUPPORT,
+    description: 'Assists advertiser onboarding, explains product and campaign setup, guides advertisers',
+    permissions: [
+      Permission.ACCESS_CRM,
+      Permission.EDIT_CRM,
+      Permission.READ_CAMPAIGN,
+      Permission.READ_USER,
+      Permission.RESOLVE_TICKETS
+    ]
+  },
+
+  [EurekaRole.SUPPORT_2_BRAND]: {
+    portal: Portal.BRAND,
+    category: RoleCategory.SUPPORT,
+    description: 'Investigates complex advertiser-side issues, coordinates with teams for resolution',
+    permissions: [
+      Permission.RESOLVE_TICKETS,
+      Permission.ESCALATE_TICKETS,
+      Permission.VIEW_SUPPORT_HISTORY,
+      Permission.READ_CAMPAIGN,
+      Permission.READ_USER,
+      Permission.VIEW_ANALYTICS
+    ]
+  },
+
+  [EurekaRole.SUPPORT_1_BRAND]: {
+    portal: Portal.BRAND,
+    category: RoleCategory.SUPPORT,
+    description: 'Resolves basic advertiser queries related to campaign creation, login issues, navigation help',
+    permissions: [
+      Permission.RESOLVE_TICKETS,
+      Permission.ESCALATE_TICKETS,
+      Permission.READ_CAMPAIGN,
+      Permission.READ_USER
+    ]
+  },
+
+  // E2: Admin Portal Roles
+  [EurekaRole.SUPER_ADMIN]: {
+    portal: Portal.ADMIN,
+    category: RoleCategory.SUPER_ADMIN,
+    description: 'Full system control including unrestricted read/write/delete permissions on all entities',
+    permissions: Object.values(Permission), // All permissions
+    canDelete: true,
+    canSuspend: true
+  },
+
+  [EurekaRole.ADMIN_EXCHANGE]: {
+    portal: Portal.ADMIN,
+    category: RoleCategory.MANAGEMENT,
+    description: 'Manages internal workflows of operators and success managers, handles escalations',
+    permissions: [
+      Permission.READ_USER,
+      Permission.UPDATE_USER,
+      Permission.ASSIGN_ROLES,
+      Permission.READ_CAMPAIGN,
+      Permission.UPDATE_CAMPAIGN,
+      Permission.RESOLVE_TICKETS,
+      Permission.ESCALATE_TICKETS,
+      Permission.VIEW_ANALYTICS,
+      Permission.VIEW_SYSTEM_LOGS
+    ],
+    canSuspend: true
+  },
+
+  [EurekaRole.PLATFORM_SUCCESS_MANAGER]: {
+    portal: Portal.ADMIN,
+    category: RoleCategory.OPERATIONS,
+    description: 'Ensures system uptime and operational continuity, can modify SSP pricing logic, payout distribution',
+    permissions: [
+      Permission.MODIFY_PRICING_LOGIC,
+      Permission.CONFIGURE_PLATFORM,
+      Permission.VIEW_SYSTEM_LOGS,
+      Permission.RESOLVE_TICKETS,
+      Permission.ESCALATE_TICKETS,
+      Permission.VIEW_ANALYTICS,
+      Permission.VIEW_DETAILED_ANALYTICS,
+      Permission.PROCESS_PAYOUTS
+    ]
+  },
+
+  [EurekaRole.CUSTOMER_SUCCESS_MANAGER]: {
+    portal: Portal.ADMIN,
+    category: RoleCategory.OPERATIONS,
+    description: 'Ensures advertiser satisfaction through ticket resolution and optimization feedback',
+    permissions: [
+      Permission.RESOLVE_TICKETS,
+      Permission.ESCALATE_TICKETS,
+      Permission.VIEW_SUPPORT_HISTORY,
+      Permission.VIEW_ANALYTICS,
+      Permission.VIEW_DETAILED_ANALYTICS,
+      Permission.ACCESS_CRM,
+      Permission.EDIT_CRM
+    ]
+  },
+
+  [EurekaRole.CAMPAIGN_SUCCESS_MANAGER]: {
+    portal: Portal.ADMIN,
+    category: RoleCategory.OPERATIONS,
+    description: 'Oversees campaign flow from DSP to SSP, tracks live campaign status and ensures inventory matching',
+    permissions: [
+      Permission.READ_CAMPAIGN,
+      Permission.UPDATE_CAMPAIGN,
+      Permission.OVERRIDE_CAMPAIGN,
+      Permission.VIEW_ANALYTICS,
+      Permission.VIEW_DETAILED_ANALYTICS,
+      Permission.EXPORT_REPORTS
+    ]
+  },
+
+  [EurekaRole.SUPPORT_2_ADMIN]: {
+    portal: Portal.ADMIN,
+    category: RoleCategory.SUPPORT,
+    description: 'Handle tech failures (uploads, APIs), collaborate with devs for bug reports',
+    permissions: [
+      Permission.RESOLVE_TICKETS,
+      Permission.ESCALATE_TICKETS,
+      Permission.VIEW_SYSTEM_LOGS,
+      Permission.READ_CAMPAIGN,
+      Permission.READ_USER
+    ]
+  },
+
+  [EurekaRole.SUPPORT_1_ADMIN]: {
+    portal: Portal.ADMIN,
+    category: RoleCategory.SUPPORT,
+    description: 'Resolve common internal queries, help with navigation issues, FAQs',
+    permissions: [
+      Permission.RESOLVE_TICKETS,
+      Permission.ESCALATE_TICKETS,
+      Permission.READ_CAMPAIGN,
+      Permission.READ_USER
+    ]
+  },
+
+  // E3: Publisher Portal Roles
+  [EurekaRole.INDEPENDENT_PUBLISHER]: {
+    portal: Portal.PUBLISHER,
+    category: RoleCategory.END_USER,
+    description: 'Independent publisher not under any org/agency, manages their own campaigns and payouts directly',
+    permissions: [
+      Permission.BID_ON_CAMPAIGNS,
+      Permission.CONNECT_PLATFORMS,
+      Permission.UPLOAD_CONTENT,
+      Permission.VIEW_ANALYTICS,
+      Permission.VIEW_BILLING,
+      Permission.READ_CAMPAIGN
+    ]
+  },
+
+  [EurekaRole.ARTISTE_MANAGER]: {
+    portal: Portal.PUBLISHER,
+    category: RoleCategory.MANAGEMENT,
+    description: 'Recruits and manages publishers (streamers, content creators), monitors campaign performance',
+    permissions: [
+      Permission.MANAGE_PUBLISHERS,
+      Permission.COORDINATE_ONBOARDING,
+      Permission.READ_CAMPAIGN,
+      Permission.VIEW_ANALYTICS,
+      Permission.VIEW_PERFORMANCE_METRICS,
+      Permission.ASSIGN_ROLES
+    ]
+  },
+
+  [EurekaRole.STREAMER_INDIVIDUAL]: {
+    portal: Portal.PUBLISHER,
+    category: RoleCategory.END_USER,
+    description: 'Bids and runs campaigns, connects platform accounts, uploads content and submits analytics',
+    permissions: [
+      Permission.BID_ON_CAMPAIGNS,
+      Permission.CONNECT_PLATFORMS,
+      Permission.UPLOAD_CONTENT,
+      Permission.VIEW_ANALYTICS,
+      Permission.VIEW_BILLING,
+      Permission.READ_CAMPAIGN
+    ]
+  },
+
+  [EurekaRole.LIAISON_MANAGER]: {
+    portal: Portal.PUBLISHER,
+    category: RoleCategory.OPERATIONS,
+    description: 'Supports artiste managers in publisher onboarding, assists with dispute resolution',
+    permissions: [
+      Permission.COORDINATE_ONBOARDING,
+      Permission.RESOLVE_TICKETS,
+      Permission.VIEW_PERFORMANCE_METRICS,
+      Permission.READ_CAMPAIGN,
+      Permission.READ_USER
+    ]
+  },
+
+  [EurekaRole.SUPPORT_2_PUBLISHER]: {
+    portal: Portal.PUBLISHER,
+    category: RoleCategory.SUPPORT,
+    description: 'Investigates complex issues by coordinating with finance and technical teams',
+    permissions: [
+      Permission.RESOLVE_TICKETS,
+      Permission.ESCALATE_TICKETS,
+      Permission.VIEW_SUPPORT_HISTORY,
+      Permission.READ_CAMPAIGN,
+      Permission.READ_USER,
+      Permission.VIEW_BILLING
+    ]
+  },
+
+  [EurekaRole.SUPPORT_1_PUBLISHER]: {
+    portal: Portal.PUBLISHER,
+    category: RoleCategory.SUPPORT,
+    description: 'Resolves tickets raised by publishers for basic queries related to campaign participation',
+    permissions: [
+      Permission.RESOLVE_TICKETS,
+      Permission.ESCALATE_TICKETS,
+      Permission.READ_CAMPAIGN,
+      Permission.READ_USER
+    ]
+  },
+
+  // Legacy mappings for backward compatibility
+  [EurekaRole.STREAMER_LEGACY]: {
+    portal: Portal.PUBLISHER,
+    category: RoleCategory.END_USER,
+    description: 'Legacy streamer role - maps to Streamer Individual',
+    permissions: [
+      Permission.BID_ON_CAMPAIGNS,
+      Permission.CONNECT_PLATFORMS,
+      Permission.UPLOAD_CONTENT,
+      Permission.VIEW_ANALYTICS,
+      Permission.VIEW_BILLING,
+      Permission.READ_CAMPAIGN
+    ]
+  },
+
+  [EurekaRole.BRAND_LEGACY]: {
+    portal: Portal.BRAND,
+    category: RoleCategory.OPERATIONS,
+    description: 'Legacy brand role - maps to Campaign Manager',
+    permissions: [
+      Permission.CREATE_CAMPAIGN,
+      Permission.READ_CAMPAIGN,
+      Permission.UPDATE_CAMPAIGN,
+      Permission.VIEW_ANALYTICS,
+      Permission.VIEW_PERFORMANCE_METRICS
+    ]
+  },
+
+  [EurekaRole.ADMIN_LEGACY]: {
+    portal: Portal.ADMIN,
+    category: RoleCategory.MANAGEMENT,
+    description: 'Legacy admin role - maps to Admin Exchange',
+    permissions: [
+      Permission.READ_USER,
+      Permission.UPDATE_USER,
+      Permission.ASSIGN_ROLES,
+      Permission.READ_CAMPAIGN,
+      Permission.UPDATE_CAMPAIGN,
+      Permission.RESOLVE_TICKETS,
+      Permission.ESCALATE_TICKETS,
+      Permission.VIEW_ANALYTICS,
+      Permission.VIEW_SYSTEM_LOGS
+    ],
+    canSuspend: true
+  }
+};
+
+/**
+ * Utility functions for role management
+ */
+export class RoleManager {
+  /**
+   * Get portal for a specific role
+   */
+  static getPortal(role: EurekaRole): Portal {
+    return ROLE_CONFIGURATIONS[role]?.portal || Portal.PUBLISHER;
+  }
+
+  /**
+   * Get all permissions for a specific role
+   */
+  static getPermissions(role: EurekaRole): Permission[] {
+    return ROLE_CONFIGURATIONS[role]?.permissions || [];
+  }
+
+  /**
+   * Check if a role has a specific permission
+   */
+  static hasPermission(role: EurekaRole, permission: Permission): boolean {
+    const permissions = this.getPermissions(role);
+    return permissions.includes(permission);
+  }
+
+  /**
+   * Check if a role can delete entities
+   */
+  static canDelete(role: EurekaRole): boolean {
+    return ROLE_CONFIGURATIONS[role]?.canDelete || false;
+  }
+
+  /**
+   * Check if a role can suspend users
+   */
+  static canSuspend(role: EurekaRole): boolean {
+    return ROLE_CONFIGURATIONS[role]?.canSuspend || false;
+  }
+
+  /**
+   * Get roles by portal
+   */
+  static getRolesByPortal(portal: Portal): EurekaRole[] {
+    return Object.entries(ROLE_CONFIGURATIONS)
+      .filter(([, config]) => config.portal === portal)
+      .map(([role]) => role as EurekaRole);
+  }
+
+  /**
+   * Get roles by category
+   */
+  static getRolesByCategory(category: RoleCategory): EurekaRole[] {
+    return Object.entries(ROLE_CONFIGURATIONS)
+      .filter(([, config]) => config.category === category)
+      .map(([role]) => role as EurekaRole);
+  }
+
+  /**
+   * Check if user should see brand components
+   */
+  static shouldRenderBrandComponents(role: EurekaRole): boolean {
+    return this.getPortal(role) === Portal.BRAND;
+  }
+
+  /**
+   * Check if user should see admin components
+   */
+  static shouldRenderAdminComponents(role: EurekaRole): boolean {
+    return this.getPortal(role) === Portal.ADMIN;
+  }
+
+  /**
+   * Check if user should see publisher/streamer components
+   */
+  static shouldRenderPublisherComponents(role: EurekaRole): boolean {
+    return this.getPortal(role) === Portal.PUBLISHER;
+  }
+
+  /**
+   * Map legacy roles to new Eureka roles
+   */
+  static mapLegacyRole(legacyRole: string): EurekaRole {
+    switch (legacyRole.toLowerCase()) {
+      case 'streamer':
+        return EurekaRole.STREAMER_INDIVIDUAL;
+      case 'brand':
+        return EurekaRole.CAMPAIGN_MANAGER;
+      case 'admin':
+        return EurekaRole.ADMIN_EXCHANGE;
+      default:
+        return EurekaRole.STREAMER_INDIVIDUAL; // Default fallback
+    }
+  }
+
+  /**
+   * Get escalation path for support roles
+   */
+  static getEscalationTarget(role: EurekaRole): EurekaRole[] {
+    switch (role) {
+      case EurekaRole.SUPPORT_1_BRAND:
+        return [EurekaRole.SUPPORT_2_BRAND, EurekaRole.ADMIN_BRAND];
+      case EurekaRole.SUPPORT_2_BRAND:
+        return [EurekaRole.CUSTOMER_SUCCESS_MANAGER, EurekaRole.PLATFORM_SUCCESS_MANAGER];
+      case EurekaRole.SUPPORT_1_ADMIN:
+        return [EurekaRole.SUPPORT_2_ADMIN, EurekaRole.ADMIN_EXCHANGE];
+      case EurekaRole.SUPPORT_2_ADMIN:
+        return [EurekaRole.PLATFORM_SUCCESS_MANAGER];
+      case EurekaRole.SUPPORT_1_PUBLISHER:
+        return [EurekaRole.SUPPORT_2_PUBLISHER, EurekaRole.LIAISON_MANAGER];
+      case EurekaRole.SUPPORT_2_PUBLISHER:
+        return [EurekaRole.PLATFORM_SUCCESS_MANAGER];
+      default:
+        return [EurekaRole.SUPER_ADMIN];
+    }
+  }
+}

@@ -19,8 +19,12 @@ import {
 } from '@nestjs/swagger';
 import { WalletService } from './wallet.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import {
+  RequirePermissions,
+  RequireAnyPermission,
+} from '../auth/decorators/permissions.decorator';
+import { Permission } from '../../../../lib/eureka-roles';
 import { UserRole } from '@schemas/user.schema';
 import { TransactionType, PaymentMethod } from '@schemas/wallet.schema';
 import { Request } from 'express';
@@ -109,8 +113,8 @@ export class WalletController {
    * Add funds to brand wallet
    */
   @Post('add-funds')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.BRAND)
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions(Permission.UPLOAD_FUNDS)
   @ApiOperation({
     summary: 'Add funds to wallet',
     description: 'Add funds to brand wallet using various payment methods',
@@ -136,8 +140,8 @@ export class WalletController {
    * Reserve funds for campaign activation
    */
   @Post('reserve-campaign-funds')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.BRAND)
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions(Permission.MANAGE_BUDGET)
   @ApiOperation({
     summary: 'Reserve campaign funds',
     description: 'Reserve funds from wallet balance for campaign activation',
@@ -161,8 +165,8 @@ export class WalletController {
    * Charge campaign funds based on milestones
    */
   @Post('charge-campaign-funds')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.BRAND, UserRole.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequireAnyPermission(Permission.MANAGE_BUDGET, Permission.PROCESS_PAYOUTS)
   @ApiOperation({
     summary: 'Charge campaign funds',
     description: 'Charge reserved funds based on campaign milestones',
@@ -187,8 +191,8 @@ export class WalletController {
    * Credit earnings to streamer (admin only)
    */
   @Post('credit-earnings')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions(Permission.PROCESS_PAYOUTS)
   @ApiOperation({
     summary: 'Credit earnings to streamer',
     description: 'Credit earnings to streamer wallet with hold period',
@@ -212,8 +216,8 @@ export class WalletController {
    * Release earnings from hold
    */
   @Post('release-earnings/:transactionId')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions(Permission.PROCESS_PAYOUTS)
   @ApiOperation({
     summary: 'Release earnings from hold',
     description: 'Release earnings after campaign validation',
@@ -231,8 +235,8 @@ export class WalletController {
    * Request withdrawal (streamers only)
    */
   @Post('request-withdrawal')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.STREAMER)
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions(Permission.VIEW_BILLING)
   @ApiOperation({
     summary: 'Request withdrawal',
     description: 'Request withdrawal of earnings to bank account',
@@ -319,8 +323,8 @@ export class WalletController {
    * Check auto top-up eligibility
    */
   @Get('auto-topup-check')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.BRAND)
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions(Permission.MANAGE_BUDGET)
   @ApiOperation({
     summary: 'Check auto top-up eligibility',
     description: 'Check if wallet is eligible for auto top-up',
@@ -336,8 +340,8 @@ export class WalletController {
    * Get transaction by ID (admin only)
    */
   @Get('transactions/:transactionId')
-  @UseGuards(RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(PermissionsGuard)
+  @RequirePermissions(Permission.VIEW_BILLING)
   @ApiOperation({
     summary: 'Get transaction details',
     description: 'Get detailed information about a specific transaction',
