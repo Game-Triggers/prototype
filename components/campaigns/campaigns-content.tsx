@@ -4,7 +4,8 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { UserRole } from "@/schemas/user.schema";
+import { useEurekaRole, usePermissions } from "@/lib/hooks/use-eureka-roles";
+import { Portal, Permission } from "@/lib/eureka-roles";
 import { PlusCircle, Filter, Search } from "lucide-react";
 import { CampaignCard } from "@/components/ui/campaign-card";
 import { useEnergyPack } from "@/lib/contexts/energy-pack-context";
@@ -33,13 +34,13 @@ import { FilterBar } from "./filter-bar";
 
 export function CampaignsContent() {
   const { data: session, status } = useSession();
+  const { portal } = useEurekaRole();
+  const { hasPermission } = usePermissions();
   const { decrementEnergyPack } = useEnergyPack();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
-
-  const userRole = session?.user?.role;
 
   // Fetch campaigns from API based on user role
   useEffect(() => {
@@ -47,11 +48,11 @@ export function CampaignsContent() {
       try {
         setIsLoading(true);
         
-        // Determine which API endpoint to use based on user role
+        // Determine which API endpoint to use based on portal
         let apiEndpoint = '/campaigns';
-        if (userRole === UserRole.BRAND) {
+        if (portal === Portal.BRAND) {
           apiEndpoint = '/campaigns/brand';
-        } else if (userRole === UserRole.STREAMER) {
+        } else if (portal === Portal.PUBLISHER) {
           apiEndpoint = '/campaigns/streamer/available';
         }
         
@@ -162,7 +163,7 @@ export function CampaignsContent() {
     if (status !== 'loading') {
       fetchCampaigns();
     }
-  }, [userRole, session, status]);
+  }, [portal, session, status]);
 
   const handleFilterChange = (newFilter: string) => {
     setFilter(newFilter);
@@ -248,21 +249,21 @@ export function CampaignsContent() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">
-            {userRole === UserRole.STREAMER 
+            {portal === Portal.PUBLISHER 
               ? 'Browse Campaigns' 
-              : userRole === UserRole.BRAND 
+              : portal === Portal.BRAND 
               ? 'My Campaigns' 
               : 'All Campaigns'}
           </h1>
           <p className="text-muted-foreground mt-1">
-            {userRole === UserRole.STREAMER
+            {portal === Portal.PUBLISHER
               ? 'Find campaigns to join and start earning'
-              : userRole === UserRole.BRAND
+              : portal === Portal.BRAND
               ? 'Manage your campaign portfolio'
               : 'View and manage all platform campaigns'}
           </p>
         </div>
-        {userRole === UserRole.BRAND && (
+        {portal === Portal.BRAND && (
           <Button asChild>
             <Link href="/dashboard/campaigns/create">
               <PlusCircle className="h-4 w-4 mr-2" />
@@ -300,7 +301,7 @@ export function CampaignsContent() {
             <CampaignCard 
               key={campaign.id} 
               campaign={campaign} 
-              variant={userRole === UserRole.STREAMER ? "streamer" : userRole === UserRole.BRAND ? "brand" : "admin"}
+              variant={portal === Portal.PUBLISHER ? "streamer" : portal === Portal.BRAND ? "brand" : "admin"}
               onActionClick={handleCampaignAction}
             />
           ))}
@@ -313,12 +314,12 @@ export function CampaignsContent() {
               ? `There are no campaigns in the "${filter}" category.`
               : searchQuery
               ? `No campaigns match your search for "${searchQuery}".`
-              : userRole === UserRole.BRAND
+              : portal === Portal.BRAND
               ? "You haven't created any campaigns yet."
               : "There are no campaigns available at the moment."}
           </p>
           
-          {userRole === UserRole.BRAND && (
+          {portal === Portal.BRAND && (
             <Button asChild className="mt-4">
               <Link href="/dashboard/campaigns/create">Create Your First Campaign</Link>
             </Button>

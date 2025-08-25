@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { formatCurrency as formatPlatformCurrency, getCurrencyCode } from '../../lib/currency-config';
+import { useEurekaRole } from "@/lib/hooks/use-eureka-roles";
+import { Portal } from "@/lib/eureka-roles";
 import {
   Card,
   CardContent,
@@ -53,10 +55,11 @@ interface Transaction {
 }
 
 interface WalletDashboardProps {
-  userRole: 'brand' | 'streamer';
+  // Props are now optional since we'll get portal info from hooks
 }
 
-export function WalletDashboard({ userRole }: WalletDashboardProps) {
+export function WalletDashboard({}: WalletDashboardProps) {
+  const { portal } = useEurekaRole();
   const [walletBalance, setWalletBalance] = useState<WalletBalance>({
     balance: 0,
     reservedBalance: 0,
@@ -246,16 +249,16 @@ export function WalletDashboard({ userRole }: WalletDashboardProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {userRole === 'brand' ? 'Reserved Balance' : 'Withdrawable Balance'}
+              {portal === Portal.BRAND ? 'Reserved Balance' : 'Withdrawable Balance'}
             </CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(userRole === 'brand' ? walletBalance.reservedBalance : walletBalance.withdrawableBalance)}
+              {formatCurrency(portal === Portal.BRAND ? walletBalance.reservedBalance : walletBalance.withdrawableBalance)}
             </div>
             <p className="text-xs text-muted-foreground">
-              {userRole === 'brand' ? 'Allocated to campaigns' : 'Available for withdrawal'}
+              {portal === Portal.BRAND ? 'Allocated to campaigns' : 'Available for withdrawal'}
             </p>
           </CardContent>
         </Card>
@@ -263,16 +266,16 @@ export function WalletDashboard({ userRole }: WalletDashboardProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {userRole === 'brand' ? 'Total Spent' : 'Total Earnings'}
+              {portal === Portal.BRAND ? 'Total Spent' : 'Total Earnings'}
             </CardTitle>
             <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(userRole === 'brand' ? (walletBalance.totalSpent || 0) : (walletBalance.totalEarnings || 0))}
+              {formatCurrency(portal === Portal.BRAND ? (walletBalance.totalSpent || 0) : (walletBalance.totalEarnings || 0))}
             </div>
             <p className="text-xs text-muted-foreground">
-              {userRole === 'brand' ? 'All-time campaign spending' : 'All-time earnings'}
+              {portal === Portal.BRAND ? 'All-time campaign spending' : 'All-time earnings'}
             </p>
           </CardContent>
         </Card>
@@ -281,8 +284,8 @@ export function WalletDashboard({ userRole }: WalletDashboardProps) {
       <Tabs defaultValue="transactions" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
-          {userRole === 'brand' && <TabsTrigger value="add-funds">Add Funds</TabsTrigger>}
-          {userRole === 'streamer' && <TabsTrigger value="withdraw">Withdraw</TabsTrigger>}
+          {portal === Portal.BRAND && <TabsTrigger value="add-funds">Add Funds</TabsTrigger>}
+          {portal === Portal.PUBLISHER && <TabsTrigger value="withdraw">Withdraw</TabsTrigger>}
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
@@ -330,7 +333,7 @@ export function WalletDashboard({ userRole }: WalletDashboardProps) {
           </Card>
         </TabsContent>
 
-        {userRole === 'brand' && (
+        {portal === Portal.BRAND && (
           <TabsContent value="add-funds" className="space-y-4">
             <Card>
               <CardHeader>
@@ -376,7 +379,7 @@ export function WalletDashboard({ userRole }: WalletDashboardProps) {
           </TabsContent>
         )}
 
-        {userRole === 'streamer' && (
+        {portal === Portal.PUBLISHER && (
           <TabsContent value="withdraw" className="space-y-4">
             <Card>
               <CardHeader>

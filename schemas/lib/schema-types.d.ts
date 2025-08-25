@@ -5,7 +5,29 @@
 export declare enum UserRole {
     STREAMER = "streamer",
     BRAND = "brand",
-    ADMIN = "admin"
+    ADMIN = "admin",
+    MARKETING_HEAD = "marketing_head",
+    CAMPAIGN_MANAGER = "campaign_manager",
+    ADMIN_BRAND = "admin_brand",
+    FINANCE_MANAGER = "finance_manager",
+    VALIDATOR_APPROVER = "validator_approver",
+    CAMPAIGN_CONSULTANT = "campaign_consultant",
+    SALES_REPRESENTATIVE = "sales_representative",
+    SUPPORT_2_BRAND = "support_2_brand",
+    SUPPORT_1_BRAND = "support_1_brand",
+    SUPER_ADMIN = "super_admin",
+    ADMIN_EXCHANGE = "admin_exchange",
+    PLATFORM_SUCCESS_MANAGER = "platform_success_manager",
+    CUSTOMER_SUCCESS_MANAGER = "customer_success_manager",
+    CAMPAIGN_SUCCESS_MANAGER = "campaign_success_manager",
+    SUPPORT_2_ADMIN = "support_2_admin",
+    SUPPORT_1_ADMIN = "support_1_admin",
+    INDEPENDENT_PUBLISHER = "independent_publisher",
+    ARTISTE_MANAGER = "artiste_manager",
+    STREAMER_INDIVIDUAL = "streamer_individual",
+    LIAISON_MANAGER = "liaison_manager",
+    SUPPORT_2_PUBLISHER = "support_2_publisher",
+    SUPPORT_1_PUBLISHER = "support_1_publisher"
 }
 export declare enum AuthProvider {
     TWITCH = "twitch",

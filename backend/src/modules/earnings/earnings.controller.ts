@@ -16,8 +16,12 @@ import {
 } from '@nestjs/swagger';
 import { EarningsService } from './earnings.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import {
+  RequirePermissions,
+  RequireAnyPermission,
+} from '../auth/decorators/permissions.decorator';
+import { Permission } from '../../../../lib/eureka-roles';
 import { UserRole, IUser } from '@schemas/user.schema';
 import { Request } from 'express';
 import { Types } from 'mongoose';
@@ -99,8 +103,8 @@ export class EarningsController {
     description: 'Forbidden - Streamer role required',
   })
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STREAMER)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.VIEW_BILLING)
   async getMyEarningsSummary(@Req() req: RequestWithUser) {
     // Handle different possible locations of the user ID based on JWT strategy
     let userId: string;
@@ -122,8 +126,8 @@ export class EarningsController {
    * Get earnings summary for a specific streamer (admin only)
    */
   @Get('summary/:streamerId')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.VIEW_BILLING)
   async getStreamerEarningsSummary(@Param('streamerId') streamerId: string) {
     return this.earningsService.getStreamerEarningsSummary(streamerId);
   }
@@ -132,8 +136,8 @@ export class EarningsController {
    * Get earnings for a specific campaign the streamer participates in
    */
   @Get('campaign/:campaignId')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STREAMER, UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequireAnyPermission(Permission.VIEW_BILLING, Permission.VIEW_ANALYTICS)
   async getCampaignEarnings(
     @Param('campaignId') campaignId: string,
     @Req() req: RequestWithUser,

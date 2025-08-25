@@ -17,7 +17,8 @@ import {
   Bell
 } from 'lucide-react';
 import Link from 'next/link';
-import { UserRole } from '@/schemas/user.schema';
+import { useEurekaRole, usePermissions } from '@/lib/hooks/use-eureka-roles';
+import { Permission } from '@/lib/eureka-roles';
 import { apiClient } from '@/lib/api-client';
 
 // Components for Admin Dashboard
@@ -48,6 +49,7 @@ export interface RecentActivityData {
 
 export default function AdminContent() {
   const { data: session } = useSession();
+  const { hasPermission } = usePermissions();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(true);
   const [stats, setStats] = useState<PlatformStatsData | null>(null);
@@ -114,14 +116,14 @@ export default function AdminContent() {
 
     // Only fetch data if user is logged in and has admin role
     if (session?.user) {
-      if (session.user.role === UserRole.ADMIN) {
+      if (hasPermission(Permission.VIEW_DETAILED_ANALYTICS)) {
         fetchAdminData();
       } else {
         // Redirect non-admin users
         router.push('/dashboard');
       }
     }
-  }, [session, router]);
+  }, [session, router, hasPermission]);
 
   if (!session) {
     return (
@@ -138,7 +140,7 @@ export default function AdminContent() {
     );
   }
 
-  if (session?.user?.role !== UserRole.ADMIN) {
+  if (!hasPermission(Permission.VIEW_DETAILED_ANALYTICS)) {
     return (
       <div className="container mx-auto py-6">
         <Alert variant="destructive">

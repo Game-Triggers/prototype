@@ -29,6 +29,7 @@
   "include": [
     "../schemas/*.ts",
     "../lib/schema-types.ts",
+    "../lib/eureka-roles.ts",
     "../backend/src/types/mongoose-helpers.ts"
   ],
   "exclude": [

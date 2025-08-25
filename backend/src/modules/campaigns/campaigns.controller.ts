@@ -27,23 +27,17 @@ import {
   CampaignFilterDto,
   JoinCampaignDto,
 } from './dto/campaign.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole, IUser } from '@schemas/user.schema';
-import { Request } from 'express';
+import { JwtAuthGuard } from '../auth/guards/enhanced-jwt-auth.guard';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import {
+  RequirePermissions,
+  RequireAnyPermission,
+  RequirePortal,
+} from '../auth/decorators/permissions.decorator';
+import { Permission, Portal } from '../../../../lib/eureka-roles';
+import { RequestWithUser } from '../auth/interfaces/enhanced-request.interface';
+import { UserRole } from '@schemas/user.schema';
 import { Document } from 'mongoose';
-import { Types } from 'mongoose';
-
-// Define RequestWithUser interface for type safety
-interface RequestWithUser extends Request {
-  user: {
-    _id?: Types.ObjectId;
-    userId?: string;
-    user?: IUser & { _id?: Types.ObjectId };
-    [key: string]: any; // Allow for other properties
-  };
-}
 
 /**
  * Campaigns Controller
@@ -123,8 +117,8 @@ export class CampaignsController {
     description: 'Forbidden - Must be a brand to create campaigns',
   })
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BRAND)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.CREATE_CAMPAIGN)
   async create(
     @Body() createCampaignDto: CreateCampaignDto,
     @Req() req: RequestWithUser,
@@ -173,8 +167,8 @@ export class CampaignsController {
   }
 
   @Get('brand')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BRAND)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.CREATE_CAMPAIGN)
   async findBrandCampaigns(
     @Req() req: RequestWithUser,
     @Query() filterDto: CampaignFilterDto,
@@ -184,22 +178,26 @@ export class CampaignsController {
   }
 
   @Get('streamer/available')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STREAMER)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePortal(Portal.PUBLISHER)
+  @RequirePermissions(Permission.BID_ON_CAMPAIGNS)
   async findAvailableCampaigns(@Req() req: RequestWithUser) {
     const userId = this.getUserId(req);
     return this.campaignsService.findAvailableCampaigns(userId);
   }
 
   @Get('streamer/active')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STREAMER)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePortal(Portal.PUBLISHER)
+  @RequirePermissions(Permission.READ_CAMPAIGN)
   async findStreamerCampaigns(@Req() req: RequestWithUser) {
     const userId = this.getUserId(req);
     return this.campaignsService.findStreamerCampaigns(userId);
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.READ_CAMPAIGN)
   async findOne(
     @Param('id') id: string,
     @Query('adminAccess') adminAccess?: string,
@@ -215,8 +213,8 @@ export class CampaignsController {
   }
 
   @Put(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BRAND)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.CREATE_CAMPAIGN)
   async update(
     @Param('id') id: string,
     @Body() updateCampaignDto: UpdateCampaignDto,
@@ -227,16 +225,19 @@ export class CampaignsController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BRAND, UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequireAnyPermission(
+    Permission.UPDATE_CAMPAIGN,
+    Permission.OVERRIDE_CAMPAIGN,
+  )
   async remove(@Param('id') id: string, @Req() req: RequestWithUser) {
     const userId = this.getUserId(req);
     return this.campaignsService.remove(id, userId);
   }
 
   @Post('join')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STREAMER)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.BID_ON_CAMPAIGNS)
   async joinCampaign(
     @Body() joinCampaignDto: JoinCampaignDto,
     @Req() req: RequestWithUser,
@@ -253,8 +254,8 @@ export class CampaignsController {
   }
 
   @Delete('leave/:campaignId')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STREAMER)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.BID_ON_CAMPAIGNS)
   async leaveCampaign(
     @Param('campaignId') campaignId: string,
     @Req() req: RequestWithUser,
@@ -277,8 +278,11 @@ export class CampaignsController {
    * Activate a draft campaign
    */
   @Post(':id/activate')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BRAND, UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequireAnyPermission(
+    Permission.UPDATE_CAMPAIGN,
+    Permission.OVERRIDE_CAMPAIGN,
+  )
   @ApiOperation({ summary: 'Activate a draft campaign' })
   @ApiParam({ name: 'id', description: 'Campaign ID' })
   @ApiResponse({ status: 200, description: 'Campaign activated successfully' })
@@ -295,8 +299,11 @@ export class CampaignsController {
    * Pause an active campaign
    */
   @Post(':id/pause')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BRAND, UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequireAnyPermission(
+    Permission.UPDATE_CAMPAIGN,
+    Permission.OVERRIDE_CAMPAIGN,
+  )
   @ApiOperation({ summary: 'Pause an active campaign' })
   @ApiParam({ name: 'id', description: 'Campaign ID' })
   @ApiResponse({ status: 200, description: 'Campaign paused successfully' })
@@ -313,8 +320,11 @@ export class CampaignsController {
    * Resume a paused campaign
    */
   @Post(':id/resume')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BRAND, UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequireAnyPermission(
+    Permission.UPDATE_CAMPAIGN,
+    Permission.OVERRIDE_CAMPAIGN,
+  )
   @ApiOperation({ summary: 'Resume a paused campaign' })
   @ApiParam({ name: 'id', description: 'Campaign ID' })
   @ApiResponse({ status: 200, description: 'Campaign resumed successfully' })
@@ -331,8 +341,8 @@ export class CampaignsController {
    * Streamer leaves campaign early
    */
   @Post(':campaignId/leave')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STREAMER)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.BID_ON_CAMPAIGNS)
   @ApiOperation({ summary: 'Streamer leaves campaign early' })
   @ApiParam({ name: 'campaignId', description: 'Campaign ID' })
   @ApiResponse({
@@ -354,8 +364,8 @@ export class CampaignsController {
    * Streamer pauses participation
    */
   @Post(':campaignId/pause-participation')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STREAMER)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.BID_ON_CAMPAIGNS)
   @ApiOperation({ summary: 'Streamer pauses campaign participation' })
   @ApiParam({ name: 'campaignId', description: 'Campaign ID' })
   @ApiResponse({
@@ -377,8 +387,8 @@ export class CampaignsController {
    * Streamer resumes participation
    */
   @Post(':campaignId/resume-participation')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STREAMER)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.BID_ON_CAMPAIGNS)
   @ApiOperation({ summary: 'Streamer resumes campaign participation' })
   @ApiParam({ name: 'campaignId', description: 'Campaign ID' })
   @ApiResponse({
@@ -400,8 +410,11 @@ export class CampaignsController {
    * Admin/Brand removes streamer from campaign
    */
   @Delete(':campaignId/streamers/:streamerId')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.BRAND)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequireAnyPermission(
+    Permission.DELETE_CAMPAIGN,
+    Permission.OVERRIDE_CAMPAIGN,
+  )
   @ApiOperation({ summary: 'Remove streamer from campaign' })
   @ApiParam({ name: 'campaignId', description: 'Campaign ID' })
   @ApiParam({ name: 'streamerId', description: 'Streamer ID to remove' })
@@ -452,8 +465,8 @@ export class CampaignsController {
    * Admin approves a pending campaign
    */
   @Post(':id/approve')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.APPROVE_CAMPAIGN)
   @ApiOperation({ summary: 'Admin approves a pending campaign' })
   @ApiParam({ name: 'id', description: 'Campaign ID' })
   @ApiResponse({
@@ -476,8 +489,8 @@ export class CampaignsController {
    * Admin rejects a pending campaign
    */
   @Post(':id/reject')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.REJECT_CAMPAIGN)
   @ApiOperation({ summary: 'Admin rejects a pending campaign' })
   @ApiParam({ name: 'id', description: 'Campaign ID' })
   @ApiBody({

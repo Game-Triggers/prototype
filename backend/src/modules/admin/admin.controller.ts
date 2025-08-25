@@ -3,7 +3,6 @@ import {
   Post,
   Put,
   Get,
-  Delete,
   Body,
   Param,
   Query,
@@ -22,9 +21,9 @@ import {
 import { AdminWalletService } from '../wallet/admin-wallet.service';
 import { AdminCampaignService } from '../wallet/admin-campaign.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole } from '@schemas/user.schema';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RequirePermissions } from '../auth/decorators/permissions.decorator';
+import { Permission } from '../../../../lib/eureka-roles';
 import { Request } from 'express';
 import { Types } from 'mongoose';
 
@@ -40,8 +39,8 @@ interface RequestWithUser extends Request {
 
 @ApiTags('Admin Operations')
 @Controller('admin')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(UserRole.ADMIN)
+@UseGuards(JwtAuthGuard, PermissionsGuard)
+@RequirePermissions(Permission.ACCESS_CRM)
 @ApiBearerAuth()
 export class AdminController {
   constructor(

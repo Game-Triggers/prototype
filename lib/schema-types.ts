@@ -3,11 +3,40 @@
  * It should NOT include any server-only code like Mongoose models.
  */
 
-// User types
+// User types with Eureka role system
 export enum UserRole {
+  // Legacy roles for backward compatibility
   STREAMER = 'streamer',
-  BRAND = 'brand',
+  BRAND = 'brand', 
   ADMIN = 'admin',
+
+  // E1: Brand Portal Roles
+  MARKETING_HEAD = 'marketing_head',
+  CAMPAIGN_MANAGER = 'campaign_manager',
+  ADMIN_BRAND = 'admin_brand',
+  FINANCE_MANAGER = 'finance_manager',
+  VALIDATOR_APPROVER = 'validator_approver',
+  CAMPAIGN_CONSULTANT = 'campaign_consultant',
+  SALES_REPRESENTATIVE = 'sales_representative',
+  SUPPORT_2_BRAND = 'support_2_brand',
+  SUPPORT_1_BRAND = 'support_1_brand',
+
+  // E2: Admin Portal Roles (Internal Exchange)
+  SUPER_ADMIN = 'super_admin',
+  ADMIN_EXCHANGE = 'admin_exchange',
+  PLATFORM_SUCCESS_MANAGER = 'platform_success_manager',
+  CUSTOMER_SUCCESS_MANAGER = 'customer_success_manager',
+  CAMPAIGN_SUCCESS_MANAGER = 'campaign_success_manager',
+  SUPPORT_2_ADMIN = 'support_2_admin',
+  SUPPORT_1_ADMIN = 'support_1_admin',
+
+  // E3: Publisher Portal Roles
+  INDEPENDENT_PUBLISHER = 'independent_publisher',
+  ARTISTE_MANAGER = 'artiste_manager',
+  STREAMER_INDIVIDUAL = 'streamer_individual',
+  LIAISON_MANAGER = 'liaison_manager',
+  SUPPORT_2_PUBLISHER = 'support_2_publisher',
+  SUPPORT_1_PUBLISHER = 'support_1_publisher'
 }
 
 export enum AuthProvider {

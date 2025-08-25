@@ -18,7 +18,14 @@
     "create:admin": "node backend/scripts/create-admin.js",
     "migrate:streak": "node scripts/migrate-streak-production.js",
     "build:production": "npm run migrate:streak && npm run build",
-    "deploy": "npm run migrate:streak && npm run build && npm run start:unified"
+    "deploy": "npm run migrate:streak && npm run build && npm run start:unified",
+    "migrate:users": "npx ts-node scripts/migrate-user-roles.ts",
+    "migrate:users:dry-run": "npx ts-node scripts/migrate-user-roles.ts --dry-run --verbose",
+    "migrate:users:rollback": "npx ts-node scripts/migrate-user-roles.ts --rollback",
+    "db:update-schema": "npx ts-node scripts/update-database-schema.ts",
+    "test:migration": "npx ts-node scripts/test-migration.ts",
+    "validate:roles": "npx ts-node scripts/role-validation.ts",
+    "test:scripts": "node scripts/test-scripts.js"
   },
   "dependencies": {
     "@radix-ui/react-avatar": "^1.1.10",
@@ -69,6 +76,7 @@
     "eslint": "^9",
     "eslint-config-next": "15.3.1",
     "tailwindcss": "^4",
+    "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }
