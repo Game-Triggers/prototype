@@ -5,7 +5,6 @@ import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Loader2, RefreshCw, Tv, Users, Globe } from 'lucide-react';
-import { usersApi } from '@/lib/api-client';
 
 interface StreamStatusProps {
   autoRefresh?: boolean;
