@@ -41,7 +41,6 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { UserRole } from '@/schemas/user.schema';
-import { apiClient } from '@/lib/api-client';
 
 // Sample data - in a real application, this would come from the API
 const SAMPLE_REVENUE_DATA = [
