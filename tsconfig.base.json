@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "NodeNext",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": ".",
+    "paths": {
+      "@shared-roles": ["packages/shared-roles/src/index"],
+      "@shared-api/*": ["packages/shared-api/src/*"],
+      "@shared-types/*": ["packages/shared-types/src/*"],
+      "@shared-auth/*": ["packages/shared-auth/src/*"],
+      "@shared-utils/*": ["packages/shared-utils/src/*"],
+      "@shared-config/*": ["packages/shared-config/src/*"],
+      "@shared-hooks/*": ["packages/shared-hooks/src/*"],
+      "@shared-ui/*": ["packages/shared-ui/src/*"],
+      "@shared-validation/*": ["packages/shared-validation/src/*"]
+    }
+  }
+}

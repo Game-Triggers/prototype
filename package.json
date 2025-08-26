@@ -3,14 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "turbo run dev --parallel",
     "dev:unified": "node server.js",
-    "build": "next build && npm run build:schemas && cd backend && npm run build",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "check-types": "turbo run check-types",
+    
     "build:schemas": "cd schemas && tsc",
     "build:schemas:watch": "cd schemas && tsc --watch",
     "start": "next start",
     "start:unified": "NODE_ENV=production node server.js",
-    "lint": "next lint",
     "nest:install": "cd backend && npm install",
     "nest:dev": "cd backend && npm run start:dev",
     "nest:build": "cd backend && npm run build",
@@ -77,6 +80,11 @@
     "eslint-config-next": "15.3.1",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
+    "turbo": "^2.5.6",
     "typescript": "^5"
+  },
+  "packageManager": "pnpm@9.0.0",
+  "engines": {
+    "node": ">=18.0.0"
   }
 }

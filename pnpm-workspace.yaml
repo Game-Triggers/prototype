@@ -1,0 +1,6 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+  - "tools/*"
+  - "schemas"
+  - "backend" # temporary until moved to apps/backend
