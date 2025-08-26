@@ -1,0 +1,17 @@
+{
+  "name": "@gametriggers/shared-api",
+  "version": "0.0.1",
+  "private": true,
+  "types": "src/index.ts",
+  "main": "src/index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "require": "./src/index.ts",
+      "types": "./src/index.ts"
+    }
+  }
+}

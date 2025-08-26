@@ -9,7 +9,7 @@
     "lint": "turbo run lint",
     "test": "turbo run test",
     "check-types": "turbo run check-types",
-    
+
     "build:schemas": "cd schemas && tsc",
     "build:schemas:watch": "cd schemas && tsc --watch",
     "start": "next start",
