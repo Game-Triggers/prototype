@@ -1,5 +1,5 @@
 {
-  "name": "@gametriggesr/shared-roles",
+  "name": "@gametriggers/shared-roles",
   "version": "0.0.1",
   "private": true,
   "main": "src/index.ts",

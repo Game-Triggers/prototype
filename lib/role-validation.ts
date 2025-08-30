@@ -5,7 +5,8 @@
  * role transitions within the Eureka RBAC system.
  */
 
-import { EurekaRole, Permission, Portal, RoleManager, ROLE_CONFIGURATIONS } from '../lib/eureka-roles';
+// import { EurekaRole, Permission, Portal, RoleManager, ROLE_CONFIGURATIONS } from '../lib/eureka-roles';
+import { EurekaRole, Permission, Portal, RoleManager, ROLE_CONFIGURATIONS } from '@gametriggers/shared-roles';
 
 export interface UserWithRoles {
   _id: string;

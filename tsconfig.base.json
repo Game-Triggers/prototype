@@ -10,15 +10,16 @@
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@shared-roles": ["packages/shared-roles/src/index"],
-      "@shared-api/*": ["packages/shared-api/src/*"],
-      "@shared-types/*": ["packages/shared-types/src/*"],
-      "@shared-auth/*": ["packages/shared-auth/src/*"],
-      "@shared-utils/*": ["packages/shared-utils/src/*"],
-      "@shared-config/*": ["packages/shared-config/src/*"],
-      "@shared-hooks/*": ["packages/shared-hooks/src/*"],
-      "@shared-ui/*": ["packages/shared-ui/src/*"],
-      "@shared-validation/*": ["packages/shared-validation/src/*"]
+      "@gametriggers/shared-roles": ["packages/shared-roles/src/index"],
+      "@gametriggers/shared-api/*": ["packages/shared-api/src/*"],
+      "@gametriggers/shared-types/": ["packages/shared-types/src/index"],
+      "@gametriggers/shared-types/*": ["packages/shared-types/src/*"],
+      "@gametriggers/shared-auth/*": ["packages/shared-auth/src/*"],
+      "@gametriggers/shared-utils/*": ["packages/shared-utils/src/*"],
+      "@gametriggers/shared-config/*": ["packages/shared-config/src/*"],
+      "@gametriggers/shared-hooks/*": ["packages/shared-hooks/src/*"],
+      "@gametriggers/shared-ui/*": ["packages/shared-ui/src/*"],
+      "@gametriggers/shared-validation/*": ["packages/shared-validation/src/*"]
     }
   }
 }

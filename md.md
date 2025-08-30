@@ -10,7 +10,7 @@ Portals (target):
 - brand.gametriggers.com (E1 – Brand)
 - streamer.gametriggers.com (E3 – Publisher/Streamer)
 - admin.gametriggers.com (E2 – Admin)
-Backend: Single NestJS app (kept intact, moved under apps/)
+- Backend: Single NestJS app (kept intact, moved under apps/)
 
 --------------------------------------------------------------------------------
 ## Monorepo Target Layout

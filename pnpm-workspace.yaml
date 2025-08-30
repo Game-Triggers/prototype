@@ -2,5 +2,5 @@ packages:
   - "apps/*"
   - "packages/*"
   - "tools/*"
-  - "schemas"
+  - "schemas" # temporary until moved to packages/schemas
   - "backend" # temporary until moved to apps/backend
