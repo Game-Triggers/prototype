@@ -1,0 +1,23 @@
+{
+  "name": "@gametriggers/shared-hooks",
+  "version": "0.1.0",
+  "description": "React hooks and context providers for Gametriggers platform",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "dependencies": {
+    "@gametriggers/shared-auth": "workspace:*",
+    "@gametriggers/shared-types": "workspace:*",
+    "@gametriggers/shared-utils": "workspace:*",
+    "next-auth": "^4.21.1",
+    "react": "^18.0.0"
+  },
+  "peerDependencies": {
+    "react": ">=18.0.0",
+    "next-auth": ">=4.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.0",
+    "typescript": "^5.0.0"
+  }
+
+}
