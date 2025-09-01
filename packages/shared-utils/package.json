@@ -1,0 +1,32 @@
+{
+  "name": "@gametriggers/shared-utils",
+  "version": "0.1.0",
+  "description": "Shared utilities and constants for Gametriggers platform",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "exports": {
+    ".": {
+      "import": "./src/index.ts",
+      "require": "./src/index.ts",
+      "types": "./src/index.ts"
+    },
+    "./styling": {
+      "import": "./src/styling.ts",
+      "require": "./src/styling.ts",
+      "types": "./src/styling.ts"
+    },
+    "./constants": {
+      "import": "./src/constants/index.ts",
+      "require": "./src/constants/index.ts",
+      "types": "./src/constants/index.ts"
+    }
+  },
+  "dependencies": {
+    "clsx": "^1.2.1",
+    "tailwind-merge": "^1.14.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0"
+  }
+}
+
