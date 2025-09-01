@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "commonjs",
+    "lib": ["ES2017", "DOM"],
+    "outDir": "./",
+    "rootDir": "../",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "removeComments": false,
+    "strict": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "allowJs": false,
+    "noEmitOnError": false,
+    "baseUrl": "../",
+    "paths": {
+      "@/*": ["./*"],
+      "@schemas/*": ["./schemas/*"],
+      "@lib/*": ["./lib/*"]
+    }
+  },
+  "include": [
+    "../schemas/*.ts",
+    "../lib/schema-types.ts",
+    "../lib/eureka-roles.ts",
+    "../backend/src/types/mongoose-helpers.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "../**/*.js",
+    "../**/*.d.ts",
+    "../**/*.test.ts",
+    "../**/*.spec.ts"
+  ]
+}
