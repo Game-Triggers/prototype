@@ -41,7 +41,6 @@ const campaignSchema = new mongoose_1.Schema({
     rejectedAt: { type: Date },
     rejectedBy: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User' },
     rejectionReason: { type: String },
-=======
     gKeyCooloffHours: {
         type: Number,
         default: 720, // Default 30 days (720 hours) if not specified

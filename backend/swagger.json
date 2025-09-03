@@ -1558,14 +1558,6 @@
         ]
       }
     },
-<<<<<<< HEAD
-    "/api/v1/campaigns/{id}/approve": {
-      "post": {
-        "operationId": "CampaignsController_approveCampaign",
-        "parameters": [
-          {
-            "name": "id",
-=======
     "/api/v1/campaigns/{campaignId}/completion-status": {
       "get": {
         "description": "Retrieve detailed completion criteria and current status for a campaign",
@@ -1573,7 +1565,6 @@
         "parameters": [
           {
             "name": "campaignId",
->>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
             "required": true,
             "in": "path",
             "description": "Campaign ID",
@@ -1584,56 +1575,6 @@
         ],
         "responses": {
           "200": {
-<<<<<<< HEAD
-            "description": "Campaign approved and activated successfully"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "403": {
-            "description": "Forbidden - Admin access required"
-          },
-          "404": {
-            "description": "Campaign not found"
-          }
-        },
-        "security": [
-          {
-            "bearer": []
-          }
-        ],
-        "summary": "Admin approves a pending campaign",
-        "tags": [
-          "campaigns"
-        ]
-      }
-    },
-    "/api/v1/campaigns/{id}/reject": {
-      "post": {
-        "operationId": "CampaignsController_rejectCampaign",
-        "parameters": [
-          {
-            "name": "id",
-            "required": true,
-            "in": "path",
-            "description": "Campaign ID",
-            "schema": {
-              "type": "string"
-            }
-          }
-        ],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "reason": {
-                    "type": "string",
-                    "description": "Reason for rejection",
-                    "example": "Content does not meet platform guidelines"
-=======
             "description": "Campaign completion status retrieved successfully",
             "content": {
               "application/json": {
@@ -1694,25 +1635,10 @@
                       "type": "string",
                       "format": "date-time"
                     }
->>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
                   }
                 }
               }
             }
-<<<<<<< HEAD
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "Campaign rejected successfully"
-          },
-          "400": {
-            "description": "Bad request"
-          },
-          "403": {
-            "description": "Forbidden - Admin access required"
-=======
->>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
           },
           "404": {
             "description": "Campaign not found"
@@ -1723,9 +1649,6 @@
             "bearer": []
           }
         ],
-<<<<<<< HEAD
-        "summary": "Admin rejects a pending campaign",
-=======
         "summary": "Get campaign completion status",
         "tags": [
           "campaigns"
@@ -1872,7 +1795,6 @@
           }
         },
         "summary": "Get campaign completion details and earnings",
->>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
         "tags": [
           "campaigns"
         ]
@@ -5358,16 +5280,11 @@
             "description": "Total XP accumulated",
             "example": 150
           },
-<<<<<<< HEAD
-<<<<<<< HEAD
-
           "level": {
             "type": "number",
             "description": "Current level based on XP",
             "example": 3
           },
-=======
->>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
           "earnedToday": {
             "type": "number",
             "description": "XP earned today",
@@ -5388,6 +5305,7 @@
         },
         "required": [
           "total",
+          "level",
           "earnedToday",
           "activities"
         ]

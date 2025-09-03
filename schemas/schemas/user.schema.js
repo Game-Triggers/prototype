@@ -82,6 +82,7 @@ const userSchema = new mongoose_1.Schema({
     // XP (Experience Points) system
     xp: {
         total: { type: Number, default: 0 }, // Total XP accumulated
+        level: { type: Number, default: 1 }, // Current level based on XP
         earnedToday: { type: Number, default: 0 }, // XP earned today
         lastEarned: { type: Date, default: null }, // Last time XP was earned
         activities: [{

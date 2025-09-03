@@ -60,6 +60,7 @@ export interface IUser extends IUserDocument {
   // XP (Experience Points) system
   xp?: {
     total: number; // Total XP accumulated
+    level: number; // Current level based on XP
     earnedToday: number; // XP earned today
     lastEarned: Date | null; // Last time XP was earned
     activities: Array<{
@@ -160,6 +161,7 @@ const userSchema = new Schema<IUser>(
     // XP (Experience Points) system
     xp: {
       total: { type: Number, default: 0 }, // Total XP accumulated
+      level: { type: Number, default: 1 }, // Current level based on XP
       earnedToday: { type: Number, default: 0 }, // XP earned today
       lastEarned: { type: Date, default: null }, // Last time XP was earned
       activities: [{
