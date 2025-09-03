@@ -34,6 +34,12 @@ const campaignSchema = new mongoose_1.Schema({
         enum: ['cpm', 'fixed'],
         required: true
     },
+    gKeyCooloffHours: {
+        type: Number,
+        default: 720, // Default 30 days (720 hours) if not specified
+        min: 1, // Minimum 1 hour
+        max: 8760 // Maximum 1 year (365 * 24 hours)
+    },
 }, { timestamps: true });
 // Create indexes for efficient queries
 campaignSchema.index({ status: 1 });

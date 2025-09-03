@@ -71,17 +71,17 @@ export interface IKYC {
     createdAt?: Date;
     updatedAt?: Date;
 }
-export declare const KYCSchema: Schema<IKYC, Model<IKYC, any, any, any, import("mongoose").Document<unknown, any, IKYC> & IKYC & Required<{
+export declare const KYCSchema: Schema<IKYC, Model<IKYC, any, any, any, import("mongoose").Document<unknown, any, IKYC, any, {}> & IKYC & Required<{
     _id: string;
 }> & {
     __v: number;
-}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, IKYC, import("mongoose").Document<unknown, {}, import("mongoose").FlatRecord<IKYC>> & import("mongoose").FlatRecord<IKYC> & Required<{
+}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, IKYC, import("mongoose").Document<unknown, {}, import("mongoose").FlatRecord<IKYC>, {}, import("mongoose").ResolveSchemaOptions<import("mongoose").DefaultSchemaOptions>> & import("mongoose").FlatRecord<IKYC> & Required<{
     _id: string;
 }> & {
     __v: number;
 }>;
 export declare function getKYCModel(): Model<IKYC>;
-export declare const KYC: Model<IKYC, {}, {}, {}, import("mongoose").Document<unknown, {}, IKYC> & IKYC & Required<{
+export declare const KYC: Model<IKYC, {}, {}, {}, import("mongoose").Document<unknown, {}, IKYC, {}, {}> & IKYC & Required<{
     _id: string;
 }> & {
     __v: number;

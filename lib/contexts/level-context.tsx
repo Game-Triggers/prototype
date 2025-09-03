@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import { usersApi } from "@/lib/api-client";
 import { calculateUserLevel } from "@/lib/level-constants";
 import { useXP } from "@/lib/contexts/xp-context";
 import { useRP } from "@/lib/contexts/rp-context";
@@ -63,7 +62,25 @@ export function LevelProvider({ children }: { children: React.ReactNode }) {
     if (!session?.user) return;
 
     try {
-      const result = await usersApi.checkLevelUp() as {
+      // Use direct fetch to the Next.js API route instead of the API client
+      // This ensures proper session cookie handling
+      const response = await fetch('/api/users/me/level/check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        // If it's a 401, the session might be expired - just ignore silently
+        if (response.status === 401) {
+          console.warn('Session expired while checking level up');
+          return;
+        }
+        throw new Error(`Failed to check level up: ${response.status}`);
+      }
+
+      const result = await response.json() as {
         leveledUp: boolean;
         oldLevel: number;
         newLevel: number;

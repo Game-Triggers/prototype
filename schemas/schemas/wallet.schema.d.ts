@@ -79,32 +79,32 @@ export interface ITransaction {
     createdAt?: Date;
     updatedAt?: Date;
 }
-export declare const WalletSchema: Schema<IWallet, Model<IWallet, any, any, any, import("mongoose").Document<unknown, any, IWallet> & IWallet & Required<{
+export declare const WalletSchema: Schema<IWallet, Model<IWallet, any, any, any, import("mongoose").Document<unknown, any, IWallet, any, {}> & IWallet & Required<{
     _id: string;
 }> & {
     __v: number;
-}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, IWallet, import("mongoose").Document<unknown, {}, import("mongoose").FlatRecord<IWallet>> & import("mongoose").FlatRecord<IWallet> & Required<{
+}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, IWallet, import("mongoose").Document<unknown, {}, import("mongoose").FlatRecord<IWallet>, {}, import("mongoose").ResolveSchemaOptions<import("mongoose").DefaultSchemaOptions>> & import("mongoose").FlatRecord<IWallet> & Required<{
     _id: string;
 }> & {
     __v: number;
 }>;
-export declare const TransactionSchema: Schema<ITransaction, Model<ITransaction, any, any, any, import("mongoose").Document<unknown, any, ITransaction> & ITransaction & Required<{
+export declare const TransactionSchema: Schema<ITransaction, Model<ITransaction, any, any, any, import("mongoose").Document<unknown, any, ITransaction, any, {}> & ITransaction & Required<{
     _id: string;
 }> & {
     __v: number;
-}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, ITransaction, import("mongoose").Document<unknown, {}, import("mongoose").FlatRecord<ITransaction>> & import("mongoose").FlatRecord<ITransaction> & Required<{
+}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, ITransaction, import("mongoose").Document<unknown, {}, import("mongoose").FlatRecord<ITransaction>, {}, import("mongoose").ResolveSchemaOptions<import("mongoose").DefaultSchemaOptions>> & import("mongoose").FlatRecord<ITransaction> & Required<{
     _id: string;
 }> & {
     __v: number;
 }>;
 export declare function getWalletModel(): Model<IWallet>;
 export declare function getTransactionModel(): Model<ITransaction>;
-export declare const Wallet: Model<IWallet, {}, {}, {}, import("mongoose").Document<unknown, {}, IWallet> & IWallet & Required<{
+export declare const Wallet: Model<IWallet, {}, {}, {}, import("mongoose").Document<unknown, {}, IWallet, {}, {}> & IWallet & Required<{
     _id: string;
 }> & {
     __v: number;
 }, any>;
-export declare const Transaction: Model<ITransaction, {}, {}, {}, import("mongoose").Document<unknown, {}, ITransaction> & ITransaction & Required<{
+export declare const Transaction: Model<ITransaction, {}, {}, {}, import("mongoose").Document<unknown, {}, ITransaction, {}, {}> & ITransaction & Required<{
     _id: string;
 }> & {
     __v: number;

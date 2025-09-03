@@ -13,11 +13,11 @@ export interface INotification extends Document {
     createdAt: Date;
     readAt?: Date;
 }
-export declare const NotificationSchema: Schema<INotification, import("mongoose").Model<INotification, any, any, any, Document<unknown, any, INotification> & INotification & Required<{
+export declare const NotificationSchema: Schema<INotification, import("mongoose").Model<INotification, any, any, any, Document<unknown, any, INotification, any, {}> & INotification & Required<{
     _id: string;
 }> & {
     __v: number;
-}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, INotification, Document<unknown, {}, import("mongoose").FlatRecord<INotification>> & import("mongoose").FlatRecord<INotification> & Required<{
+}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, INotification, Document<unknown, {}, import("mongoose").FlatRecord<INotification>, {}, import("mongoose").ResolveSchemaOptions<import("mongoose").DefaultSchemaOptions>> & import("mongoose").FlatRecord<INotification> & Required<{
     _id: string;
 }> & {
     __v: number;

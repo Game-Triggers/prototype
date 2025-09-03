@@ -15,7 +15,8 @@ import {
   Target,
   Wallet,
   MonitorPlay,
-  Crown
+  Crown,
+  Key
 } from "lucide-react";
 
 interface SidebarProps {
@@ -52,6 +53,11 @@ export function Sidebar({ isOpen, toggleSidebar, userRole }: SidebarProps) {
       },
     ];   
     const streamerItems = [
+      {
+        name: "Keys",
+        href: "/dashboard/keys",
+        icon: <Key className="h-5 w-5" />,
+      },
       {
         name: "Browse Campaigns",
         href: "/dashboard/campaigns",

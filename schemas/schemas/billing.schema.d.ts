@@ -112,32 +112,32 @@ export interface IInvoice {
     createdAt?: Date;
     updatedAt?: Date;
 }
-export declare const DisputeSchema: Schema<IDispute, Model<IDispute, any, any, any, import("mongoose").Document<unknown, any, IDispute> & IDispute & Required<{
+export declare const DisputeSchema: Schema<IDispute, Model<IDispute, any, any, any, import("mongoose").Document<unknown, any, IDispute, any, {}> & IDispute & Required<{
     _id: string;
 }> & {
     __v: number;
-}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, IDispute, import("mongoose").Document<unknown, {}, import("mongoose").FlatRecord<IDispute>> & import("mongoose").FlatRecord<IDispute> & Required<{
+}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, IDispute, import("mongoose").Document<unknown, {}, import("mongoose").FlatRecord<IDispute>, {}, import("mongoose").ResolveSchemaOptions<import("mongoose").DefaultSchemaOptions>> & import("mongoose").FlatRecord<IDispute> & Required<{
     _id: string;
 }> & {
     __v: number;
 }>;
-export declare const InvoiceSchema: Schema<IInvoice, Model<IInvoice, any, any, any, import("mongoose").Document<unknown, any, IInvoice> & IInvoice & Required<{
+export declare const InvoiceSchema: Schema<IInvoice, Model<IInvoice, any, any, any, import("mongoose").Document<unknown, any, IInvoice, any, {}> & IInvoice & Required<{
     _id: string;
 }> & {
     __v: number;
-}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, IInvoice, import("mongoose").Document<unknown, {}, import("mongoose").FlatRecord<IInvoice>> & import("mongoose").FlatRecord<IInvoice> & Required<{
+}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, IInvoice, import("mongoose").Document<unknown, {}, import("mongoose").FlatRecord<IInvoice>, {}, import("mongoose").ResolveSchemaOptions<import("mongoose").DefaultSchemaOptions>> & import("mongoose").FlatRecord<IInvoice> & Required<{
     _id: string;
 }> & {
     __v: number;
 }>;
 export declare function getDisputeModel(): Model<IDispute>;
 export declare function getInvoiceModel(): Model<IInvoice>;
-export declare const Dispute: Model<IDispute, {}, {}, {}, import("mongoose").Document<unknown, {}, IDispute> & IDispute & Required<{
+export declare const Dispute: Model<IDispute, {}, {}, {}, import("mongoose").Document<unknown, {}, IDispute, {}, {}> & IDispute & Required<{
     _id: string;
 }> & {
     __v: number;
 }, any>;
-export declare const Invoice: Model<IInvoice, {}, {}, {}, import("mongoose").Document<unknown, {}, IInvoice> & IInvoice & Required<{
+export declare const Invoice: Model<IInvoice, {}, {}, {}, import("mongoose").Document<unknown, {}, IInvoice, {}, {}> & IInvoice & Required<{
     _id: string;
 }> & {
     __v: number;

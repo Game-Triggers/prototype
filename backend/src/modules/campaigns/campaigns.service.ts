@@ -25,6 +25,7 @@ import {
 } from './dto/campaign.dto';
 import { UsersService } from '../users/users.service';
 import { CampaignEventsService } from '../wallet/campaign-events.service';
+import { GKeyService } from '../g-key/g-key.service';
 
 // Forward declaration to avoid circular dependency
 interface ConflictRulesServiceInterface {
@@ -49,6 +50,7 @@ export class CampaignsService {
     @Inject(CampaignEventsService)
     private readonly campaignEventsService: CampaignEventsService,
     private readonly eventEmitter: EventEmitter2,
+    private readonly gKeyService: GKeyService,
     @Optional()
     @Inject('ConflictRulesService')
     private readonly conflictRulesService?: ConflictRulesServiceInterface,
@@ -531,13 +533,103 @@ export class CampaignsService {
       throw new ForbiddenException('Only streamers can join campaigns');
     }
 
+    // ✅ NEW: Check G-Key availability BEFORE other validations
+    if (!campaign.categories || campaign.categories.length === 0) {
+      throw new BadRequestException('Campaign has no categories defined');
+    }
+
+    // Check if user has available keys for any of the campaign categories
+    // Now includes same brand exception logic
+    let hasAvailableKey = false;
+    let availableCategory = '';
+    for (const category of campaign.categories) {
+      // Convert category to lowercase for G-Key matching
+      const normalizedCategory = category.toLowerCase();
+      const isKeyAvailable = await this.gKeyService.hasAvailableKey(
+        streamerId,
+        normalizedCategory,
+        campaign.brandId?.toString(),
+      );
+      if (isKeyAvailable) {
+        hasAvailableKey = true;
+        availableCategory = normalizedCategory;
+        break;
+      }
+    }
+
+    if (!hasAvailableKey) {
+      // Check if keys are locked or in cooloff to provide better error message
+      const keyStatuses = await Promise.all(
+        campaign.categories.map(async (category) => {
+          // Convert category to lowercase for G-Key matching
+          const normalizedCategory = category.toLowerCase();
+          const keyStatus = await this.gKeyService.getKeyStatus(
+            streamerId,
+            normalizedCategory,
+          );
+          return {
+            category: normalizedCategory,
+            status: keyStatus?.status || 'unavailable',
+            lastBrandId: keyStatus?.lastBrandId,
+            cooloffEndsAt: keyStatus?.cooloffEndsAt,
+          };
+        }),
+      );
+
+      const lockedKeys = keyStatuses.filter((k) => k.status === 'locked');
+      const cooloffKeys = keyStatuses.filter((k) => k.status === 'cooloff');
+
+      if (lockedKeys.length > 0) {
+        throw new ConflictException(
+          `Cannot join campaign. Your key for category "${lockedKeys[0].category}" is currently locked with another campaign.`,
+        );
+      }
+
+      if (cooloffKeys.length > 0) {
+        const cooloffKey = cooloffKeys[0];
+        const isSameBrand = cooloffKey.lastBrandId === campaign.brandId?.toString();
+        
+        if (isSameBrand) {
+          // This should not happen since hasAvailableKey should return true for same brand
+          throw new ConflictException(
+            `Unexpected error: Key should be available for same brand campaign.`,
+          );
+        } else {
+          const timeRemaining = cooloffKey.cooloffEndsAt 
+            ? Math.max(0, new Date(cooloffKey.cooloffEndsAt).getTime() - Date.now())
+            : 0;
+          const hoursRemaining = Math.ceil(timeRemaining / (1000 * 60 * 60));
+          
+          throw new ConflictException(
+            `Cannot join campaign. Your key for category "${cooloffKey.category}" is in cooloff period for a different brand (${hoursRemaining} hours remaining).`,
+          );
+        }
+      }
+
+      throw new ConflictException(
+        `No available keys for campaign categories: ${campaign.categories.join(', ')}`,
+      );
+    }
+
     // ✅ NEW: Consume energy pack before joining campaign
     try {
       await this.usersService.consumeEnergyPack(streamerId, campaignId);
     } catch (error) {
       // If energy pack consumption fails, prevent campaign join
       throw new BadRequestException(
-        error.message || 'Failed to consume energy pack. You need energy packs to join campaigns.'
+        error.message ||
+          'Failed to consume energy pack. You need energy packs to join campaigns.',
+      );
+    }
+
+    // ✅ NEW: Consume key for campaign category
+    try {
+      await this.gKeyService.consumeKey(streamerId, campaignId);
+    } catch (error) {
+      // If key consumption fails, prevent campaign join
+      throw new BadRequestException(
+        error.message ||
+          'No available keys for this campaign category.',
       );
     }
 
@@ -616,9 +708,9 @@ export class CampaignsService {
       campaignId,
       campaignName: campaign.title,
       streamerId,
-      streamerName: streamer.name || streamer.email
+      streamerName: streamer.name || streamer.email,
     });
-    
+
     this.eventEmitter.emit('campaign.joined', {
       campaignId,
       campaignName: campaign.title,
@@ -644,9 +736,43 @@ export class CampaignsService {
       throw new NotFoundException('You are not participating in this campaign');
     }
 
-    // Set the status to completed
+    // ✅ NEW: Release key when leaving campaign (puts it in cooloff)
+    try {
+      // Get campaign details to use its cooloff period
+      const campaign = await this.findOne(campaignId);
+      await this.gKeyService.releaseKey(
+        streamerId,
+        campaignId,
+        campaign.gKeyCooloffHours || 720, // Default to 720 hours (30 days)
+      );
+    } catch (error) {
+      // Log warning but don't block campaign leave
+      console.warn('Failed to release key when leaving campaign:', error);
+    }    // Set the status to completed
     participation.status = ParticipationStatus.COMPLETED;
-    return participation.save();
+    const updatedParticipation = await participation.save();
+
+    // Emit campaign completed event for notifications
+    const campaign = await this.findOne(campaignId);
+    const streamer = await this.usersService.findOne(streamerId);
+
+    console.log('🚀 Emitting campaign.completed event for:', {
+      campaignId,
+      campaignName: campaign.title,
+      streamerId,
+      streamerName: streamer.name || streamer.email,
+    });
+
+    this.eventEmitter.emit('campaign.completed', {
+      campaignId,
+      campaignName: campaign.title,
+      streamerId,
+      streamerName: streamer.name || streamer.email,
+      participationId: participation._id.toString(),
+      estimatedEarnings: participation.estimatedEarnings,
+    });
+
+    return updatedParticipation;
   }
 
   /**

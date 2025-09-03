@@ -653,7 +653,7 @@ export class OverlayService {
         // Use the new impression tracking service for alternative clicks
         await this.impressionTrackingService.recordAlternativeClick(
           participation._id.toString(),
-          clickType as 'chat' | 'qr' | 'link',
+          clickType,
         );
       }
 

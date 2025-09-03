@@ -70,32 +70,32 @@ export interface IConflictViolation {
     detectedAt: Date;
     metadata?: Record<string, any>;
 }
-export declare const ConflictRuleSchema: Schema<IConflictRule, Model<IConflictRule, any, any, any, import("mongoose").Document<unknown, any, IConflictRule> & IConflictRule & Required<{
+export declare const ConflictRuleSchema: Schema<IConflictRule, Model<IConflictRule, any, any, any, import("mongoose").Document<unknown, any, IConflictRule, any, {}> & IConflictRule & Required<{
     _id: string;
 }> & {
     __v: number;
-}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, IConflictRule, import("mongoose").Document<unknown, {}, import("mongoose").FlatRecord<IConflictRule>> & import("mongoose").FlatRecord<IConflictRule> & Required<{
+}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, IConflictRule, import("mongoose").Document<unknown, {}, import("mongoose").FlatRecord<IConflictRule>, {}, import("mongoose").ResolveSchemaOptions<import("mongoose").DefaultSchemaOptions>> & import("mongoose").FlatRecord<IConflictRule> & Required<{
     _id: string;
 }> & {
     __v: number;
 }>;
-export declare const ConflictViolationSchema: Schema<IConflictViolation, Model<IConflictViolation, any, any, any, import("mongoose").Document<unknown, any, IConflictViolation> & IConflictViolation & Required<{
+export declare const ConflictViolationSchema: Schema<IConflictViolation, Model<IConflictViolation, any, any, any, import("mongoose").Document<unknown, any, IConflictViolation, any, {}> & IConflictViolation & Required<{
     _id: string;
 }> & {
     __v: number;
-}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, IConflictViolation, import("mongoose").Document<unknown, {}, import("mongoose").FlatRecord<IConflictViolation>> & import("mongoose").FlatRecord<IConflictViolation> & Required<{
+}, any>, {}, {}, {}, {}, import("mongoose").DefaultSchemaOptions, IConflictViolation, import("mongoose").Document<unknown, {}, import("mongoose").FlatRecord<IConflictViolation>, {}, import("mongoose").ResolveSchemaOptions<import("mongoose").DefaultSchemaOptions>> & import("mongoose").FlatRecord<IConflictViolation> & Required<{
     _id: string;
 }> & {
     __v: number;
 }>;
 export declare function getConflictRuleModel(): Model<IConflictRule>;
 export declare function getConflictViolationModel(): Model<IConflictViolation>;
-export declare const ConflictRule: Model<IConflictRule, {}, {}, {}, import("mongoose").Document<unknown, {}, IConflictRule> & IConflictRule & Required<{
+export declare const ConflictRule: Model<IConflictRule, {}, {}, {}, import("mongoose").Document<unknown, {}, IConflictRule, {}, {}> & IConflictRule & Required<{
     _id: string;
 }> & {
     __v: number;
 }, any>;
-export declare const ConflictViolation: Model<IConflictViolation, {}, {}, {}, import("mongoose").Document<unknown, {}, IConflictViolation> & IConflictViolation & Required<{
+export declare const ConflictViolation: Model<IConflictViolation, {}, {}, {}, import("mongoose").Document<unknown, {}, IConflictViolation, {}, {}> & IConflictViolation & Required<{
     _id: string;
 }> & {
     __v: number;

@@ -123,7 +123,7 @@ export class WebhookController {
       const wallet = await this.walletService.getWalletByUserId(userId);
       if (wallet) {
         await this.walletService.createTransaction({
-          walletId: wallet._id!,
+          walletId: wallet._id,
           transactionType: TransactionType.DEPOSIT,
           amount: amountInMainUnit,
           paymentMethod: PaymentMethod.CARD,

@@ -2,12 +2,15 @@ import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
 import { CampaignsController } from './campaigns.controller';
 import { CampaignsService } from './campaigns.service';
+import { CampaignCompletionService } from './campaign-completion.service';
+import { CampaignCompletionTaskService } from './campaign-completion-task.service';
 import { CampaignSchema } from '@schemas/campaign.schema';
 import { CampaignParticipationSchema } from '@schemas/campaign-participation.schema';
 import { UsersModule } from '../users/users.module';
 import { ConflictRulesModule } from '../conflict-rules/conflict-rules.module';
 import { ConflictRulesService } from '../conflict-rules/conflict-rules.service';
 import { WalletModule } from '../wallet/wallet.module';
+import { GKeyModule } from '../g-key/g-key.module';
 
 @Module({
   imports: [
@@ -18,15 +21,18 @@ import { WalletModule } from '../wallet/wallet.module';
     UsersModule,
     ConflictRulesModule,
     WalletModule,
+    GKeyModule,
   ],
   controllers: [CampaignsController],
   providers: [
     CampaignsService,
+    CampaignCompletionService,
+    CampaignCompletionTaskService,
     {
       provide: 'ConflictRulesService',
       useExisting: ConflictRulesService,
     },
   ],
-  exports: [CampaignsService],
+  exports: [CampaignsService, CampaignCompletionService],
 })
 export class CampaignsModule {}

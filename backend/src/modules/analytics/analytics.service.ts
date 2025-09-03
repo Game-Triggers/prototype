@@ -796,7 +796,7 @@ export class AnalyticsService {
    */
   async getAdvancedAnalytics(userId: string, role: UserRole, query: any) {
     try {
-      let matchStage: PipelineStage.Match = { $match: {} };
+      const matchStage: PipelineStage.Match = { $match: {} };
 
       // Filter by date range if provided
       if (query.startDate || query.endDate) {

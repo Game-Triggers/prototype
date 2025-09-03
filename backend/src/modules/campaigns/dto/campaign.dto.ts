@@ -8,11 +8,13 @@ import {
   IsMongoId,
   IsDate,
   Min,
+  Max,
   IsIn,
+  ArrayMaxSize,
 } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { CampaignStatus, MediaType } from '@schemas/campaign.schema';
-import { Transform, Type } from 'class-transformer';
+import { Type } from 'class-transformer';
 
 export class CreateCampaignDto {
   @ApiProperty({
@@ -79,12 +81,13 @@ export class CreateCampaignDto {
   status?: CampaignStatus;
 
   @ApiPropertyOptional({
-    description: 'Categories associated with the campaign',
+    description: 'Category associated with the campaign (brands can only select one category)',
     type: [String],
-    example: ['Gaming', 'Technology'],
+    example: ['Gaming'],
   })
   @IsOptional()
   @IsArray()
+  @ArrayMaxSize(1, { message: 'Brands can only select one category per campaign' })
   categories?: string[];
 
   @IsOptional()
@@ -110,6 +113,19 @@ export class CreateCampaignDto {
   @IsString()
   @IsIn(['cpm', 'fixed'])
   paymentType: 'cpm' | 'fixed';
+
+    @ApiProperty({
+    description: 'G-Key cooloff period in hours after campaign completion',
+    required: false,
+    minimum: 1,
+    maximum: 8760,
+    example: 720,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Min(1) // Minimum 1 hour
+  @Max(8760) // Maximum 365 days (8760 hours)
+  gKeyCooloffHours?: number;
 }
 
 export class UpdateCampaignDto {
@@ -145,6 +161,7 @@ export class UpdateCampaignDto {
 
   @IsOptional()
   @IsArray()
+  @ArrayMaxSize(1, { message: 'Brands can only select one category per campaign' })
   categories?: string[];
 
   @IsOptional()
@@ -170,6 +187,13 @@ export class UpdateCampaignDto {
   @IsString()
   @IsIn(['cpm', 'fixed'])
   paymentType?: 'cpm' | 'fixed';
+
+  @IsOptional()
+  @IsNumber()
+  @Min(1) // Minimum 1 hour
+  @Max(8760) // Maximum 365 days (8760 hours)
+  @Type(() => Number)
+  gKeyCooloffHours?: number;
 }
 
 export class CampaignFilterDto {

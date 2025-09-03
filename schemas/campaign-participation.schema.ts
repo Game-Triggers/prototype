@@ -1,6 +1,6 @@
 import { Schema, model, Model, models } from 'mongoose';
 // Import directly from relative path for compatibility with both Next.js and NestJS
-import { ParticipationStatus, ICampaignParticipationData } from '../lib/schema-types';
+import { ParticipationStatus } from '../lib/schema-types';
 import { ICampaignParticipationDocument } from '../backend/src/types/mongoose-helpers';
 
 // Re-export the enum for convenience
@@ -53,6 +53,15 @@ const campaignParticipationSchema = new Schema<ICampaignParticipation>(
     trackingUrl: { type: String },
     qrCodeUrl: { type: String },
     chatCommand: { type: String },
+    // Completion tracking
+    completedAt: { type: Date },
+    completionReason: { 
+      type: String, 
+      enum: ['impressions_target_reached', 'manual_completion', 'campaign_ended', 'budget_exhausted']
+    },
+    finalEarnings: { type: Number, default: 0 },
+    earningsTransferredAt: { type: Date },
+    finalEarningsTransferred: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
@@ -67,12 +76,12 @@ campaignParticipationSchema.index({ browserSourceToken: 1 }, { unique: true });
 export const CampaignParticipationSchema = campaignParticipationSchema;
 
 // Use a function to safely get the CampaignParticipation model
-export function getCampaignParticipationModel(): Model<ICampaignParticipation> {
+export function getCampaignParticipationModel(): Model<ICampaignParticipation> | null {
   if (typeof window === 'undefined') {
     return models.CampaignParticipation || 
       model<ICampaignParticipation>('CampaignParticipation', campaignParticipationSchema);
   }
-  return null as any;
+  return null;
 }
 
 // Define a named export for backward compatibility

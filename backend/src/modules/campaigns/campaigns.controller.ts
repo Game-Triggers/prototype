@@ -21,6 +21,8 @@ import {
   ApiQuery,
 } from '@nestjs/swagger';
 import { CampaignsService } from './campaigns.service';
+import { CampaignCompletionService } from './campaign-completion.service';
+import { CampaignCompletionTaskService } from './campaign-completion-task.service';
 import {
   CreateCampaignDto,
   UpdateCampaignDto,
@@ -63,7 +65,17 @@ interface RequestWithUser extends Request {
 @ApiTags('campaigns')
 @Controller('campaigns')
 export class CampaignsController {
-  constructor(private readonly campaignsService: CampaignsService) {}
+  constructor(
+    private readonly campaignsService: CampaignsService,
+    private readonly campaignCompletionService: CampaignCompletionService,
+    private readonly campaignCompletionTaskService: CampaignCompletionTaskService,
+  ) {
+    // Force instantiation of task service
+    console.log(
+      '=== CampaignsController constructor - Task service injected:',
+      this.campaignCompletionTaskService.constructor.name,
+    );
+  }
 
   /**
    * Helper method to extract user ID from request with various JWT token structures
@@ -445,6 +457,179 @@ export class CampaignsController {
       removedBy,
       body.reason,
       body.forfeitEarnings || false,
+    );
+  }
+
+  /**
+   * Get campaign completion status
+   */
+  @Get(':campaignId/completion-status')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({
+    summary: 'Get campaign completion status',
+    description:
+      'Retrieve detailed completion criteria and current status for a campaign',
+  })
+  @ApiParam({ name: 'campaignId', description: 'Campaign ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Campaign completion status retrieved successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        campaignId: { type: 'string' },
+        status: {
+          type: 'string',
+          enum: ['draft', 'active', 'paused', 'completed', 'cancelled'],
+        },
+        isEligibleForCompletion: { type: 'boolean' },
+        completionReason: { type: 'string' },
+        metrics: {
+          type: 'object',
+          properties: {
+            totalImpressions: { type: 'number' },
+            totalClicks: { type: 'number' },
+            activeParticipants: { type: 'number' },
+            budgetUsedPercentage: { type: 'string' },
+            remainingBudget: { type: 'number' },
+          },
+        },
+        criteria: {
+          type: 'object',
+          properties: {
+            impressionTarget: { type: 'number' },
+            budgetThreshold: { type: 'number' },
+          },
+        },
+        lastChecked: { type: 'string', format: 'date-time' },
+      },
+    },
+  })
+  @ApiResponse({ status: 404, description: 'Campaign not found' })
+  @ApiBearerAuth()
+  async getCampaignCompletionStatus(@Param('campaignId') campaignId: string) {
+    return this.campaignCompletionService.getCampaignCompletionStatus(
+      campaignId,
+    );
+  }
+
+  /**
+   * Manually trigger campaign completion check (Admin only)
+   */
+  @Post('completion-check/trigger')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({
+    summary: 'Manually trigger campaign completion check',
+    description:
+      'Trigger an immediate check of all campaigns for completion criteria (Admin only)',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Campaign completion check triggered successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        success: { type: 'boolean' },
+        message: { type: 'string' },
+      },
+    },
+  })
+  @ApiResponse({ status: 403, description: 'Admin access required' })
+  @ApiBearerAuth()
+  async triggerCampaignCompletionCheck() {
+    return this.campaignCompletionTaskService.triggerManualCheck();
+  }
+
+  /**
+   * Check specific campaign for completion (Admin/Brand only)
+   */
+  @Post(':campaignId/completion-check')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.BRAND)
+  @ApiOperation({
+    summary: 'Check specific campaign for completion',
+    description:
+      'Check if a specific campaign meets completion criteria and mark it complete if applicable',
+  })
+  @ApiParam({ name: 'campaignId', description: 'Campaign ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Campaign completion check completed',
+    schema: {
+      type: 'object',
+      properties: {
+        campaignId: { type: 'string' },
+        wasCompleted: { type: 'boolean' },
+        reason: { type: 'string' },
+      },
+    },
+  })
+  @ApiResponse({ status: 403, description: 'Insufficient permissions' })
+  @ApiResponse({ status: 404, description: 'Campaign not found' })
+  @ApiBearerAuth()
+  async checkCampaignCompletion(@Param('campaignId') campaignId: string) {
+    const wasCompleted =
+      await this.campaignCompletionService.checkCampaignCompletion(campaignId);
+
+    if (wasCompleted) {
+      const status =
+        await this.campaignCompletionService.getCampaignCompletionStatus(
+          campaignId,
+        );
+      return {
+        campaignId,
+        wasCompleted: true,
+        reason: status.completionReason || 'Campaign marked as completed',
+      };
+    }
+
+    return {
+      campaignId,
+      wasCompleted: false,
+      reason: 'Campaign does not meet completion criteria',
+    };
+  }
+
+  /**
+   * Debug endpoint to check campaign impression data (NO AUTH for testing)
+   */
+  @Get(':campaignId/debug-impressions')
+  @ApiOperation({
+    summary: 'Debug campaign impression data',
+    description:
+      'Get detailed impression data for debugging campaign completion issues',
+  })
+  @ApiParam({ name: 'campaignId', description: 'Campaign ID' })
+  async debugCampaignImpressions(@Param('campaignId') campaignId: string) {
+    return await this.campaignCompletionService.debugCampaignImpressions(
+      campaignId,
+    );
+  }
+
+  /**
+   * Get campaign completion details including earnings for a specific user
+   */
+  @Get(':campaignId/completion-details')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.STREAMER)
+  @ApiOperation({
+    summary: 'Get campaign completion details and earnings',
+    description: 'Get detailed completion information including earnings transferred to withdrawable balance',
+  })
+  @ApiParam({ name: 'campaignId', description: 'Campaign ID' })
+  async getCampaignCompletionDetails(
+    @Param('campaignId') campaignId: string,
+    @Req() req: RequestWithUser,
+  ) {
+    const userId = req.user._id?.toString() || req.user.userId;
+    if (!userId) {
+      throw new BadRequestException('User ID not found');
+    }
+
+    return await this.campaignCompletionService.getCampaignCompletionDetails(
+      campaignId,
+      userId,
     );
   }
 }

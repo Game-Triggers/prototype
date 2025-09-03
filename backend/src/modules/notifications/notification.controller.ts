@@ -45,11 +45,22 @@ export class NotificationController {
    */
   @Get()
   @ApiOperation({ summary: 'Get user notifications with pagination' })
-  @ApiResponse({ status: 200, description: 'Notifications retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Notifications retrieved successfully',
+  })
   @ApiQuery({ name: 'page', required: false, description: 'Page number' })
   @ApiQuery({ name: 'limit', required: false, description: 'Items per page' })
-  @ApiQuery({ name: 'type', required: false, description: 'Notification type filter' })
-  @ApiQuery({ name: 'isRead', required: false, description: 'Read status filter' })
+  @ApiQuery({
+    name: 'type',
+    required: false,
+    description: 'Notification type filter',
+  })
+  @ApiQuery({
+    name: 'isRead',
+    required: false,
+    description: 'Read status filter',
+  })
   async getUserNotifications(
     @Req() req: RequestWithUser,
     @Query('page') page = '1',
@@ -60,7 +71,9 @@ export class NotificationController {
     try {
       const userId = req.user?.userId;
       if (!userId) {
-        throw new UnauthorizedException('User ID is missing from authentication token');
+        throw new UnauthorizedException(
+          'User ID is missing from authentication token',
+        );
       }
 
       const pageNum = Math.max(1, parseInt(page, 10));
@@ -75,7 +88,8 @@ export class NotificationController {
         ...(isRead !== undefined && { isRead: isRead === 'true' }),
       };
 
-      const result = await this.notificationService.getUserNotifications(filters);
+      const result =
+        await this.notificationService.getUserNotifications(filters);
 
       return {
         success: true,
@@ -104,15 +118,21 @@ export class NotificationController {
    */
   @Get('latest')
   @ApiOperation({ summary: 'Get latest notifications for preview' })
-  @ApiResponse({ status: 200, description: 'Latest notifications retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Latest notifications retrieved successfully',
+  })
   async getLatestNotifications(@Req() req: RequestWithUser) {
     try {
       const userId = req.user?.userId;
       if (!userId) {
-        throw new UnauthorizedException('User ID is missing from authentication token');
+        throw new UnauthorizedException(
+          'User ID is missing from authentication token',
+        );
       }
 
-      const result = await this.notificationService.getLatestNotifications(userId);
+      const result =
+        await this.notificationService.getLatestNotifications(userId);
 
       return {
         success: true,
@@ -132,12 +152,17 @@ export class NotificationController {
    */
   @Get('count/unread')
   @ApiOperation({ summary: 'Get unread notification count' })
-  @ApiResponse({ status: 200, description: 'Unread count retrieved successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Unread count retrieved successfully',
+  })
   async getUnreadCount(@Req() req: RequestWithUser) {
     try {
       const userId = req.user?.userId;
       if (!userId) {
-        throw new UnauthorizedException('User ID is missing from authentication token');
+        throw new UnauthorizedException(
+          'User ID is missing from authentication token',
+        );
       }
 
       const count = await this.notificationService.getUnreadCount(userId);
@@ -161,7 +186,10 @@ export class NotificationController {
   @Put(':id/read')
   @ApiOperation({ summary: 'Mark notification as read' })
   @ApiParam({ name: 'id', description: 'Notification ID' })
-  @ApiResponse({ status: 200, description: 'Notification marked as read successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Notification marked as read successfully',
+  })
   @ApiResponse({ status: 404, description: 'Notification not found' })
   async markAsRead(
     @Param('id') notificationId: string,
@@ -170,7 +198,9 @@ export class NotificationController {
     try {
       const userId = req.user?.userId;
       if (!userId) {
-        throw new UnauthorizedException('User ID is missing from authentication token');
+        throw new UnauthorizedException(
+          'User ID is missing from authentication token',
+        );
       }
 
       const notification = await this.notificationService.markAsRead(
@@ -204,7 +234,10 @@ export class NotificationController {
    */
   @Put('read/batch')
   @ApiOperation({ summary: 'Mark multiple notifications as read' })
-  @ApiResponse({ status: 200, description: 'Notifications marked as read successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Notifications marked as read successfully',
+  })
   async markMultipleAsRead(
     @Body() body: { notificationIds: string[] },
     @Req() req: RequestWithUser,
@@ -212,7 +245,9 @@ export class NotificationController {
     try {
       const userId = req.user?.userId;
       if (!userId) {
-        throw new UnauthorizedException('User ID is missing from authentication token');
+        throw new UnauthorizedException(
+          'User ID is missing from authentication token',
+        );
       }
 
       const { notificationIds } = body;
@@ -251,15 +286,21 @@ export class NotificationController {
    */
   @Put('read/all')
   @ApiOperation({ summary: 'Mark all notifications as read' })
-  @ApiResponse({ status: 200, description: 'All notifications marked as read successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'All notifications marked as read successfully',
+  })
   async markAllAsRead(@Req() req: RequestWithUser) {
     try {
       const userId = req.user?.userId;
       if (!userId) {
-        throw new UnauthorizedException('User ID is missing from authentication token');
+        throw new UnauthorizedException(
+          'User ID is missing from authentication token',
+        );
       }
 
-      const modifiedCount = await this.notificationService.markAllAsRead(userId);
+      const modifiedCount =
+        await this.notificationService.markAllAsRead(userId);
 
       return {
         success: true,
@@ -281,7 +322,10 @@ export class NotificationController {
   @Delete(':id')
   @ApiOperation({ summary: 'Delete a notification' })
   @ApiParam({ name: 'id', description: 'Notification ID' })
-  @ApiResponse({ status: 200, description: 'Notification deleted successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Notification deleted successfully',
+  })
   @ApiResponse({ status: 404, description: 'Notification not found' })
   async deleteNotification(
     @Param('id') id: string,
@@ -302,7 +346,10 @@ export class NotificationController {
    */
   @Post('test/create')
   @ApiOperation({ summary: 'Create a test notification (development only)' })
-  @ApiResponse({ status: 200, description: 'Test notification created successfully' })
+  @ApiResponse({
+    status: 200,
+    description: 'Test notification created successfully',
+  })
   async createTestNotification(@Req() req: RequestWithUser) {
     const userId = req.user?.userId;
     if (!userId) {
@@ -311,13 +358,14 @@ export class NotificationController {
       );
     }
 
-    const notification = await this.notificationService.createCampaignNotification(
-      userId,
-      'test-campaign-' + Date.now(),
-      '🎉 Test Notification',
-      'This is a test notification to verify the system is working correctly',
-      'medium'
-    );
+    const notification =
+      await this.notificationService.createCampaignNotification(
+        userId,
+        'test-campaign-' + Date.now(),
+        '🎉 Test Notification',
+        'This is a test notification to verify the system is working correctly',
+        'medium',
+      );
 
     return {
       success: true,

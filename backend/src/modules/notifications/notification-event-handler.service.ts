@@ -6,9 +6,7 @@ import { NotificationService } from './notification.service';
 export class NotificationEventHandlerService {
   private readonly logger = new Logger(NotificationEventHandlerService.name);
 
-  constructor(
-    private readonly notificationService: NotificationService,
-  ) {}
+  constructor(private readonly notificationService: NotificationService) {}
 
   // Campaign Events
 
@@ -25,11 +23,15 @@ export class NotificationEventHandlerService {
         payload.campaignId,
         'Campaign Activated',
         `Campaign "${payload.campaignName}" is now active and ready to start earning.`,
-        'high'
+        'high',
       );
-      this.logger.log(`Campaign activation notification sent for campaign ${payload.campaignId}`);
+      this.logger.log(
+        `Campaign activation notification sent for campaign ${payload.campaignId}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to send campaign activation notification: ${error.message}`);
+      this.logger.error(
+        `Failed to send campaign activation notification: ${error.message}`,
+      );
     }
   }
 
@@ -45,13 +47,17 @@ export class NotificationEventHandlerService {
       await this.notificationService.createCampaignNotification(
         payload.brandUserId,
         payload.campaignId,
-                'Campaign Completed',
+        'Campaign Completed',
         `Campaign "${payload.campaignName}" has been completed successfully.`,
-        'high'
+        'high',
       );
-      this.logger.log(`Campaign completion notification sent for campaign ${payload.campaignId}`);
+      this.logger.log(
+        `Campaign completion notification sent for campaign ${payload.campaignId}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to send campaign completion notification: ${error.message}`);
+      this.logger.error(
+        `Failed to send campaign completion notification: ${error.message}`,
+      );
     }
   }
 
@@ -66,13 +72,17 @@ export class NotificationEventHandlerService {
       await this.notificationService.createCampaignNotification(
         payload.brandUserId,
         payload.campaignId,
-                'Campaign Cancelled',
+        'Campaign Cancelled',
         `Campaign "${payload.campaignName}" has been cancelled.`,
-        'high'
+        'high',
       );
-      this.logger.log(`Campaign cancellation notification sent for campaign ${payload.campaignId}`);
+      this.logger.log(
+        `Campaign cancellation notification sent for campaign ${payload.campaignId}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to send campaign cancellation notification: ${error.message}`);
+      this.logger.error(
+        `Failed to send campaign cancellation notification: ${error.message}`,
+      );
     }
   }
 
@@ -90,11 +100,15 @@ export class NotificationEventHandlerService {
         payload.campaignId,
         'Low Campaign Budget',
         `Your campaign "${payload.campaignName}" is running low on budget. Remaining: ₹${payload.remainingBudget}`,
-        'urgent'
+        'urgent',
       );
-      this.logger.log(`Low budget notification sent for campaign ${payload.campaignId}`);
+      this.logger.log(
+        `Low budget notification sent for campaign ${payload.campaignId}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to send low budget notification: ${error.message}`);
+      this.logger.error(
+        `Failed to send low budget notification: ${error.message}`,
+      );
     }
   }
 
@@ -111,11 +125,15 @@ export class NotificationEventHandlerService {
         payload.campaignId,
         '⏸️ Campaign Paused',
         `Your campaign "${payload.campaignName}" has been paused${payload.reason ? `: ${payload.reason}` : ''}`,
-        'medium'
+        'medium',
       );
-      this.logger.log(`Campaign pause notification sent for campaign ${payload.campaignId}`);
+      this.logger.log(
+        `Campaign pause notification sent for campaign ${payload.campaignId}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to send campaign pause notification: ${error.message}`);
+      this.logger.error(
+        `Failed to send campaign pause notification: ${error.message}`,
+      );
     }
   }
 
@@ -131,11 +149,15 @@ export class NotificationEventHandlerService {
         payload.campaignId,
         '▶️ Campaign Resumed',
         `Your campaign "${payload.campaignName}" has been resumed and is now active`,
-        'medium'
+        'medium',
       );
-      this.logger.log(`Campaign resume notification sent for campaign ${payload.campaignId}`);
+      this.logger.log(
+        `Campaign resume notification sent for campaign ${payload.campaignId}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to send campaign resume notification: ${error.message}`);
+      this.logger.error(
+        `Failed to send campaign resume notification: ${error.message}`,
+      );
     }
   }
 
@@ -150,7 +172,7 @@ export class NotificationEventHandlerService {
     reason: string;
   }) {
     try {
-      const message = payload.campaignName 
+      const message = payload.campaignName
         ? `You've earned ₹${payload.amount} from campaign "${payload.campaignName}"`
         : `You've earned ₹${payload.amount}`;
 
@@ -158,11 +180,15 @@ export class NotificationEventHandlerService {
         payload.userId,
         payload.amount,
         payload.campaignId,
-        'high'
+        'high',
       );
-      this.logger.log(`Earnings notification sent to user ${payload.userId} for ₹${payload.amount}`);
+      this.logger.log(
+        `Earnings notification sent to user ${payload.userId} for ₹${payload.amount}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to send earnings notification: ${error.message}`);
+      this.logger.error(
+        `Failed to send earnings notification: ${error.message}`,
+      );
     }
   }
 
@@ -181,11 +207,15 @@ export class NotificationEventHandlerService {
         payload.campaignId,
         'Participation Ended',
         `Your participation in "${payload.campaignName}" has ended early: ${payload.reason}`,
-        'high'
+        'high',
       );
-      this.logger.log(`Early participation end notification sent to user ${payload.userId}`);
+      this.logger.log(
+        `Early participation end notification sent to user ${payload.userId}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to send early participation end notification: ${error.message}`);
+      this.logger.error(
+        `Failed to send early participation end notification: ${error.message}`,
+      );
     }
   }
 
@@ -202,11 +232,15 @@ export class NotificationEventHandlerService {
         payload.campaignId,
         '⏸️ Participation Paused',
         `Your participation in "${payload.campaignName}" has been paused: ${payload.reason}`,
-        'medium'
+        'medium',
       );
-      this.logger.log(`Participation pause notification sent to user ${payload.userId}`);
+      this.logger.log(
+        `Participation pause notification sent to user ${payload.userId}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to send participation pause notification: ${error.message}`);
+      this.logger.error(
+        `Failed to send participation pause notification: ${error.message}`,
+      );
     }
   }
 
@@ -222,11 +256,15 @@ export class NotificationEventHandlerService {
         payload.campaignId,
         '▶️ Participation Resumed',
         `Your participation in "${payload.campaignName}" has been resumed`,
-        'medium'
+        'medium',
       );
-      this.logger.log(`Participation resume notification sent to user ${payload.userId}`);
+      this.logger.log(
+        `Participation resume notification sent to user ${payload.userId}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to send participation resume notification: ${error.message}`);
+      this.logger.error(
+        `Failed to send participation resume notification: ${error.message}`,
+      );
     }
   }
 
@@ -243,16 +281,20 @@ export class NotificationEventHandlerService {
         payload.campaignId,
         'Removed from Campaign',
         `You have been removed from campaign "${payload.campaignName}": ${payload.reason}`,
-        'high'
+        'high',
       );
-      this.logger.log(`Streamer removal notification sent to user ${payload.userId}`);
+      this.logger.log(
+        `Streamer removal notification sent to user ${payload.userId}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to send streamer removal notification: ${error.message}`);
+      this.logger.error(
+        `Failed to send streamer removal notification: ${error.message}`,
+      );
     }
   }
 
   // Campaign Joining Events
-    @OnEvent('campaign.joined')
+  @OnEvent('campaign.joined')
   async handleCampaignJoined(payload: {
     campaignId: string;
     campaignName: string;
@@ -263,13 +305,14 @@ export class NotificationEventHandlerService {
   }) {
     console.log('Campaign joined event received:', payload);
     try {
-      const notification = await this.notificationService.createCampaignNotification(
-        payload.streamerId,
-        payload.campaignId,
-        'Campaign Participation Confirmed',
-        `You have successfully joined the campaign "${payload.campaignName}". Your browser source has been configured and is ready for use.`,
-        'high'
-      );
+      const notification =
+        await this.notificationService.createCampaignNotification(
+          payload.streamerId,
+          payload.campaignId,
+          'Campaign Participation Confirmed',
+          `You have successfully joined the campaign "${payload.campaignName}". Your browser source has been configured and is ready for use.`,
+          'high',
+        );
       console.log('Campaign joined notification created:', notification);
     } catch (error) {
       console.error('Error handling campaign.joined event:', error);
@@ -288,8 +331,10 @@ export class NotificationEventHandlerService {
     try {
       // Here we would typically find users who match the campaign criteria
       // For now, this is a placeholder - you would need to implement user matching logic
-      this.logger.log(`New campaign published: ${payload.campaignName} - would notify eligible streamers`);
-      
+      this.logger.log(
+        `New campaign published: ${payload.campaignName} - would notify eligible streamers`,
+      );
+
       // Example: Find users with matching categories/viewer counts
       // const eligibleUsers = await this.findEligibleUsers(payload);
       // for (const user of eligibleUsers) {
@@ -302,7 +347,9 @@ export class NotificationEventHandlerService {
       //   );
       // }
     } catch (error) {
-      this.logger.error(`Failed to send new campaign notifications: ${error.message}`);
+      this.logger.error(
+        `Failed to send new campaign notifications: ${error.message}`,
+      );
     }
   }
 
@@ -320,11 +367,15 @@ export class NotificationEventHandlerService {
         'Energy Pack Expiring',
         `Your ${payload.packType} energy pack expires in ${payload.hoursRemaining} hours`,
         'medium',
-        '/dashboard/energy-packs'
+        '/dashboard/energy-packs',
       );
-      this.logger.log(`Energy pack expiring notification sent to user ${payload.userId}`);
+      this.logger.log(
+        `Energy pack expiring notification sent to user ${payload.userId}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to send energy pack expiring notification: ${error.message}`);
+      this.logger.error(
+        `Failed to send energy pack expiring notification: ${error.message}`,
+      );
     }
   }
 
@@ -337,14 +388,18 @@ export class NotificationEventHandlerService {
     try {
       await this.notificationService.createSystemNotification(
         payload.userId,
-                'Streak at Risk',
+        'Streak at Risk',
         `Your ${payload.currentStreak}-day streaming streak is at risk! Stream today to maintain it.`,
         'urgent',
-        '/dashboard/streak'
+        '/dashboard/streak',
       );
-      this.logger.log(`Streak warning notification sent to user ${payload.userId}`);
+      this.logger.log(
+        `Streak warning notification sent to user ${payload.userId}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to send streak warning notification: ${error.message}`);
+      this.logger.error(
+        `Failed to send streak warning notification: ${error.message}`,
+      );
     }
   }
 
@@ -359,11 +414,15 @@ export class NotificationEventHandlerService {
         'Streak Broken',
         `Your ${payload.previousStreak}-day streaming streak has been broken. Start a new streak today!`,
         'medium',
-        '/dashboard/streak'
+        '/dashboard/streak',
       );
-      this.logger.log(`Streak broken notification sent to user ${payload.userId}`);
+      this.logger.log(
+        `Streak broken notification sent to user ${payload.userId}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to send streak broken notification: ${error.message}`);
+      this.logger.error(
+        `Failed to send streak broken notification: ${error.message}`,
+      );
     }
   }
 
@@ -375,7 +434,7 @@ export class NotificationEventHandlerService {
     reward?: number;
   }) {
     try {
-      const message = payload.reward 
+      const message = payload.reward
         ? `Congratulations! You've reached a ${payload.milestone}-day streak milestone and earned ₹${payload.reward}!`
         : `Congratulations! You've reached a ${payload.milestone}-day streak milestone!`;
 
@@ -384,11 +443,15 @@ export class NotificationEventHandlerService {
         'Streak Milestone Achieved',
         message,
         'high',
-        '/dashboard/streak'
+        '/dashboard/streak',
       );
-      this.logger.log(`Streak milestone notification sent to user ${payload.userId}`);
+      this.logger.log(
+        `Streak milestone notification sent to user ${payload.userId}`,
+      );
     } catch (error) {
-      this.logger.error(`Failed to send streak milestone notification: ${error.message}`);
+      this.logger.error(
+        `Failed to send streak milestone notification: ${error.message}`,
+      );
     }
   }
 }

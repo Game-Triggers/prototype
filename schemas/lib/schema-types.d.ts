@@ -63,6 +63,7 @@ export interface ICampaignData {
     endDate?: Date;
     paymentRate: number;
     paymentType: 'cpm' | 'fixed';
+    gKeyCooloffHours?: number;
     activeStreamers?: number;
     impressions?: number;
     viewerImpressions?: number;
