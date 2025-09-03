@@ -131,7 +131,7 @@ export default function CreateCampaignPage() {
           </div>
           <h1 className="mt-6 text-2xl font-bold">Campaign Created!</h1>
           <p className="mt-2 text-muted-foreground">
-            Your campaign has been created successfully and is now pending review.
+            Your campaign has been created successfully. To make it available to streamers, activate it from your campaigns page and it will be sent for admin review.
           </p>
           <div className="mt-6">
             <Button asChild>

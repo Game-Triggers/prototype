@@ -48,6 +48,13 @@ const campaignSchema = new Schema<ICampaign>(
     completedAt: { type: Date },
     completionReason: { type: String },
     finalEarningsTransferred: { type: Number, default: 0 },
+    // Admin review fields
+    submittedForReviewAt: { type: Date },
+    approvedAt: { type: Date },
+    approvedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    rejectedAt: { type: Date },
+    rejectedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+    rejectionReason: { type: String },
   },
   { timestamps: true }
 );

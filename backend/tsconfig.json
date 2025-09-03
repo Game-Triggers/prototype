@@ -19,7 +19,7 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@app/*": ["src/*"],
-      "@schemas/*": ["../schemas/*"],
+      "@schemas/*": ["../schemas/schemas/*"],
       "@/*": ["../"]
     },
     "typeRoots": ["./node_modules/@types", "./src/types"]
@@ -27,7 +27,7 @@
   "include": [
     "src/**/*", 
     "src/types/*.d.ts",
-    "../schemas/**/*"
+    "../schemas/schemas/**/*"
   ],
   "exclude": ["node_modules", "dist"]
 }

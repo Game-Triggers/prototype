@@ -631,5 +631,63 @@ export class CampaignsController {
       campaignId,
       userId,
     );
+   * Admin approves a pending campaign
+   */
+  @Post(':id/approve')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Admin approves a pending campaign' })
+  @ApiParam({ name: 'id', description: 'Campaign ID' })
+  @ApiResponse({
+    status: 200,
+    description: 'Campaign approved and activated successfully',
+  })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required',
+  })
+  @ApiResponse({ status: 404, description: 'Campaign not found' })
+  @ApiBearerAuth()
+  async approveCampaign(@Param('id') id: string, @Req() req: RequestWithUser) {
+    const adminId = req.user?.id;
+    return this.campaignsService.approveCampaign(id, adminId);
+  }
+
+  /**
+   * Admin rejects a pending campaign
+   */
+  @Post(':id/reject')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Admin rejects a pending campaign' })
+  @ApiParam({ name: 'id', description: 'Campaign ID' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        reason: {
+          type: 'string',
+          description: 'Reason for rejection',
+          example: 'Content does not meet platform guidelines',
+        },
+      },
+    },
+  })
+  @ApiResponse({ status: 200, description: 'Campaign rejected successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - Admin access required',
+  })
+  @ApiResponse({ status: 404, description: 'Campaign not found' })
+  @ApiBearerAuth()
+  async rejectCampaign(
+    @Param('id') id: string,
+    @Body() body: { reason?: string },
+    @Req() req: RequestWithUser,
+  ) {
+    const adminId = req.user?.id;
+    return this.campaignsService.rejectCampaign(id, adminId, body.reason);
   }
 }

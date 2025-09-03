@@ -22,10 +22,12 @@ var AuthProvider;
 var CampaignStatus;
 (function (CampaignStatus) {
     CampaignStatus["DRAFT"] = "draft";
+    CampaignStatus["PENDING"] = "pending";
     CampaignStatus["ACTIVE"] = "active";
     CampaignStatus["PAUSED"] = "paused";
     CampaignStatus["COMPLETED"] = "completed";
     CampaignStatus["CANCELLED"] = "cancelled";
+    CampaignStatus["REJECTED"] = "rejected";
 })(CampaignStatus || (exports.CampaignStatus = CampaignStatus = {}));
 var MediaType;
 (function (MediaType) {

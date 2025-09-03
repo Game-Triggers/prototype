@@ -11,10 +11,11 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api/v1
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const campaignId = params.id;
+    const { id } = await params;
+    const campaignId = id;
     console.log(`API route: GET /api/campaigns/${campaignId} request received`);
 
     // Get session token for authentication
@@ -53,7 +54,7 @@ export async function GET(
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error(`Error proxying GET /campaigns/${params.id}:`, error);
+    console.error(`Error proxying GET /campaigns/${campaignId}:`, error);
     return NextResponse.json(
       { error: 'Error processing campaign request', message: error instanceof Error ? error.message : String(error) },
       { status: 500 }
@@ -66,10 +67,12 @@ export async function GET(
  */
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+  const campaignId = id;
+  
   try {
-    const campaignId = params.id;
     console.log(`API route: PUT /api/campaigns/${campaignId} request received`);
 
     // Get session token for authentication
@@ -113,7 +116,7 @@ export async function PUT(
     const data = await response.json();
     return NextResponse.json(data);
   } catch (error) {
-    console.error(`Error proxying PUT /campaigns/${params.id}:`, error);
+    console.error(`Error proxying PUT /campaigns/${campaignId}:`, error);
     return NextResponse.json(
       { error: 'Error updating campaign', message: error instanceof Error ? error.message : String(error) },
       { status: 500 }

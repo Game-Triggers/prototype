@@ -1,0 +1,16 @@
+{
+    "mcpServers": {
+      "MongoDB": {
+        "type": "stdio",
+        "command": "npx",
+        "args": [
+          "-y",
+          "mongodb-mcp-server",
+          "--connectionString",
+           "mongodb://localhost:27017/gametriggers",
+          "--readOnly"
+        ]
+      }
+    }
+  }
+  

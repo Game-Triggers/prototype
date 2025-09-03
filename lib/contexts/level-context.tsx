@@ -59,7 +59,12 @@ export function LevelProvider({ children }: { children: React.ReactNode }) {
   }, [xpData, rpData]);
 
   const checkForLevelUp = useCallback(async () => {
-    if (!session?.user) return;
+    if (!session?.user) {
+      console.log('Level context: No session user available');
+      return;
+    }
+
+    console.log('Level context: Calling checkLevelUp via Next.js API route');
 
     try {
       // Use direct fetch to the Next.js API route instead of the API client
@@ -92,23 +97,39 @@ export function LevelProvider({ children }: { children: React.ReactNode }) {
         if (newLevelInfo) {
           setLevelData(newLevelInfo);
         }
+      if (response.ok) {
+        const result = await response.json() as {
+          leveledUp: boolean;
+          oldLevel: number;
+          newLevel: number;
+        };
         
-        // Show level up notification
-        if (typeof window !== 'undefined') {
-          window.dispatchEvent(new CustomEvent('levelUp', {
-            detail: {
-              oldLevel: result.oldLevel,
-              newLevel: result.newLevel
-            }
-          }));
+        if (result.leveledUp) {
+          // Refresh the level data
+          const newLevelInfo = calculateLevel();
+          if (newLevelInfo) {
+            setLevelData(newLevelInfo);
+          }
+          
+          // Show level up notification
+          if (typeof window !== 'undefined') {
+            window.dispatchEvent(new CustomEvent('levelUp', {
+              detail: {
+                oldLevel: result.oldLevel,
+                newLevel: result.newLevel
+              }
+            }));
+          }
         }
+      } else {
+        console.error('Level check failed:', response.status, response.statusText);
       }
     } catch (error) {
       console.error('Failed to check for level up:', error);
       // Don't throw the error - just log it and continue
       // This prevents authentication errors from breaking the UI
     }
-  }, [session?.user, calculateLevel]);
+  }, [session, calculateLevel]);
 
   useEffect(() => {
     if (!session?.user || !xpData || !rpData) {

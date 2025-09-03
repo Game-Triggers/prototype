@@ -41,7 +41,7 @@ interface Campaign {
   paymentType: 'cpm' | 'fixed';
   categories: string[];
   languages?: string[];
-  status: 'draft' | 'active' | 'paused' | 'completed';
+  status: 'draft' | 'pending' | 'active' | 'paused' | 'completed' | 'rejected';
   activeStreamers?: number;
   // Analytics metrics (viewer-based)
   impressions?: number; // Traditional impressions
@@ -74,9 +74,10 @@ export default function CampaignDetailPage() {
   const [joinLoading, setJoinLoading] = useState(false);
   const [joinError, setJoinError] = useState<string | null>(null);
   const [joinSuccess, setJoinSuccess] = useState(false);
+  const [lastStatusUpdate, setLastStatusUpdate] = useState<number>(0);
 
   const userRole = session?.user?.role;
-  const userCanEdit = userRole === UserRole.BRAND || userRole === UserRole.ADMIN;
+  const userCanEdit = userRole === UserRole.BRAND && session?.user?.id === campaign?.brandId;
   const userIsCampaignOwner = userRole === UserRole.BRAND && session?.user?.id === campaign?.brandId;
   const showActivateButton = userIsCampaignOwner && campaign?.status === 'draft';
   const showPauseButton = userIsCampaignOwner && campaign?.status === 'active';
@@ -84,6 +85,12 @@ export default function CampaignDetailPage() {
 
   useEffect(() => {
     const fetchCampaign = async () => {
+      // Prevent refetching immediately after a manual status update
+      const now = Date.now();
+      if (now - lastStatusUpdate < 5000) { // Skip refetch for 5 seconds after status update
+        return;
+      }
+
       try {
         setIsLoading(true);
         setError(null);
@@ -180,7 +187,7 @@ export default function CampaignDetailPage() {
               headers: { 'Content-Type': 'application/json' },
             });
             if (resp.ok) {
-              let detail: any = null;
+              let detail: { updated?: boolean } | null = null;
               try { detail = await resp.json(); } catch {}
               if (typeof window !== 'undefined' && detail?.updated) {
                 window.dispatchEvent(new CustomEvent('streak:updated', { detail }));
@@ -196,10 +203,11 @@ export default function CampaignDetailPage() {
       }
     };
     
-    if (id && status !== 'loading') {
+    // Only fetch when we have an id and user is authenticated (not loading)
+    if (id && status === 'authenticated') {
       fetchCampaign();
     }
-  }, [id, status]);
+  }, [id, status, lastStatusUpdate]);
 
   const updateCampaignStatus = async (newStatus: CampaignStatus) => {
     try {
@@ -245,8 +253,47 @@ export default function CampaignDetailPage() {
     }
   };
 
-  const handleActivateCampaign = () => {
-    updateCampaignStatus(CampaignStatus.ACTIVE);
+  const handleActivateCampaign = async () => {
+    if (!id) return;
+    try {
+      setIsUpdating(true);
+      setUpdateError(null);
+      setUpdateSuccess(false);
+      
+      console.log('Activating campaign with ID:', id);
+      
+      const response = await fetch(`/api/campaigns/${id}/activate`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      
+      console.log('Activation response status:', response.status);
+      
+      if (!response.ok) {
+        let data: { message?: string } = {};
+        try { 
+          data = await response.json(); 
+          console.error('Activation failed with response:', data);
+        } catch {}
+        throw new Error(data?.message || 'Failed to activate campaign');
+      }
+      
+      const responseData = await response.json();
+      console.log('Activation success response:', responseData);
+      
+      // Update campaign status to pending
+      setCampaign(prev => prev ? { ...prev, status: 'pending' } : prev);
+      setLastStatusUpdate(Date.now()); // Prevent immediate refetch
+      setUpdateSuccess(true);
+      setTimeout(() => setUpdateSuccess(false), 3000);
+    } catch (error) {
+      console.error('Campaign activation error:', error);
+      setUpdateError(error instanceof Error ? error.message : 'Failed to activate campaign');
+    } finally {
+      setIsUpdating(false);
+    }
   };
 
   const handlePauseCampaign = () => {
@@ -369,9 +416,13 @@ export default function CampaignDetailPage() {
       case 'paused':
         return 'bg-yellow-100 text-yellow-800';
       case 'draft':
+        return 'bg-gray-100 text-gray-800';
+      case 'pending':
         return 'bg-blue-100 text-blue-800';
       case 'completed':
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-purple-100 text-purple-800';
+      case 'rejected':
+        return 'bg-red-100 text-red-800';
       default:
         return 'bg-gray-100 text-gray-800';
     }
@@ -406,6 +457,28 @@ export default function CampaignDetailPage() {
                 </span>
               ))}
             </div>
+
+            {/* Success and error messages */}
+            {updateSuccess && (
+              <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                <p className="text-sm text-green-800">Campaign status updated successfully!</p>
+              </div>
+            )}
+            {updateError && (
+              <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-sm text-red-800">{updateError}</p>
+              </div>
+            )}
+            {joinSuccess && (
+              <div className="mt-2 p-2 bg-green-50 border border-green-200 rounded-md">
+                <p className="text-sm text-green-800">Successfully joined the campaign!</p>
+              </div>
+            )}
+            {joinError && (
+              <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-md">
+                <p className="text-sm text-red-800">{joinError}</p>
+              </div>
+            )}
           </div>
           
           <div className="flex flex-wrap gap-2">
@@ -569,7 +642,10 @@ export default function CampaignDetailPage() {
                 <div className={`w-3 h-3 rounded-full mr-2 ${
                   campaign.status === 'active' ? 'bg-green-500' :
                   campaign.status === 'paused' ? 'bg-yellow-500' :
-                  campaign.status === 'draft' ? 'bg-blue-500' :
+                  campaign.status === 'draft' ? 'bg-gray-500' :
+                  campaign.status === 'pending' ? 'bg-blue-500' :
+                  campaign.status === 'completed' ? 'bg-purple-500' :
+                  campaign.status === 'rejected' ? 'bg-red-500' :
                   'bg-gray-500'
                 }`}></div>
                 <span className="font-medium">
@@ -582,8 +658,18 @@ export default function CampaignDetailPage() {
                   <>
                     <p className="font-medium mb-2">Your campaign is currently in draft status</p>
                     <p className="text-muted-foreground">
-                      This campaign is not yet visible to streamers. To make it available for streamers to join, 
-                      click the &quot;Activate Campaign&quot; button. Once activated, streamers will be able to discover and join your campaign.
+                      This campaign is not yet visible to streamers. To submit it for approval, 
+                      click the &quot;Activate Campaign&quot; button. Once submitted, it will be reviewed by our admin team.
+                    </p>
+                  </>
+                )}
+                
+                {campaign.status === 'pending' && (
+                  <>
+                    <p className="font-medium mb-2">Your campaign is pending admin review</p>
+                    <p className="text-muted-foreground">
+                      Your campaign has been submitted and is currently being reviewed by our admin team. 
+                      You will be notified once it has been approved and is available to streamers.
                     </p>
                   </>
                 )}
@@ -614,6 +700,16 @@ export default function CampaignDetailPage() {
                     <p className="text-muted-foreground">
                       This campaign has run its course and is no longer active. You can view its performance metrics
                       but can&apos;t modify or restart it.
+                    </p>
+                  </>
+                )}
+                
+                {campaign.status === 'rejected' && (
+                  <>
+                    <p className="font-medium mb-2">Your campaign has been rejected</p>
+                    <p className="text-muted-foreground">
+                      Your campaign did not meet our platform guidelines and has been rejected. 
+                      Please review and edit your campaign details, then resubmit for approval.
                     </p>
                   </>
                 )}

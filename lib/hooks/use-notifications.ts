@@ -99,7 +99,7 @@ export function useNotifications(
         });
       }
 
-      const url = `/api/v1/notifications${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
+      const url = `/api/notifications${queryParams.toString() ? `?${queryParams.toString()}` : ''}`;
       const response = await fetch(url, {
         headers: {
           'Authorization': `Bearer ${session.accessToken}`,
@@ -127,7 +127,7 @@ export function useNotifications(
   const markAsRead = useCallback(async (notificationId: string): Promise<boolean> => {
     if (!session) return false;
     try {
-      const response = await fetch(`/api/v1/notifications/${notificationId}/read`, {
+      const response = await fetch(`/api/notifications/${notificationId}/read`, {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${session.accessToken}`,
@@ -152,7 +152,7 @@ export function useNotifications(
   const markMultipleAsRead = useCallback(async (notificationIds: string[]): Promise<boolean> => {
     if (!session || notificationIds.length === 0) return false;
     try {
-      const response = await fetch('/api/v1/notifications/read/batch', {
+      const response = await fetch('/api/notifications/read/batch', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${session.accessToken}`,
@@ -178,7 +178,7 @@ export function useNotifications(
   const markAllAsRead = useCallback(async (): Promise<boolean> => {
     if (!session) return false;
     try {
-      const response = await fetch('/api/v1/notifications/read/all', {
+      const response = await fetch('/api/notifications/read/all', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${session.accessToken}`,
@@ -199,7 +199,7 @@ export function useNotifications(
   const deleteNotification = useCallback(async (notificationId: string): Promise<boolean> => {
     if (!session) return false;
     try {
-      const response = await fetch(`/api/v1/notifications/${notificationId}`, {
+      const response = await fetch(`/api/notifications/${notificationId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${session.accessToken}`,
@@ -255,7 +255,7 @@ export function useUnreadNotificationCount() {
     }
     setLoading(true);
     try {
-      const response = await fetch('/api/v1/notifications/count/unread', {
+      const response = await fetch('/api/notifications/count/unread', {
         headers: {
           'Authorization': `Bearer ${session.accessToken}`,
           'Content-Type': 'application/json',
@@ -290,7 +290,7 @@ export function useNotificationRealtime(
     if (!session) return;
     const pollInterval = setInterval(async () => {
       try {
-        const response = await fetch('/api/v1/notifications/latest', {
+        const response = await fetch('/api/notifications/latest', {
           headers: {
             'Authorization': `Bearer ${session.accessToken}`,
             'Content-Type': 'application/json',

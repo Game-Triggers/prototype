@@ -1565,6 +1565,12 @@
         "parameters": [
           {
             "name": "campaignId",
+    "/api/v1/campaigns/{id}/approve": {
+      "post": {
+        "operationId": "CampaignsController_approveCampaign",
+        "parameters": [
+          {
+            "name": "id",
             "required": true,
             "in": "path",
             "description": "Campaign ID",
@@ -1681,6 +1687,17 @@
           },
           "403": {
             "description": "Admin access required"
+
+            "description": "Campaign approved and activated successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Forbidden - Admin access required"
+          },
+          "404": {
+            "description": "Campaign not found"
           }
         },
         "security": [
@@ -1689,6 +1706,7 @@
           }
         ],
         "summary": "Manually trigger campaign completion check",
+        "summary": "Admin approves a pending campaign",
         "tags": [
           "campaigns"
         ]
@@ -1701,6 +1719,12 @@
         "parameters": [
           {
             "name": "campaignId",
+    "/api/v1/campaigns/{id}/reject": {
+      "post": {
+        "operationId": "CampaignsController_rejectCampaign",
+        "parameters": [
+          {
+            "name": "id",
             "required": true,
             "in": "path",
             "description": "Campaign ID",
@@ -1733,6 +1757,32 @@
           },
           "403": {
             "description": "Insufficient permissions"
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": {
+                    "type": "string",
+                    "description": "Reason for rejection",
+                    "example": "Content does not meet platform guidelines"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Campaign rejected successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Forbidden - Admin access required"
           },
           "404": {
             "description": "Campaign not found"
@@ -1796,6 +1846,7 @@
           }
         },
         "summary": "Get campaign completion details and earnings",
+        "summary": "Admin rejects a pending campaign",
         "tags": [
           "campaigns"
         ]
@@ -5281,6 +5332,11 @@
             "description": "Total XP accumulated",
             "example": 150
           },
+          "level": {
+            "type": "number",
+            "description": "Current level based on XP",
+            "example": 3
+          },
           "earnedToday": {
             "type": "number",
             "description": "XP earned today",
@@ -5513,10 +5569,12 @@
         "type": "string",
         "enum": [
           "draft",
+          "pending",
           "active",
           "paused",
           "completed",
-          "cancelled"
+          "cancelled",
+          "rejected"
         ],
         "description": "Campaign status"
       },

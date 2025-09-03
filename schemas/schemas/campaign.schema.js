@@ -40,6 +40,13 @@ const campaignSchema = new mongoose_1.Schema({
         min: 1, // Minimum 1 hour
         max: 8760 // Maximum 1 year (365 * 24 hours)
     },
+    // Admin review fields
+    submittedForReviewAt: { type: Date },
+    approvedAt: { type: Date },
+    approvedBy: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User' },
+    rejectedAt: { type: Date },
+    rejectedBy: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User' },
+    rejectionReason: { type: String },
 }, { timestamps: true });
 // Create indexes for efficient queries
 campaignSchema.index({ status: 1 });

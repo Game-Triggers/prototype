@@ -775,6 +775,7 @@ export class UsersService {
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const lastEarnedDate = document.xp?.lastEarned
+    const lastEarnedDate = document.xp.lastEarned
       ? new Date(
           document.xp.lastEarned.getFullYear(),
           document.xp.lastEarned.getMonth(),
@@ -789,6 +790,7 @@ export class UsersService {
 
     return {
       total: document.xp.total,
+      level: getLevelFromXP(document.xp.total),
       earnedToday: document.xp.earnedToday,
       lastEarned: document.xp.lastEarned,
       activities: document.xp.activities.slice(-10), // Return last 10 activities
@@ -837,6 +839,10 @@ export class UsersService {
     document.xp.earnedToday += amount;
     document.xp.lastEarned = now;
 
+    // Calculate new level (simple level calculation: level = floor(total / 100) + 1)
+    const newLevel = Math.floor(document.xp.total / 100) + 1;
+    document.xp.level = newLevel;
+
     // Add to activities (keep only last 50)
     document.xp.activities.push({
       type: activityType,
@@ -852,6 +858,7 @@ export class UsersService {
 
     return {
       total: document.xp.total,
+      level: getLevelFromXP(document.xp.total),
       earnedToday: document.xp.earnedToday,
       lastEarned: document.xp.lastEarned,
       activities: document.xp.activities.slice(-10), // Return last 10 activities

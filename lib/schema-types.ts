@@ -19,10 +19,12 @@ export enum AuthProvider {
 // Campaign types
 export enum CampaignStatus {
   DRAFT = 'draft',
+  PENDING = 'pending',
   ACTIVE = 'active',
   PAUSED = 'paused',
   COMPLETED = 'completed',
   CANCELLED = 'cancelled',
+  REJECTED = 'rejected',
 }
 
 export enum MediaType {
@@ -79,6 +81,13 @@ export interface ICampaignData {
   completedAt?: Date;
   completionReason?: 'impressions_target_reached' | 'manual_completion' | 'campaign_ended' | 'budget_exhausted';
   finalEarningsTransferred?: boolean;
+  // Admin review fields
+  submittedForReviewAt?: Date;
+  approvedAt?: Date;
+  approvedBy?: string;
+  rejectedAt?: Date;
+  rejectedBy?: string;
+  rejectionReason?: string;
   // Analytics properties (computed from participations)
   activeStreamers?: number;
   impressions?: number;

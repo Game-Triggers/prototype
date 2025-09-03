@@ -14,10 +14,12 @@ export declare enum AuthProvider {
 }
 export declare enum CampaignStatus {
     DRAFT = "draft",
+    PENDING = "pending",
     ACTIVE = "active",
     PAUSED = "paused",
     COMPLETED = "completed",
-    CANCELLED = "cancelled"
+    CANCELLED = "cancelled",
+    REJECTED = "rejected"
 }
 export declare enum MediaType {
     IMAGE = "image",
@@ -64,6 +66,12 @@ export interface ICampaignData {
     paymentRate: number;
     paymentType: 'cpm' | 'fixed';
     gKeyCooloffHours?: number;
+    submittedForReviewAt?: Date;
+    approvedAt?: Date;
+    approvedBy?: string;
+    rejectedAt?: Date;
+    rejectedBy?: string;
+    rejectionReason?: string;
     activeStreamers?: number;
     impressions?: number;
     viewerImpressions?: number;

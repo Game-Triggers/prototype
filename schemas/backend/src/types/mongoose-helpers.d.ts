@@ -10,9 +10,12 @@ export interface IUserDocument extends Omit<IUserData, '_id'>, Document {
     email: string;
     name: string;
 }
-export interface ICampaignDocument extends Omit<ICampaignData, '_id' | 'brandId'>, Document {
+export interface ICampaignDocument extends Omit<ICampaignData, '_id' | 'brandId' | 'verifiedBy' | 'approvedBy' | 'rejectedBy'>, Document {
     _id: Types.ObjectId;
     brandId: Types.ObjectId;
+    verifiedBy?: Types.ObjectId;
+    approvedBy?: Types.ObjectId;
+    rejectedBy?: Types.ObjectId;
 }
 export interface ICampaignParticipationDocument extends Omit<ICampaignParticipationData, '_id' | 'campaignId' | 'streamerId'>, Document {
     _id: Types.ObjectId;

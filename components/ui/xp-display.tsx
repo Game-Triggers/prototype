@@ -58,6 +58,14 @@ export function XPDisplay() {
                 {xpData.total} XP
               </span>
             </div>
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium">Level {progress.currentLevel}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="text-xs text-muted-foreground">
+                {xpData.total} XP total
+              </span>
+            </div>
 
             {/* Progress Bar */}
             <div className="space-y-1">
