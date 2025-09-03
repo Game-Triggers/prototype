@@ -661,7 +661,9 @@ export class CampaignsController {
       'Get detailed impression data for debugging campaign completion issues',
   })
   @ApiParam({ name: 'campaignId', description: 'Campaign ID' })
-  async debugCampaignImpressions(@Param('campaignId') campaignId: string) {
+  async debugCampaignImpressions(
+    @Param('campaignId') campaignId: string,
+  ): Promise<any> {
     return await this.campaignCompletionService.debugCampaignImpressions(
       campaignId,
     );
@@ -675,9 +677,9 @@ export class CampaignsController {
   @Roles(UserRole.STREAMER)
   @ApiOperation({
     summary: 'Get campaign completion details and earnings',
-    description: 'Get detailed completion information including earnings transferred to withdrawable balance',
+    description:
+      'Get detailed completion information including earnings transferred to withdrawable balance',
   })
-  @ApiParam({ name: 'campaignId', description: 'Campaign ID' })
   async getCampaignCompletionDetails(
     @Param('campaignId') campaignId: string,
     @Req() req: RequestWithUser,

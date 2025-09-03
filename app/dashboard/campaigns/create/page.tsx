@@ -20,7 +20,7 @@ interface CampaignBackendData {
   mediaUrl: string | null;
   mediaFile?: File | null;
   mediaType: MediaType;
-  categories?: string;
+  categories?: string[]; // Changed from string to string[]
   languages?: string[];
   paymentType: "cpm" | "fixed";
   paymentRate: string | number;

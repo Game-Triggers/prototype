@@ -127,8 +127,7 @@ const kycSchema = new Schema<IKYC>(
   {
     userId: { 
       type: String, 
-      required: true, 
-      unique: true 
+      required: true
     },
     status: { 
       type: String, 
@@ -182,7 +181,7 @@ const kycSchema = new Schema<IKYC>(
 );
 
 // Create indexes
-kycSchema.index({ userId: 1 });
+kycSchema.index({ userId: 1 }, { unique: true });
 kycSchema.index({ status: 1 });
 kycSchema.index({ submittedAt: -1 });
 kycSchema.index({ 'bankDetails.accountNumber': 1 });

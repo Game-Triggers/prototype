@@ -55,8 +55,7 @@ const bankDetailsSchema = new mongoose_1.Schema({
 const kycSchema = new mongoose_1.Schema({
     userId: {
         type: String,
-        required: true,
-        unique: true
+        required: true
     },
     status: {
         type: String,
@@ -101,7 +100,7 @@ const kycSchema = new mongoose_1.Schema({
     }
 }, { timestamps: true });
 // Create indexes
-kycSchema.index({ userId: 1 });
+kycSchema.index({ userId: 1 }, { unique: true });
 kycSchema.index({ status: 1 });
 kycSchema.index({ submittedAt: -1 });
 kycSchema.index({ 'bankDetails.accountNumber': 1 });

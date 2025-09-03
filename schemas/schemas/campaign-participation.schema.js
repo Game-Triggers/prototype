@@ -49,6 +49,15 @@ const campaignParticipationSchema = new mongoose_1.Schema({
     trackingUrl: { type: String },
     qrCodeUrl: { type: String },
     chatCommand: { type: String },
+    // Completion tracking
+    completedAt: { type: Date },
+    completionReason: {
+        type: String,
+        enum: ['impressions_target_reached', 'manual_completion', 'campaign_ended', 'budget_exhausted']
+    },
+    finalEarnings: { type: Number, default: 0 },
+    earningsTransferredAt: { type: Date },
+    finalEarningsTransferred: { type: Boolean, default: false },
 }, { timestamps: true });
 // Create indexes for efficient queries
 campaignParticipationSchema.index({ campaignId: 1 });

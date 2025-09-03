@@ -4,6 +4,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { diskStorage } from 'multer';
 import { extname, join } from 'path';
 import { v4 as uuidv4 } from 'uuid';
+import * as fs from 'fs';
 
 import { UploadController } from './upload.controller';
 import { UploadService } from './upload.service';
@@ -29,6 +30,11 @@ import { AuthDebugController } from './auth-debug.controller';
               'uploads',
               isImage ? 'images' : 'videos',
             );
+
+            // Ensure the directory exists, create it if it doesn't
+            if (!fs.existsSync(uploadPath)) {
+              fs.mkdirSync(uploadPath, { recursive: true });
+            }
 
             cb(null, uploadPath);
           },

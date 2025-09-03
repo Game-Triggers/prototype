@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.GKeySchema = void 0;
 const mongoose_1 = require("mongoose");
 exports.GKeySchema = new mongoose_1.Schema({
-    userId: { type: String, required: true, index: true },
+    userId: { type: String, required: true },
     category: { type: String, required: true },
     status: {
         type: String,

@@ -20,7 +20,6 @@ export const NotificationSchema = new Schema<INotification>(
     userId: {
       type: String,
       required: true,
-      index: true,
     },
     title: {
       type: String,
@@ -36,7 +35,6 @@ export const NotificationSchema = new Schema<INotification>(
       type: String,
       required: true,
       enum: ['campaign', 'earnings', 'withdrawal', 'kyc', 'system', 'payment', 'dispute'],
-      index: true,
     },
     priority: {
       type: String,
@@ -48,7 +46,6 @@ export const NotificationSchema = new Schema<INotification>(
       type: Boolean,
       required: true,
       default: false,
-      index: true,
     },
     data: {
       type: Schema.Types.Mixed,

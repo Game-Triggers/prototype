@@ -6,7 +6,6 @@ exports.NotificationSchema = new mongoose_1.Schema({
     userId: {
         type: String,
         required: true,
-        index: true,
     },
     title: {
         type: String,
@@ -22,7 +21,6 @@ exports.NotificationSchema = new mongoose_1.Schema({
         type: String,
         required: true,
         enum: ['campaign', 'earnings', 'withdrawal', 'kyc', 'system', 'payment', 'dispute'],
-        index: true,
     },
     priority: {
         type: String,
@@ -34,7 +32,6 @@ exports.NotificationSchema = new mongoose_1.Schema({
         type: Boolean,
         required: true,
         default: false,
-        index: true,
     },
     data: {
         type: mongoose_1.Schema.Types.Mixed,

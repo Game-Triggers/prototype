@@ -40,7 +40,7 @@ import { GKeyModule } from './modules/g-key/g-key.module';
     // MongoDB connection
     MongooseModule.forRootAsync({
       imports: [ConfigModule],
-      useFactory: async (configService: ConfigService) => {
+      useFactory: (configService: ConfigService) => {
         const uri = configService.get<string>('MONGODB_URI');
         console.log('MongoDB URI from config:', uri); // Debug log
 
@@ -53,9 +53,8 @@ import { GKeyModule } from './modules/g-key/g-key.module';
 
         return {
           uri,
-          useNewUrlParser: true,
-          useUnifiedTopology: true,
-          // Add connection options to prevent app from hanging
+          // ✅ Removed deprecated options
+          // Still keep safe timeouts
           serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of hanging indefinitely
           connectTimeoutMS: 5000, // Give up initial connection after 5s
         };

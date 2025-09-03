@@ -15,10 +15,27 @@ export default function EditCampaignPage() {
   const router = useRouter();
   const { id } = useParams();
   const { data: session, status } = useSession();
-  const [campaign, setCampaign] = useState(null);
+  type CampaignFormData = {
+    title: string;
+    description: string;
+    budget: number;
+    remainingBudget: number;
+    mediaUrl: string | null;
+    mediaType: MediaType;
+    paymentRate: number;
+    paymentType: "fixed" | "cpm" | "cpc";
+    categories: string | string[];
+    languages: string[];
+    startDate: string;
+    endDate: string;
+    status: CampaignStatus;
+    brandId: string;
+  };
+
+  const [campaign, setCampaign] = useState<CampaignFormData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [isSuccess, setIsSuccess] = useState(false);
 
   // Redirect if not a brand user or admin
@@ -51,7 +68,7 @@ export default function EditCampaignPage() {
         console.log('Fetched campaign data:', campaignData);
         
         // Format dates for form (yyyy-MM-dd format)
-        const formatDateForInput = (dateString) => {
+        const formatDateForInput = (dateString: string): string => {
           if (!dateString) return '';
           const date = new Date(dateString);
           return date.toISOString().split('T')[0];
@@ -67,7 +84,11 @@ export default function EditCampaignPage() {
           mediaType: campaignData.mediaType || MediaType.IMAGE,
           paymentRate: campaignData.paymentRate || 0,
           paymentType: campaignData.paymentType || 'cpm',
-          categories: campaignData.categories && campaignData.categories.length > 0 ? campaignData.categories[0] : "",
+          categories: Array.isArray(campaignData.categories)
+            ? campaignData.categories
+            : campaignData.categories
+            ? [campaignData.categories]
+            : [],
           languages: campaignData.languages || [],
           startDate: formatDateForInput(campaignData.startDate),
           endDate: formatDateForInput(campaignData.endDate),
@@ -94,13 +115,50 @@ export default function EditCampaignPage() {
     }
   }, [id, status, session, router]);
 
-  const handleSubmit = async (formData) => {
+  interface MediaUploadResponse {
+    url: string;
+    [key: string]: unknown;
+  }
+
+  interface CampaignFormSubmitData {
+    title: string;
+    description: string;
+    budget: number | string;
+    remainingBudget?: number;
+    mediaUrl: string | null;
+    mediaFile?: File | null;
+    mediaType: MediaType;
+    paymentRate: number | string;
+    paymentType: string;
+    categories: string[] | string;
+    languages: string[];
+    startDate?: string;
+    endDate?: string;
+    status?: CampaignStatus;
+    brandId?: string;
+  }
+
+  interface CampaignUpdateData {
+    title: string;
+    description: string;
+    mediaUrl?: string;
+    mediaType?: MediaType;
+    budget?: number;
+    categories: string[] | string;
+    languages: string[];
+    paymentType: string;
+    paymentRate?: number;
+    startDate?: Date;
+    endDate?: Date;
+  }
+
+  const handleSubmit = async (formData: CampaignFormSubmitData): Promise<void> => {
     setIsSubmitting(true);
     setError(null);
     
     try {
       // Upload media file first if present
-      let mediaUrl = formData.mediaUrl;
+      let mediaUrl: string = formData.mediaUrl || '';
       
       if (formData.mediaFile) {
         try {
@@ -122,7 +180,7 @@ export default function EditCampaignPage() {
             throw new Error('Failed to upload media file');
           }
           
-          const uploadResult = await uploadResponse.json();
+          const uploadResult: MediaUploadResponse = await uploadResponse.json();
           mediaUrl = uploadResult.url;
         } catch (uploadError) {
           console.error("Media upload error:", uploadError);
@@ -133,20 +191,20 @@ export default function EditCampaignPage() {
       }
       
       // Prepare campaign update data
-      const updateData = {
+      const updateData: CampaignUpdateData = {
         title: formData.title,
         description: formData.description,
         // Only update mediaUrl if a new file was uploaded
         ...(formData.mediaFile && { mediaUrl, mediaType: formData.mediaType }),
         // Don't allow direct modification of budget if campaign is active
-        ...(campaign.status === CampaignStatus.DRAFT && { 
+        ...(campaign && campaign.status === CampaignStatus.DRAFT && { 
           budget: typeof formData.budget === 'string' ? parseFloat(formData.budget) : formData.budget 
         }),
         categories: formData.categories || [],  // formData.categories is already an array
         languages: formData.languages || [],
         paymentType: formData.paymentType,
         // Only allow payment rate changes in draft mode
-        ...(campaign.status === CampaignStatus.DRAFT && { 
+        ...(campaign && campaign.status === CampaignStatus.DRAFT && { 
           paymentRate: typeof formData.paymentRate === 'string' ? parseFloat(formData.paymentRate) : formData.paymentRate 
         }),
         ...(formData.startDate && { startDate: new Date(formData.startDate) }),
@@ -154,7 +212,7 @@ export default function EditCampaignPage() {
       };
       
       // Update campaign via API
-      const response = await fetch(`/api/campaigns/${id}`, {
+      const response: Response = await fetch(`/api/campaigns/${id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -164,11 +222,11 @@ export default function EditCampaignPage() {
       });
       
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData: { message?: string } = await response.json();
         throw new Error(errorData.message || `Failed to update campaign`);
       }
       
-      const updatedCampaign = await response.json();
+      const updatedCampaign: CampaignFormData = await response.json();
       console.log('Campaign updated successfully:', updatedCampaign);
       
       setIsSuccess(true);
@@ -177,7 +235,7 @@ export default function EditCampaignPage() {
       setTimeout(() => {
         router.push(`/dashboard/campaigns/${id}`);
       }, 2000);
-    } catch (error) {
+    } catch (error: unknown) {
       console.error("Error updating campaign:", error);
       setError(error instanceof Error ? error.message : "Failed to update campaign. Please try again.");
     } finally {
@@ -254,7 +312,14 @@ export default function EditCampaignPage() {
       {campaign && (
         <Card className="p-6">
           <CampaignForm
-            initialData={campaign}
+            initialData={{
+              ...campaign,
+              categories: Array.isArray(campaign.categories)
+                ? campaign.categories
+                : campaign.categories
+                ? [campaign.categories]
+                : [],
+            }}
             isEditing={true}
             onSubmit={handleSubmit}
             isSubmitting={isSubmitting}

@@ -34,7 +34,6 @@ const campaignSchema = new mongoose_1.Schema({
         enum: ['cpm', 'fixed'],
         required: true
     },
-<<<<<<< HEAD
     // Admin review fields
     submittedForReviewAt: { type: Date },
     approvedAt: { type: Date },
@@ -49,7 +48,10 @@ const campaignSchema = new mongoose_1.Schema({
         min: 1, // Minimum 1 hour
         max: 8760 // Maximum 1 year (365 * 24 hours)
     },
->>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
+    // Campaign completion fields
+    completedAt: { type: Date },
+    completionReason: { type: String },
+    finalEarningsTransferred: { type: Number, default: 0 },
 }, { timestamps: true });
 // Create indexes for efficient queries
 campaignSchema.index({ status: 1 });
