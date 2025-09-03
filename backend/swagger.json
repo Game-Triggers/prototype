@@ -1861,7 +1861,6 @@
             "name": "campaignId",
             "required": true,
             "in": "path",
-            "description": "Campaign ID",
             "schema": {
               "type": "string"
             }

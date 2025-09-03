@@ -13,10 +13,10 @@ export declare const CampaignParticipationSchema: Schema<ICampaignParticipation,
 }> & {
     __v: number;
 }>;
-export declare function getCampaignParticipationModel(): Model<ICampaignParticipation>;
+export declare function getCampaignParticipationModel(): Model<ICampaignParticipation> | null;
 export declare const CampaignParticipation: Model<ICampaignParticipation, {}, {}, {}, import("mongoose").Document<unknown, {}, ICampaignParticipation, {}, {}> & ICampaignParticipation & Required<{
     _id: import("mongoose").Types.ObjectId;
 }> & {
     __v: number;
-}, any>;
+}, any> | null;
 //# sourceMappingURL=campaign-participation.schema.d.ts.map

@@ -16,7 +16,7 @@ export interface IGKey extends Document {
 }
 
 export const GKeySchema = new Schema<IGKey>({
-  userId: { type: String, required: true, index: true },
+  userId: { type: String, required: true },
   category: { type: String, required: true },
   status: { 
     type: String, 

@@ -72,9 +72,11 @@ export interface ICampaignData {
     rejectedAt?: Date;
     rejectedBy?: string;
     rejectionReason?: string;
-=======
+
     gKeyCooloffHours?: number;
->>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
+    completedAt?: Date;
+    completionReason?: 'impressions_target_reached' | 'manual_completion' | 'campaign_ended' | 'budget_exhausted';
+    finalEarningsTransferred?: boolean;
     activeStreamers?: number;
     impressions?: number;
     viewerImpressions?: number;
@@ -117,6 +119,11 @@ export interface ICampaignParticipationData {
     resumedAt?: Date;
     removedAt?: Date;
     removedBy?: string;
+    completedAt?: Date;
+    completionReason?: 'impressions_target_reached' | 'manual_completion' | 'campaign_ended' | 'budget_exhausted';
+    finalEarnings?: number;
+    earningsTransferredAt?: Date;
+    finalEarningsTransferred?: boolean;
     removalReason?: 'violation' | 'fraud' | 'admin_decision' | 'brand_decision';
     earningsForfeited?: boolean;
     trackingUrl?: string;

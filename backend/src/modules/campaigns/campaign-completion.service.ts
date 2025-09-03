@@ -39,7 +39,7 @@ interface CompletionEvaluation {
   reason?: string;
 }
 
-interface EarningsCalculation {
+export interface EarningsCalculation {
   impressions: number;
   totalImpressions?: number;
   paymentRate: number;

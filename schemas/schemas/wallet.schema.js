@@ -42,7 +42,7 @@ var PaymentMethod;
     PaymentMethod["WALLET"] = "wallet";
 })(PaymentMethod || (exports.PaymentMethod = PaymentMethod = {}));
 const walletSchema = new mongoose_1.Schema({
-    userId: { type: String, required: true, unique: true },
+    userId: { type: String, required: true },
     walletType: {
         type: String,
         enum: Object.values(WalletType),
@@ -91,7 +91,7 @@ const transactionSchema = new mongoose_1.Schema({
     approvedBy: { type: String },
 }, { timestamps: true });
 // Create indexes for efficient queries
-walletSchema.index({ userId: 1 });
+walletSchema.index({ userId: 1 }, { unique: true });
 walletSchema.index({ walletType: 1 });
 walletSchema.index({ isActive: 1 });
 transactionSchema.index({ walletId: 1 });

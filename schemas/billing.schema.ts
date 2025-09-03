@@ -161,7 +161,7 @@ const disputeCommentSchema = new Schema<IDisputeComment>({
 
 const disputeSchema = new Schema<IDispute>(
   {
-    disputeId: { type: String, required: true, unique: true },
+    disputeId: { type: String, required: true },
     raisedBy: { type: String, required: true },
     disputeType: { 
       type: String, 
@@ -224,7 +224,7 @@ const invoiceLineItemSchema = new Schema<IInvoiceLineItem>({
 
 const invoiceSchema = new Schema<IInvoice>(
   {
-    invoiceNumber: { type: String, required: true, unique: true },
+    invoiceNumber: { type: String, required: true },
     brandId: { type: String, required: true },
     
     // Invoice details
@@ -277,14 +277,14 @@ const invoiceSchema = new Schema<IInvoice>(
 );
 
 // Create indexes
-disputeSchema.index({ disputeId: 1 });
+disputeSchema.index({ disputeId: 1 }, { unique: true });
 disputeSchema.index({ raisedBy: 1 });
 disputeSchema.index({ status: 1 });
 disputeSchema.index({ priority: 1 });
 disputeSchema.index({ assignedTo: 1 });
 disputeSchema.index({ createdAt: -1 });
 
-invoiceSchema.index({ invoiceNumber: 1 });
+invoiceSchema.index({ invoiceNumber: 1 }, { unique: true });
 invoiceSchema.index({ brandId: 1 });
 invoiceSchema.index({ status: 1 });
 invoiceSchema.index({ invoiceDate: -1 });

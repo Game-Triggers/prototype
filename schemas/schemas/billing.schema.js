@@ -51,7 +51,7 @@ const disputeCommentSchema = new mongoose_1.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 const disputeSchema = new mongoose_1.Schema({
-    disputeId: { type: String, required: true, unique: true },
+    disputeId: { type: String, required: true },
     raisedBy: { type: String, required: true },
     disputeType: {
         type: String,
@@ -103,7 +103,7 @@ const invoiceLineItemSchema = new mongoose_1.Schema({
     metadata: { type: mongoose_1.Schema.Types.Mixed, default: {} }
 });
 const invoiceSchema = new mongoose_1.Schema({
-    invoiceNumber: { type: String, required: true, unique: true },
+    invoiceNumber: { type: String, required: true },
     brandId: { type: String, required: true },
     // Invoice details
     invoiceDate: { type: Date, required: true },
@@ -146,13 +146,13 @@ const invoiceSchema = new mongoose_1.Schema({
     invoicePdfUrl: { type: String }
 }, { timestamps: true });
 // Create indexes
-disputeSchema.index({ disputeId: 1 });
+disputeSchema.index({ disputeId: 1 }, { unique: true });
 disputeSchema.index({ raisedBy: 1 });
 disputeSchema.index({ status: 1 });
 disputeSchema.index({ priority: 1 });
 disputeSchema.index({ assignedTo: 1 });
 disputeSchema.index({ createdAt: -1 });
-invoiceSchema.index({ invoiceNumber: 1 });
+invoiceSchema.index({ invoiceNumber: 1 }, { unique: true });
 invoiceSchema.index({ brandId: 1 });
 invoiceSchema.index({ status: 1 });
 invoiceSchema.index({ invoiceDate: -1 });
