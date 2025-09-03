@@ -46,6 +46,69 @@ export interface IUserData {
     category?: string[];
     language?: string[];
     description?: string;
+    isActive?: boolean;
+    overlaySettings?: {
+        position?: string;
+        size?: string;
+        opacity?: number;
+        backgroundColor?: string;
+    };
+    overlayToken?: string;
+    overlayLastSeen?: Date;
+    overlayActive?: boolean;
+    campaignSelectionStrategy?: string;
+    campaignRotationSettings?: {
+        preferredStrategy: 'fair-rotation' | 'weighted' | 'time-rotation' | 'performance' | 'revenue-optimized';
+        rotationIntervalMinutes: number;
+        priorityWeights: {
+            paymentRate: number;
+            performance: number;
+            fairness: number;
+        };
+        blackoutPeriods?: Array<{
+            startTime: string;
+            endTime: string;
+            days: string[];
+        }>;
+    };
+    testCampaign?: {
+        title: string;
+        mediaUrl: string;
+        mediaType: string;
+        testMode: boolean;
+        expiresAt: Date;
+    };
+    streakCurrent?: number;
+    streakLongest?: number;
+    streakLastDate?: Date | null;
+    streakHistory?: Date[];
+    energyPacks?: {
+        current: number;
+        maximum: number;
+        lastReset: Date;
+        dailyUsed: number;
+    };
+    xp?: {
+        total: number;
+        level: number;
+        earnedToday: number;
+        lastEarned: Date | null;
+        activities: Array<{
+            type: string;
+            amount: number;
+            earnedAt: Date;
+        }>;
+    };
+    rp?: {
+        total: number;
+        earnedToday: number;
+        lastEarned: Date | null;
+        activities: Array<{
+            type: string;
+            amount: number;
+            earnedAt: Date;
+        }>;
+    };
     createdAt?: Date;
     updatedAt?: Date;
 }
@@ -65,14 +128,12 @@ export interface ICampaignData {
     endDate?: Date;
     paymentRate: number;
     paymentType: 'cpm' | 'fixed';
-<<<<<<< HEAD
     submittedForReviewAt?: Date;
     approvedAt?: Date;
     approvedBy?: string;
     rejectedAt?: Date;
     rejectedBy?: string;
     rejectionReason?: string;
-
     gKeyCooloffHours?: number;
     completedAt?: Date;
     completionReason?: 'impressions_target_reached' | 'manual_completion' | 'campaign_ended' | 'budget_exhausted';

@@ -622,8 +622,6 @@ export class CampaignsService {
       throw new BadRequestException(
         error.message ||
           'Failed to consume energy pack. You need energy packs to join campaigns.',
-<<<<<<< HEAD
-=======
       );
     }
 
@@ -635,7 +633,6 @@ export class CampaignsService {
       throw new BadRequestException(
         error.message ||
           'No available keys for this campaign category.',
->>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
       );
     }
 

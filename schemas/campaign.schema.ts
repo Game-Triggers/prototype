@@ -38,7 +38,6 @@ const campaignSchema = new Schema<ICampaign>(
       enum: ['cpm', 'fixed'], 
       required: true 
     },
-<<<<<<< HEAD
     // Admin review fields
     submittedForReviewAt: { type: Date },
     approvedAt: { type: Date },
@@ -46,7 +45,6 @@ const campaignSchema = new Schema<ICampaign>(
     rejectedAt: { type: Date },
     rejectedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     rejectionReason: { type: String },
-=======
     gKeyCooloffHours: {
       type: Number,
       default: 720, // Default 30 days (720 hours) if not specified
@@ -57,7 +55,6 @@ const campaignSchema = new Schema<ICampaign>(
     completedAt: { type: Date },
     completionReason: { type: String },
     finalEarningsTransferred: { type: Number, default: 0 },
->>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
   },
   { timestamps: true }
 );

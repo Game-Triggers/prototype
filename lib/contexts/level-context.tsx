@@ -67,11 +67,6 @@ export function LevelProvider({ children }: { children: React.ReactNode }) {
     console.log('Level context: Calling checkLevelUp via Next.js API route');
 
     try {
-<<<<<<< HEAD
-=======
-      // Use direct fetch to the Next.js API route instead of the API client
-      // This ensures proper session cookie handling
->>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
       const response = await fetch('/api/users/me/level/check', {
         method: 'POST',
         headers: {
@@ -79,14 +74,6 @@ export function LevelProvider({ children }: { children: React.ReactNode }) {
         },
       });
 
-<<<<<<< HEAD
-      if (response.ok) {
-        const result = await response.json() as {
-          leveledUp: boolean;
-          oldLevel: number;
-          newLevel: number;
-        };
-=======
       if (!response.ok) {
         // If it's a 401, the session might be expired - just ignore silently
         if (response.status === 401) {
@@ -108,28 +95,18 @@ export function LevelProvider({ children }: { children: React.ReactNode }) {
         if (newLevelInfo) {
           setLevelData(newLevelInfo);
         }
->>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
         
-        if (result.leveledUp) {
-          // Refresh the level data
-          const newLevelInfo = calculateLevel();
-          if (newLevelInfo) {
-            setLevelData(newLevelInfo);
-          }
-          
-          // Show level up notification
-          if (typeof window !== 'undefined') {
-            window.dispatchEvent(new CustomEvent('levelUp', {
-              detail: {
-                oldLevel: result.oldLevel,
-                newLevel: result.newLevel
-              }
-            }));
-          }
+        // Show level up notification
+        if (typeof window !== 'undefined') {
+          window.dispatchEvent(new CustomEvent('levelUp', {
+            detail: {
+              oldLevel: result.oldLevel,
+              newLevel: result.newLevel
+            }
+          }));
         }
-      } else {
-        console.error('Level check failed:', response.status, response.statusText);
       }
+      // No else block needed - successful response with leveledUp: false is normal
     } catch (error) {
       console.error('Failed to check for level up:', error);
       // Don't throw the error - just log it and continue

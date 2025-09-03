@@ -26,10 +26,7 @@ export class LevelService {
     // Simplified level calculation for now
     let currentLevel = 1;
     const combinedPoints = totalXP + totalRP;
-<<<<<<< HEAD
-
-=======
->>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
+    
     if (combinedPoints >= 5500) currentLevel = 10;
     else if (combinedPoints >= 4000) currentLevel = 9;
     else if (combinedPoints >= 3000) currentLevel = 8;
