@@ -34,6 +34,7 @@ const campaignSchema = new mongoose_1.Schema({
         enum: ['cpm', 'fixed'],
         required: true
     },
+<<<<<<< HEAD
     // Admin review fields
     submittedForReviewAt: { type: Date },
     approvedAt: { type: Date },
@@ -41,6 +42,14 @@ const campaignSchema = new mongoose_1.Schema({
     rejectedAt: { type: Date },
     rejectedBy: { type: mongoose_1.Schema.Types.ObjectId, ref: 'User' },
     rejectionReason: { type: String },
+=======
+    gKeyCooloffHours: {
+        type: Number,
+        default: 720, // Default 30 days (720 hours) if not specified
+        min: 1, // Minimum 1 hour
+        max: 8760 // Maximum 1 year (365 * 24 hours)
+    },
+>>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
 }, { timestamps: true });
 // Create indexes for efficient queries
 campaignSchema.index({ status: 1 });

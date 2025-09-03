@@ -708,7 +708,6 @@
         ]
       }
     },
- 
     "/api/v1/auth/register": {
       "post": {
         "description": "Create a new user account with email/password or social provider",
@@ -1559,12 +1558,22 @@
         ]
       }
     },
+<<<<<<< HEAD
     "/api/v1/campaigns/{id}/approve": {
       "post": {
         "operationId": "CampaignsController_approveCampaign",
         "parameters": [
           {
             "name": "id",
+=======
+    "/api/v1/campaigns/{campaignId}/completion-status": {
+      "get": {
+        "description": "Retrieve detailed completion criteria and current status for a campaign",
+        "operationId": "CampaignsController_getCampaignCompletionStatus",
+        "parameters": [
+          {
+            "name": "campaignId",
+>>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
             "required": true,
             "in": "path",
             "description": "Campaign ID",
@@ -1575,6 +1584,7 @@
         ],
         "responses": {
           "200": {
+<<<<<<< HEAD
             "description": "Campaign approved and activated successfully"
           },
           "400": {
@@ -1623,10 +1633,73 @@
                     "type": "string",
                     "description": "Reason for rejection",
                     "example": "Content does not meet platform guidelines"
+=======
+            "description": "Campaign completion status retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "campaignId": {
+                      "type": "string"
+                    },
+                    "status": {
+                      "type": "string",
+                      "enum": [
+                        "draft",
+                        "active",
+                        "paused",
+                        "completed",
+                        "cancelled"
+                      ]
+                    },
+                    "isEligibleForCompletion": {
+                      "type": "boolean"
+                    },
+                    "completionReason": {
+                      "type": "string"
+                    },
+                    "metrics": {
+                      "type": "object",
+                      "properties": {
+                        "totalImpressions": {
+                          "type": "number"
+                        },
+                        "totalClicks": {
+                          "type": "number"
+                        },
+                        "activeParticipants": {
+                          "type": "number"
+                        },
+                        "budgetUsedPercentage": {
+                          "type": "string"
+                        },
+                        "remainingBudget": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "criteria": {
+                      "type": "object",
+                      "properties": {
+                        "impressionTarget": {
+                          "type": "number"
+                        },
+                        "budgetThreshold": {
+                          "type": "number"
+                        }
+                      }
+                    },
+                    "lastChecked": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+>>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
                   }
                 }
               }
             }
+<<<<<<< HEAD
           }
         },
         "responses": {
@@ -1638,6 +1711,8 @@
           },
           "403": {
             "description": "Forbidden - Admin access required"
+=======
+>>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
           },
           "404": {
             "description": "Campaign not found"
@@ -1648,7 +1723,157 @@
             "bearer": []
           }
         ],
+<<<<<<< HEAD
         "summary": "Admin rejects a pending campaign",
+=======
+        "summary": "Get campaign completion status",
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/completion-check/trigger": {
+      "post": {
+        "description": "Trigger an immediate check of all campaigns for completion criteria (Admin only)",
+        "operationId": "CampaignsController_triggerCampaignCompletionCheck",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Campaign completion check triggered successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": {
+                      "type": "boolean"
+                    },
+                    "message": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Admin access required"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Manually trigger campaign completion check",
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/{campaignId}/completion-check": {
+      "post": {
+        "description": "Check if a specific campaign meets completion criteria and mark it complete if applicable",
+        "operationId": "CampaignsController_checkCampaignCompletion",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "description": "Campaign ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Campaign completion check completed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "campaignId": {
+                      "type": "string"
+                    },
+                    "wasCompleted": {
+                      "type": "boolean"
+                    },
+                    "reason": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Insufficient permissions"
+          },
+          "404": {
+            "description": "Campaign not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Check specific campaign for completion",
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/{campaignId}/debug-impressions": {
+      "get": {
+        "description": "Get detailed impression data for debugging campaign completion issues",
+        "operationId": "CampaignsController_debugCampaignImpressions",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "description": "Campaign ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Debug campaign impression data",
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/{campaignId}/completion-details": {
+      "get": {
+        "description": "Get detailed completion information including earnings transferred to withdrawable balance",
+        "operationId": "CampaignsController_getCampaignCompletionDetails",
+        "parameters": [
+          {
+            "name": "campaignId",
+            "required": true,
+            "in": "path",
+            "description": "Campaign ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "summary": "Get campaign completion details and earnings",
+>>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
         "tags": [
           "campaigns"
         ]
@@ -3113,6 +3338,201 @@
         "summary": "Test low budget warning notification",
         "tags": [
           "admin-test-notifications"
+        ]
+      }
+    },
+    "/api/v1/g-keys/debug/categories": {
+      "get": {
+        "description": "Get all available G-key categories for debugging",
+        "operationId": "GKeyController_getDebugCategories",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Debug: Get all categories",
+        "tags": [
+          "G-Keys"
+        ]
+      }
+    },
+    "/api/v1/g-keys": {
+      "get": {
+        "description": "Get all keys for the authenticated user",
+        "operationId": "GKeyController_getUserKeys",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Keys retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get user keys",
+        "tags": [
+          "G-Keys"
+        ]
+      }
+    },
+    "/api/v1/g-keys/summary": {
+      "get": {
+        "description": "Get keys summary with counts by status",
+        "operationId": "GKeyController_getKeysSummary",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Keys summary retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get keys summary",
+        "tags": [
+          "G-Keys"
+        ]
+      }
+    },
+    "/api/v1/g-keys/initialize": {
+      "post": {
+        "description": "Initialize keys for a user if not already done",
+        "operationId": "GKeyController_initializeKeys",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Keys initialized successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Initialize user keys",
+        "tags": [
+          "G-Keys"
+        ]
+      }
+    },
+    "/api/v1/g-keys/category/{category}": {
+      "get": {
+        "description": "Get the status of a key for a specific category",
+        "operationId": "GKeyController_getKeyStatus",
+        "parameters": [
+          {
+            "name": "category",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Key status retrieved successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get key status for category",
+        "tags": [
+          "G-Keys"
+        ]
+      }
+    },
+    "/api/v1/g-keys/available/{category}": {
+      "get": {
+        "description": "Check if user has an available key for a category",
+        "operationId": "GKeyController_hasAvailableKey",
+        "parameters": [
+          {
+            "name": "category",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Key availability checked successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Check key availability",
+        "tags": [
+          "G-Keys"
+        ]
+      }
+    },
+    "/api/v1/g-keys/update-cooloffs": {
+      "post": {
+        "description": "Update keys that have completed their cooloff period",
+        "operationId": "GKeyController_updateExpiredCooloffs",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Cooloffs updated successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update expired cooloffs",
+        "tags": [
+          "G-Keys"
+        ]
+      }
+    },
+    "/api/v1/g-keys/force-unlock/{category}": {
+      "post": {
+        "description": "Force unlock a G-key for debugging purposes",
+        "operationId": "GKeyController_forceUnlockKey",
+        "parameters": [
+          {
+            "name": "category",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "G-key force unlocked successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Force unlock G-key",
+        "tags": [
+          "G-Keys"
         ]
       }
     },
@@ -4940,12 +5360,15 @@
             "example": 150
           },
 <<<<<<< HEAD
+<<<<<<< HEAD
 
           "level": {
             "type": "number",
             "description": "Current level based on XP",
             "example": 3
           },
+=======
+>>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
           "earnedToday": {
             "type": "number",
             "description": "XP earned today",
@@ -5236,15 +5659,21 @@
             ]
           },
           "categories": {
-            "description": "Categories associated with the campaign",
+            "description": "Category associated with the campaign (brands can only select one category)",
             "example": [
-              "Gaming",
-              "Technology"
+              "Gaming"
             ],
             "type": "array",
             "items": {
               "type": "string"
             }
+          },
+          "gKeyCooloffHours": {
+            "type": "number",
+            "description": "G-Key cooloff period in hours after campaign completion",
+            "minimum": 1,
+            "maximum": 8760,
+            "example": 720
           }
         },
         "required": [

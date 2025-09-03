@@ -6,7 +6,9 @@ import { LevelService } from './services/level.service';
 import { UserSchema } from '@schemas/user.schema';
 
 @Module({
-  imports: [MongooseModule.forFeature([{ name: 'User', schema: UserSchema }])],
+  imports: [
+    MongooseModule.forFeature([{ name: 'User', schema: UserSchema }]),
+  ],
   controllers: [UsersController],
   providers: [UsersService, LevelService],
   exports: [UsersService, LevelService],

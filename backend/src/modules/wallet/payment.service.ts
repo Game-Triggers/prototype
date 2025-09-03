@@ -52,7 +52,11 @@ export class PaymentService {
 
     if (!this.isMockMode) {
       this.stripe = new Stripe(stripeSecretKey!, {
+<<<<<<< HEAD
         apiVersion: '2025-07-30.basil',
+=======
+        apiVersion: '2025-08-27.basil',
+>>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
       });
     }
   }

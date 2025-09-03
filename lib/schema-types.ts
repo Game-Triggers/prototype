@@ -76,6 +76,7 @@ export interface ICampaignData {
   endDate?: Date;
   paymentRate: number;
   paymentType: 'cpm' | 'fixed';
+<<<<<<< HEAD
   // Admin review fields
   submittedForReviewAt?: Date;
   approvedAt?: Date;
@@ -83,6 +84,13 @@ export interface ICampaignData {
   rejectedAt?: Date;
   rejectedBy?: string;
   rejectionReason?: string;
+=======
+  gKeyCooloffHours?: number; // Hours for G-Key cooloff period, defaults to 720 (30 days)
+  // Campaign completion fields
+  completedAt?: Date;
+  completionReason?: 'impressions_target_reached' | 'manual_completion' | 'campaign_ended' | 'budget_exhausted';
+  finalEarningsTransferred?: boolean;
+>>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
   // Analytics properties (computed from participations)
   activeStreamers?: number;
   impressions?: number;
@@ -134,6 +142,12 @@ export interface ICampaignParticipationData {
   resumedAt?: Date;
   removedAt?: Date;
   removedBy?: string;
+  // Campaign completion fields
+  completedAt?: Date;
+  completionReason?: 'impressions_target_reached' | 'manual_completion' | 'campaign_ended' | 'budget_exhausted';
+  finalEarnings?: number;
+  earningsTransferredAt?: Date;
+  finalEarningsTransferred?: boolean;
   removalReason?: 'violation' | 'fraud' | 'admin_decision' | 'brand_decision';
   earningsForfeited?: boolean;
   // Alternative engagement

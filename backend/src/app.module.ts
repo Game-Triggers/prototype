@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { EventEmitterModule } from '@nestjs/event-emitter';
+import { ScheduleModule } from '@nestjs/schedule';
 import { join } from 'path';
 
 import { AppController } from './app.controller';
@@ -20,6 +21,7 @@ import { WalletModule } from './modules/wallet/wallet.module';
 import { AdminModule } from './modules/admin/admin.module';
 import { ConflictRulesModule } from './modules/conflict-rules/conflict-rules.module';
 import { NotificationModule } from './modules/notifications/notification.module';
+import { GKeyModule } from './modules/g-key/g-key.module';
 
 @Module({
   imports: [
@@ -31,6 +33,9 @@ import { NotificationModule } from './modules/notifications/notification.module'
 
     // Global Event Emitter
     EventEmitterModule.forRoot(),
+
+    // Global Schedule Module for cron jobs
+    ScheduleModule.forRoot(),
 
     // MongoDB connection
     MongooseModule.forRootAsync({
@@ -50,6 +55,9 @@ import { NotificationModule } from './modules/notifications/notification.module'
           uri,
           useNewUrlParser: true,
           useUnifiedTopology: true,
+          // Add connection options to prevent app from hanging
+          serverSelectionTimeoutMS: 5000, // Timeout after 5s instead of hanging indefinitely
+          connectTimeoutMS: 5000, // Give up initial connection after 5s
         };
       },
       inject: [ConfigService],
@@ -77,6 +85,7 @@ import { NotificationModule } from './modules/notifications/notification.module'
     AdminModule,
     ConflictRulesModule,
     NotificationModule,
+    GKeyModule,
   ],
   controllers: [AppController],
   providers: [AppService],

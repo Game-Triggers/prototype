@@ -19,6 +19,7 @@
     "resolveJsonModule": true,
     "allowJs": false,
     "noEmitOnError": false,
+    "composite": true,
     "baseUrl": "../",
     "paths": {
       "@/*": ["./*"],

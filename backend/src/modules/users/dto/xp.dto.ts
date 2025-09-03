@@ -41,6 +41,7 @@ export class XPDto {
   total: number;
 
   @ApiProperty({
+<<<<<<< HEAD
     description: 'Current level based on XP',
     example: 3,
   })
@@ -48,6 +49,8 @@ export class XPDto {
   level: number;
 
   @ApiProperty({
+=======
+>>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
     description: 'XP earned today',
     example: 25,
   })
@@ -80,12 +83,15 @@ export class XPResponseDto {
   total: number;
 
   @ApiProperty({
+<<<<<<< HEAD
     description: 'Current level based on XP',
     example: 3,
   })
   level: number;
 
   @ApiProperty({
+=======
+>>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
     description: 'XP earned today',
     example: 25,
   })

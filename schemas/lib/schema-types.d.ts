@@ -65,12 +65,16 @@ export interface ICampaignData {
     endDate?: Date;
     paymentRate: number;
     paymentType: 'cpm' | 'fixed';
+<<<<<<< HEAD
     submittedForReviewAt?: Date;
     approvedAt?: Date;
     approvedBy?: string;
     rejectedAt?: Date;
     rejectedBy?: string;
     rejectionReason?: string;
+=======
+    gKeyCooloffHours?: number;
+>>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
     activeStreamers?: number;
     impressions?: number;
     viewerImpressions?: number;

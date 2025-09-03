@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Trophy, Star, TrendingUp } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useXP } from "@/lib/contexts/xp-context";
-import { getXPProgress } from "@/lib/constants/xp-constants"; // make sure this exists
+import { getXPProgress } from "@/lib/xp-constants";
 
 export function XPDisplay() {
   const { data: session } = useSession();

@@ -48,7 +48,6 @@ export interface IUser extends IUserDocument {
     };
     xp?: {
         total: number;
-        level: number;
         earnedToday: number;
         lastEarned: Date | null;
         activities: Array<{

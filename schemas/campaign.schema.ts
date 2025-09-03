@@ -1,6 +1,6 @@
 import { Schema, model, Model, models } from 'mongoose';
 // Import directly from relative path for compatibility with both Next.js and NestJS
-import { CampaignStatus, MediaType, ICampaignData } from '../lib/schema-types';
+import { CampaignStatus, MediaType } from '../lib/schema-types';
 
 // Re-export the enums for convenience
 export { CampaignStatus, MediaType };
@@ -38,6 +38,7 @@ const campaignSchema = new Schema<ICampaign>(
       enum: ['cpm', 'fixed'], 
       required: true 
     },
+<<<<<<< HEAD
     // Admin review fields
     submittedForReviewAt: { type: Date },
     approvedAt: { type: Date },
@@ -45,6 +46,18 @@ const campaignSchema = new Schema<ICampaign>(
     rejectedAt: { type: Date },
     rejectedBy: { type: Schema.Types.ObjectId, ref: 'User' },
     rejectionReason: { type: String },
+=======
+    gKeyCooloffHours: {
+      type: Number,
+      default: 720, // Default 30 days (720 hours) if not specified
+      min: 1, // Minimum 1 hour
+      max: 8760 // Maximum 1 year (365 * 24 hours)
+    },
+    // Campaign completion fields
+    completedAt: { type: Date },
+    completionReason: { type: String },
+    finalEarningsTransferred: { type: Number, default: 0 },
+>>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
   },
   { timestamps: true }
 );
@@ -59,11 +72,11 @@ campaignSchema.index({ languages: 1 });
 export const CampaignSchema = campaignSchema;
 
 // Use a function to safely get the Campaign model
-export function getCampaignModel(): Model<ICampaign> {
+export function getCampaignModel(): Model<ICampaign> | null {
   if (typeof window === 'undefined') {
     return models.Campaign || model<ICampaign>('Campaign', campaignSchema);
   }
-  return null as any;
+  return null;
 }
 
 // Define a named export for backward compatibility
