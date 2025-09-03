@@ -12,6 +12,23 @@ import { CampaignStatus, MediaType } from "@/schemas/campaign.schema";
 import { ArrowLeft, CheckCircle2, AlertCircle } from "lucide-react";
 import { campaignsApi } from "@/lib/api-client";
 
+// Backend API expects this format
+interface CampaignBackendData {
+  title: string;
+  description: string;
+  budget: number;
+  mediaUrl: string | null;
+  mediaFile?: File | null;
+  mediaType: MediaType;
+  categories?: string;
+  languages?: string[];
+  paymentType: "cpm" | "fixed";
+  paymentRate: string | number;
+  startDate?: string;
+  endDate?: string;
+  gKeyCooloffHours?: number; // Backend expects hours
+}
+
 export default function CreateCampaignPage() {
   const router = useRouter();
   const { data: session, status } = useSession();
@@ -32,23 +49,8 @@ export default function CreateCampaignPage() {
       </div>
     );
   }
-  // Define a proper type for our form data
-  interface CampaignFormData {
-    title: string;
-    description: string;
-    budget: string | number;
-    mediaUrl: string;
-    mediaFile?: File | null;
-    mediaType: MediaType;
-    categories?: string[];
-    languages?: string[];
-    paymentType: "cpm" | "fixed";
-    paymentRate: string | number;
-    startDate?: string;
-    endDate?: string;
-  }
   
-  const handleSubmit = async (formData: CampaignFormData) => {
+  const handleSubmit = async (formData: CampaignBackendData) => {
     setIsSubmitting(true);
     setError(null);
     
@@ -90,13 +92,14 @@ export default function CreateCampaignPage() {
         description: formData.description,
         brandId: session?.user?.id, // Add brandId from session
         budget: typeof formData.budget === 'string' ? parseFloat(formData.budget) : formData.budget,
-        categories: formData.categories || [],
+        categories: formData.categories || [],  // formData.categories is already an array
         languages: formData.languages || [],
         paymentType: formData.paymentType,
         paymentRate: typeof formData.paymentRate === 'string' ? parseFloat(formData.paymentRate) : formData.paymentRate,
         status: CampaignStatus.DRAFT,
         mediaType: formData.mediaType,
         mediaUrl: mediaUrl,
+        gKeyCooloffHours: formData.gKeyCooloffHours,
         // The backend requires Date objects for startDate and endDate
         ...(formData.startDate && { startDate: new Date(formData.startDate) }),
         ...(formData.endDate && { endDate: new Date(formData.endDate) }),

@@ -67,6 +67,11 @@ export function LevelProvider({ children }: { children: React.ReactNode }) {
     console.log('Level context: Calling checkLevelUp via Next.js API route');
 
     try {
+<<<<<<< HEAD
+=======
+      // Use direct fetch to the Next.js API route instead of the API client
+      // This ensures proper session cookie handling
+>>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
       const response = await fetch('/api/users/me/level/check', {
         method: 'POST',
         headers: {
@@ -74,12 +79,36 @@ export function LevelProvider({ children }: { children: React.ReactNode }) {
         },
       });
 
+<<<<<<< HEAD
       if (response.ok) {
         const result = await response.json() as {
           leveledUp: boolean;
           oldLevel: number;
           newLevel: number;
         };
+=======
+      if (!response.ok) {
+        // If it's a 401, the session might be expired - just ignore silently
+        if (response.status === 401) {
+          console.warn('Session expired while checking level up');
+          return;
+        }
+        throw new Error(`Failed to check level up: ${response.status}`);
+      }
+
+      const result = await response.json() as {
+        leveledUp: boolean;
+        oldLevel: number;
+        newLevel: number;
+      };
+      
+      if (result.leveledUp) {
+        // Refresh the level data
+        const newLevelInfo = calculateLevel();
+        if (newLevelInfo) {
+          setLevelData(newLevelInfo);
+        }
+>>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
         
         if (result.leveledUp) {
           // Refresh the level data

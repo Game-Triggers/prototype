@@ -546,5 +546,4 @@ export class UsersController {
     }
     return await this.levelService.checkForLevelUp(userId);
   }
-
 }

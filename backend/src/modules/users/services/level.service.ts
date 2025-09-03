@@ -26,7 +26,10 @@ export class LevelService {
     // Simplified level calculation for now
     let currentLevel = 1;
     const combinedPoints = totalXP + totalRP;
+<<<<<<< HEAD
 
+=======
+>>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
     if (combinedPoints >= 5500) currentLevel = 10;
     else if (combinedPoints >= 4000) currentLevel = 9;
     else if (combinedPoints >= 3000) currentLevel = 8;
@@ -55,28 +58,30 @@ export class LevelService {
       throw new NotFoundException('User not found');
     }
 
-    const currentStoredLevel = user.xp?.level || 1;
+    // Calculate levels from stored XP/RP to determine if there was a level change
+    const oldTotalXP = user.xp?.total || 0;
+    const oldTotalRP = user.rp?.total || 0;
+    const oldCombinedPoints = oldTotalXP + oldTotalRP;
+
+    // Calculate old level from previous points
+    let oldLevel = 1;
+    if (oldCombinedPoints >= 5500) oldLevel = 10;
+    else if (oldCombinedPoints >= 4000) oldLevel = 9;
+    else if (oldCombinedPoints >= 3000) oldLevel = 8;
+    else if (oldCombinedPoints >= 2200) oldLevel = 7;
+    else if (oldCombinedPoints >= 1500) oldLevel = 6;
+    else if (oldCombinedPoints >= 1000) oldLevel = 5;
+    else if (oldCombinedPoints >= 600) oldLevel = 4;
+    else if (oldCombinedPoints >= 300) oldLevel = 3;
+    else if (oldCombinedPoints >= 150) oldLevel = 2;
+
     const levelData = await this.getUserLevelData(userId);
-    const actualLevel = levelData.currentLevel;
-
-    if (actualLevel > currentStoredLevel) {
-      // Update the stored level
-      if (user.xp) {
-        user.xp.level = actualLevel;
-        await user.save();
-      }
-
-      return {
-        leveledUp: true,
-        oldLevel: currentStoredLevel,
-        newLevel: actualLevel,
-      };
-    }
+    const newLevel = levelData.currentLevel;
 
     return {
-      leveledUp: false,
-      oldLevel: currentStoredLevel,
-      newLevel: actualLevel,
+      leveledUp: newLevel > oldLevel,
+      oldLevel,
+      newLevel,
     };
   }
 }

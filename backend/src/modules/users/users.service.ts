@@ -31,7 +31,9 @@ import * as crypto from 'crypto';
 
 @Injectable()
 export class UsersService {
-  constructor(@InjectModel('User') private readonly userModel: Model<IUser>) {}
+  constructor(
+    @InjectModel('User') private readonly userModel: Model<IUser>,
+  ) {}
 
   async create(createUserDto: CreateUserDto): Promise<IUser> {
     const existingUser = await this.userModel.findOne({
@@ -42,7 +44,9 @@ export class UsersService {
     }
 
     const newUser = new this.userModel(createUserDto);
-    return newUser.save();
+    const savedUser = await newUser.save();
+
+    return savedUser;
   }
 
   async findAll(filterDto: UserFilterDto): Promise<IUser[]> {
@@ -760,7 +764,6 @@ export class UsersService {
     if (!document.xp) {
       document.xp = {
         total: 0,
-        level: 1,
         earnedToday: 0,
         lastEarned: null,
         activities: [],
@@ -771,7 +774,11 @@ export class UsersService {
     // Reset daily XP if it's a new day
     const now = new Date();
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+<<<<<<< HEAD
     const lastEarnedDate = document.xp.lastEarned
+=======
+    const lastEarnedDate = document.xp?.lastEarned
+>>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
       ? new Date(
           document.xp.lastEarned.getFullYear(),
           document.xp.lastEarned.getMonth(),
@@ -786,7 +793,10 @@ export class UsersService {
 
     return {
       total: document.xp.total,
+<<<<<<< HEAD
       level: getLevelFromXP(document.xp.total),
+=======
+>>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
       earnedToday: document.xp.earnedToday,
       lastEarned: document.xp.lastEarned,
       activities: document.xp.activities.slice(-10), // Return last 10 activities
@@ -809,7 +819,6 @@ export class UsersService {
     if (!document.xp) {
       document.xp = {
         total: 0,
-        level: 1,
         earnedToday: 0,
         lastEarned: null,
         activities: [],
@@ -836,9 +845,12 @@ export class UsersService {
     document.xp.earnedToday += amount;
     document.xp.lastEarned = now;
 
+<<<<<<< HEAD
     // Calculate new level (simple level calculation: level = floor(total / 100) + 1)
     const newLevel = Math.floor(document.xp.total / 100) + 1;
     document.xp.level = newLevel;
+=======
+>>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
     // Add to activities (keep only last 50)
     document.xp.activities.push({
       type: activityType,
@@ -854,7 +866,10 @@ export class UsersService {
 
     return {
       total: document.xp.total,
+<<<<<<< HEAD
       level: getLevelFromXP(document.xp.total),
+=======
+>>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
       earnedToday: document.xp.earnedToday,
       lastEarned: document.xp.lastEarned,
       activities: document.xp.activities.slice(-10), // Return last 10 activities
@@ -935,6 +950,7 @@ export class UsersService {
           document.rp.lastEarned.getMonth(),
           document.rp.lastEarned.getDate(),
         )
+<<<<<<< HEAD
       : null;
 
     // Reset daily RP if it's a new day
@@ -1035,6 +1051,8 @@ export class UsersService {
     const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const lastEarnedDate = document.rp.lastEarned 
       ? new Date(document.rp.lastEarned.getFullYear(), document.rp.lastEarned.getMonth(), document.rp.lastEarned.getDate())
+=======
+>>>>>>> adcedc4 (Resolve all merge conflicts - keep energy pack system implementation)
       : null;
 
     // Reset daily RP if it's a new day

@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, ChangeEvent } from "react";
+import { useState, ChangeEvent, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CampaignStatus, MediaType } from "@/schemas/campaign.schema";
-import { ImageIcon, Upload, X, AlertCircle, Info } from "lucide-react";
+import { ImageIcon, Upload, X, AlertCircle, Info, Clock, Search, Check } from "lucide-react";
 import Image from "next/image";
 import { formatCurrency, getCurrencyCode } from "@/lib/currency-config";
 
@@ -24,10 +25,27 @@ const categoriesList = [
   "Entertainment",
   "Sports",
   "Art",
+  "News",
+  "Science",
   "Health",
+  "Finance",
+  "Politics",
+  "Comedy",
+  "Drama",
+  "Documentary",
+  "Animation",
+  "Horror",
+  "Romance",
+  "Action",
+  "Adventure",
+  "Fantasy",
+  "Sci-Fi",
 ];
 
+const popularCategories = ["Gaming", "Tech", "Lifestyle", "Entertainment", "Music", "Sports"];
+
 const languagesList = [
+  "Hindi",
   "English",
   "Spanish",
   "French",
@@ -35,31 +53,74 @@ const languagesList = [
   "Italian",
   "Portuguese",
   "Russian",
+  "Chinese",
   "Japanese",
   "Korean",
-  "Chinese",
+  "Arabic",
+  "Dutch",
+  "Swedish",
+  "Norwegian",
+  "Danish",
+  "Finnish",
+  "Polish",
+  "Czech",
+  "Hungarian",
+  "Turkish",
+  "Greek",
+  "Hebrew",
+  "Thai",
+  "Vietnamese",
+  "Indonesian",
+  "Malay",
+  "Romanian",
+  "Bulgarian",
+  "Croatian",
 ];
+
+const popularLanguages = ["English", "Spanish", "French", "German", "Chinese", "Japanese"];
 
 interface CampaignFormData {
   title: string;
   description: string;
-  mediaUrl: string;
-  mediaType: MediaType;
-  mediaFile?: File | null;
   budget: number;
   paymentRate: number;
-  paymentType: "cpm" | "fixed";
+  paymentType: "fixed" | "cpm" | "cpc";
   categories: string[];
   languages: string[];
+  mediaUrl: string | null;
+  mediaFile: File | null;
+  mediaType: MediaType | null;
   startDate: string;
   endDate: string;
   status: CampaignStatus;
+  gKeyCooloffValue: number; // The numeric value (e.g., 30)
+  gKeyCooloffUnit: "hours" | "days" | "months" | "years"; // The time unit
+}
+
+// Backend API expects this format
+interface CampaignBackendData {
+  title: string;
+  description: string;
+  brandId?: string;
+  budget: number;
+  mediaUrl: string | null;
+  mediaFile?: File | null;
+  mediaType: MediaType;
+  paymentRate: number;
+  paymentType: "fixed" | "cpm";
+  categories: string[]; // Backend expects arrays, not strings
+  languages: string[]; // Backend expects arrays, not strings
+  startDate: string;
+  endDate: string;
+  status: CampaignStatus;
+  gKeyCooloffHours: number; // Backend expects hours
 }
 
 interface CampaignFormProps {
-  initialData?: Partial<CampaignFormData>;
+  onSubmit: (data: CampaignBackendData) => Promise<void>;
+  initialData?: Partial<CampaignFormData> & { gKeyCooloffHours?: number; languages?: string[]; }; // Allow hours from backend
   isEditing?: boolean;
-  onSubmit: (data: CampaignFormData) => Promise<void>;
+  className?: string;
   isSubmitting: boolean;
 }
 
@@ -69,26 +130,74 @@ export function CampaignForm({
   onSubmit,
   isSubmitting,
 }: CampaignFormProps) {
+  // Helper function to convert hours to value and unit
+  const convertHoursToValueUnit = (hours: number): { value: number; unit: "hours" | "days" | "months" | "years" } => {
+    if (hours >= 365 * 24) {
+      // Years
+      return { value: Math.round(hours / (365 * 24)), unit: "years" };
+    } else if (hours >= 30 * 24) {
+      // Months  
+      return { value: Math.round(hours / (30 * 24)), unit: "months" };
+    } else if (hours >= 24) {
+      // Days
+      return { value: Math.round(hours / 24), unit: "days" };
+    } else {
+      // Hours
+      return { value: hours, unit: "hours" };
+    }
+  };
+
+  const getInitialCooloff = () => {
+    if (initialData?.gKeyCooloffHours) {
+      return convertHoursToValueUnit(initialData.gKeyCooloffHours);
+    }
+    return { value: 30, unit: "days" as const };
+  };
+
+  const initialCooloff = getInitialCooloff();
+
   const [formData, setFormData] = useState<CampaignFormData>({
     title: initialData?.title || "",
     description: initialData?.description || "",
     mediaUrl: initialData?.mediaUrl || "",
     mediaType: initialData?.mediaType || MediaType.IMAGE,
-    mediaFile: null,
     budget: initialData?.budget || (getCurrencyCode() === 'INR' ? 1000 : 10),
     paymentRate: initialData?.paymentRate || (getCurrencyCode() === 'INR' ? 1650 : 20),
     paymentType: initialData?.paymentType || "cpm",
-    categories: initialData?.categories || [],
-    languages: initialData?.languages || [],
+    categories: Array.isArray(initialData?.categories) ? initialData.categories : [],
+    languages: Array.isArray(initialData?.languages) ? initialData.languages : [],
     startDate: initialData?.startDate || "",
     endDate: initialData?.endDate || "",
     status: initialData?.status || CampaignStatus.DRAFT,
+    gKeyCooloffValue: initialCooloff.value,
+    gKeyCooloffUnit: initialCooloff.unit,
+    mediaFile: null,
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [mediaPreview, setMediaPreview] = useState<string | null>(
     initialData?.mediaUrl || null
   );
+  const [categorySearch, setCategorySearch] = useState("");
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
+  const [languageSearch, setLanguageSearch] = useState("");
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
+
+  // Filter categories based on search
+  const filteredCategories = useMemo(() => {
+    if (!categorySearch.trim()) return categoriesList;
+    return categoriesList.filter(category =>
+      category.toLowerCase().includes(categorySearch.toLowerCase())
+    );
+  }, [categorySearch]);
+
+  // Filter languages based on search
+  const filteredLanguages = useMemo(() => {
+    if (!languageSearch.trim()) return languagesList;
+    return languagesList.filter(language =>
+      language.toLowerCase().includes(languageSearch.toLowerCase())
+    );
+  }, [languageSearch]);
 
   const handleChange = (
     e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -144,14 +253,11 @@ export function CampaignForm({
     }
   };
 
-  const handleCategoryToggle = (category: string) => {
-    const updatedCategories = formData.categories.includes(category)
-      ? formData.categories.filter((cat) => cat !== category)
-      : [...formData.categories, category];
-
+  const handleCategorySelect = (category: string) => {
+    // Only allow one category - replace existing selection
     setFormData({
       ...formData,
-      categories: updatedCategories,
+      categories: [category],
     });
 
     // Clear error for this field if it exists
@@ -163,11 +269,57 @@ export function CampaignForm({
     }
   };
 
-  const handleLanguageToggle = (language: string) => {
+  const handleCategorySearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setCategorySearch(e.target.value);
+    setShowCategoryDropdown(true);
+  };
+
+  const handleCategoryFromDropdown = (category: string) => {
+    handleCategorySelect(category);
+    setCategorySearch("");
+    setShowCategoryDropdown(false);
+  };
+
+  const removeCategoryTag = () => {
+    // Clear the selected category
+    setFormData({
+      ...formData,
+      categories: [],
+    });
+  };
+
+  const handleLanguageSelect = (language: string) => {
     const updatedLanguages = formData.languages.includes(language)
       ? formData.languages.filter((lang) => lang !== language)
       : [...formData.languages, language];
 
+    setFormData({
+      ...formData,
+      languages: updatedLanguages,
+    });
+
+    // Clear error for this field if it exists
+    if (errors.languages) {
+      setErrors({
+        ...errors,
+        languages: "",
+      });
+    }
+  };
+
+  const handleLanguageSearchChange = (e: ChangeEvent<HTMLInputElement>) => {
+    setLanguageSearch(e.target.value);
+    setShowLanguageDropdown(true);
+  };
+
+  const handleLanguageFromDropdown = (language: string) => {
+    handleLanguageSelect(language);
+    setLanguageSearch("");
+    setShowLanguageDropdown(false);
+  };
+
+  const removeLanguageTag = (languageToRemove: string) => {
+    const updatedLanguages = formData.languages.filter((lang) => lang !== languageToRemove);
     setFormData({
       ...formData,
       languages: updatedLanguages,
@@ -210,12 +362,40 @@ export function CampaignForm({
       newErrors.paymentRate = "Payment rate must be greater than 0";
     }
 
-    if (formData.categories.length === 0) {
-      newErrors.categories = "At least one category is required";
+    if (!formData.categories || formData.categories.length === 0) {
+      newErrors.categories = "Please select a category for your campaign";
+    }
+
+    if (formData.categories && formData.categories.length > 1) {
+      newErrors.categories = "Please select only one category per campaign";
+    }
+
+    if (!formData.languages || formData.languages.length === 0) {
+      newErrors.languages = "At least one language is required";
+    }
+
+    if (!formData.gKeyCooloffValue || formData.gKeyCooloffValue < 1) {
+      newErrors.gKeyCooloff = "Cooloff period must be at least 1";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
+  };
+
+  // Helper function to convert value and unit to hours
+  const convertToHours = (value: number, unit: "hours" | "days" | "months" | "years"): number => {
+    switch (unit) {
+      case "hours":
+        return value;
+      case "days":
+        return value * 24;
+      case "months":
+        return value * 30 * 24; // Approximate month as 30 days
+      case "years":
+        return value * 365 * 24; // Approximate year as 365 days
+      default:
+        return value * 24; // Default to days
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -226,7 +406,24 @@ export function CampaignForm({
     }
 
     try {
-      await onSubmit(formData);
+      // Convert to backend format
+      const backendData: CampaignBackendData = {
+        title: formData.title,
+        description: formData.description,
+        budget: formData.budget,
+        mediaUrl: formData.mediaUrl,
+        mediaType: formData.mediaType || MediaType.IMAGE,
+        paymentRate: formData.paymentRate,
+        paymentType: formData.paymentType as "fixed" | "cpm",
+        categories: formData.categories, // Send as array
+        languages: formData.languages, // Send as array
+        startDate: formData.startDate,
+        endDate: formData.endDate,
+        status: formData.status,
+        gKeyCooloffHours: convertToHours(formData.gKeyCooloffValue, formData.gKeyCooloffUnit),
+        mediaFile: formData.mediaFile,
+      };
+      await onSubmit(backendData);
     } catch (error) {
       console.error("Error submitting campaign:", error);
       setErrors({
@@ -434,49 +631,204 @@ export function CampaignForm({
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Categories
+            Category (Select One)
             {errors.categories && (
               <span className="text-red-500 text-xs ml-2">{errors.categories}</span>
             )}
           </label>
-          <div className="flex flex-wrap gap-2">
-            {categoriesList.map((category) => (
-              <button
-                key={category}
-                type="button"
-                onClick={() => handleCategoryToggle(category)}
-                className={`px-3 py-1 text-sm rounded-full ${
-                  formData.categories.includes(category)
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
-              >
-                {category}
-              </button>
-            ))}
+          
+          {/* Selected Category Tag */}
+          {formData.categories.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-3">
+              {formData.categories.map((category) => (
+                <span
+                  key={category}
+                  className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800"
+                >
+                  {category}
+                  <button
+                    type="button"
+                    onClick={() => removeCategoryTag()}
+                    className="ml-2 text-blue-600 hover:text-blue-800"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Popular Categories Quick Select */}
+          <div className="mb-3">
+            <p className="text-xs font-medium text-gray-600 mb-2">Popular Categories:</p>
+            <div className="flex flex-wrap gap-2">
+              {popularCategories.map((category) => (
+                <button
+                  key={category}
+                  type="button"
+                  onClick={() => handleCategorySelect(category)}
+                  className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+                    formData.categories.includes(category)
+                      ? 'bg-blue-100 text-blue-800 border-blue-300'
+                      : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                  }`}
+                >
+                  {category}
+                </button>
+              ))}
+            </div>
           </div>
+
+          {/* Search Input */}
+          <div className="relative">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search for a category..."
+                value={categorySearch}
+                onChange={handleCategorySearchChange}
+                onFocus={() => setShowCategoryDropdown(true)}
+                onBlur={() => {
+                  // Delay hiding to allow clicks on dropdown items
+                  setTimeout(() => setShowCategoryDropdown(false), 200);
+                }}
+                className="pl-10"
+              />
+            </div>
+
+            {/* Dropdown */}
+            {showCategoryDropdown && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                {filteredCategories.length > 0 ? (
+                  filteredCategories.map((category) => (
+                    <button
+                      key={category}
+                      type="button"
+                      onClick={() => handleCategoryFromDropdown(category)}
+                      className={`w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center justify-between text-gray-900 ${
+                        formData.categories.includes(category) ? 'bg-blue-50 text-blue-700' : ''
+                      }`}
+                    >
+                      <span className="text-sm">{category}</span>
+                      {formData.categories.includes(category) && (
+                        <Check className="h-4 w-4 text-blue-600" />
+                      )}
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-4 py-2 text-gray-500 text-sm">
+                    No categories found
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <p className="text-xs text-gray-500 mt-2">
+            Select one category that best describes your campaign. You can change your selection by clicking on a different category.
+          </p>
         </div>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Languages (Optional)
+            Languages
+            {errors.languages && (
+              <span className="text-red-500 text-xs ml-2">{errors.languages}</span>
+            )}
           </label>
-          <div className="flex flex-wrap gap-2">
-            {languagesList.map((language) => (
-              <button
-                key={language}
-                type="button"
-                onClick={() => handleLanguageToggle(language)}
-                className={`px-3 py-1 text-sm rounded-full ${
-                  formData.languages.includes(language)
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-muted-foreground hover:bg-muted/80"
-                }`}
-              >
-                {language}
-              </button>
-            ))}
+          
+          {/* Selected Languages Tags */}
+          {formData.languages.length > 0 && (
+            <div className="flex flex-wrap gap-2 mb-3">
+              {formData.languages.map((language) => (
+                <span
+                  key={language}
+                  className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
+                >
+                  {language}
+                  <button
+                    type="button"
+                    onClick={() => removeLanguageTag(language)}
+                    className="ml-2 text-green-600 hover:text-green-800"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Popular Languages Quick Select */}
+          <div className="mb-3">
+            <p className="text-xs font-medium text-gray-600 mb-2">Popular Languages:</p>
+            <div className="flex flex-wrap gap-2">
+              {popularLanguages.map((language) => (
+                <button
+                  key={language}
+                  type="button"
+                  onClick={() => handleLanguageSelect(language)}
+                  className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+                    formData.languages.includes(language)
+                      ? 'bg-green-100 text-green-800 border-green-300'
+                      : 'bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100'
+                  }`}
+                >
+                  {language}
+                </button>
+              ))}
+            </div>
           </div>
+
+          {/* Search Input */}
+          <div className="relative">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <Input
+                type="text"
+                placeholder="Search languages..."
+                value={languageSearch}
+                onChange={handleLanguageSearchChange}
+                onFocus={() => setShowLanguageDropdown(true)}
+                onBlur={() => {
+                  // Delay hiding to allow clicks on dropdown items
+                  setTimeout(() => setShowLanguageDropdown(false), 200);
+                }}
+                className="pl-10"
+              />
+            </div>
+
+            {/* Dropdown */}
+            {showLanguageDropdown && (
+              <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-48 overflow-y-auto">
+                {filteredLanguages.length > 0 ? (
+                  filteredLanguages.map((language) => (
+                    <button
+                      key={language}
+                      type="button"
+                      onClick={() => handleLanguageFromDropdown(language)}
+                      className={`w-full text-left px-4 py-2 hover:bg-gray-100 flex items-center justify-between text-gray-900 ${
+                        formData.languages.includes(language) ? 'bg-green-50 text-green-700' : ''
+                      }`}
+                    >
+                      <span className="text-sm">{language}</span>
+                      {formData.languages.includes(language) && (
+                        <Check className="h-4 w-4 text-green-600" />
+                      )}
+                    </button>
+                  ))
+                ) : (
+                  <div className="px-4 py-2 text-gray-500 text-sm">
+                    No languages found
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          <p className="text-xs text-gray-500 mt-2">
+            Use popular languages above or search for specific ones. You can select multiple languages.
+          </p>
         </div>
       </div>
 
@@ -516,6 +868,85 @@ export function CampaignForm({
               onChange={handleChange}
               min={formData.startDate}
             />
+          </div>
+        </div>
+      </div>
+
+      {/* G-Key Settings Section */}
+      <div className="space-y-4">
+        <h2 className="text-lg font-semibold flex items-center">
+          <Clock className="h-5 w-5 mr-2" />
+          G-Key Cooloff Period
+        </h2>
+        
+        <div className="space-y-3">
+          <label className="block text-sm font-medium text-gray-700">
+            How long should streamers wait before using another G-Key for this category after completing your campaign?
+          </label>
+          
+          <div className="flex gap-3 max-w-sm">
+            <div className="flex-1">
+              <Input
+                type="number"
+                name="gKeyCooloffValue"
+                value={formData.gKeyCooloffValue || ""}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setFormData({
+                    ...formData,
+                    gKeyCooloffValue: value === "" ? 0 : parseInt(value) || 0
+                  });
+                }}
+                min="1"
+                className="w-full"
+                placeholder="Enter number"
+              />
+              {errors.gKeyCooloff && (
+                <p className="text-red-500 text-xs mt-1">{errors.gKeyCooloff}</p>
+              )}
+            </div>
+            
+            <div className="w-32">
+              <Select
+                value={formData.gKeyCooloffUnit}
+                onValueChange={(value: "hours" | "days" | "months" | "years") =>
+                  setFormData({
+                    ...formData,
+                    gKeyCooloffUnit: value,
+                  })
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="hours">Hours</SelectItem>
+                  <SelectItem value="days">Days</SelectItem>
+                  <SelectItem value="months">Months</SelectItem>
+                  <SelectItem value="years">Years</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          
+          <div className="p-3 bg-blue-50 rounded-md flex">
+            <Info className="h-5 w-5 text-blue-500 mr-2 flex-shrink-0" />
+            <div className="text-xs text-blue-700">
+              <p className="font-medium mb-1">About G-Key Cooloff Periods & Same Brand Benefits:</p>
+              <p className="mb-2">
+                G-Keys prevent streamers from promoting multiple competing campaigns simultaneously. 
+                The cooloff period you choose determines how long streamers must wait before they can 
+                use another G-Key in the same category ({formData.categories.length > 0 ? formData.categories[0] : 'selected category'}) 
+                after completing your campaign. Selected period: <strong>
+                  {formData.gKeyCooloffValue > 0 ? `${formData.gKeyCooloffValue} ${formData.gKeyCooloffUnit}` : 'Not set'}
+                </strong>
+              </p>
+              <p className="text-green-700 bg-green-50 p-2 rounded border-l-2 border-green-300">
+                <strong>Same Brand Advantage:</strong> Streamers who complete campaigns from your brand can join 
+                new campaigns from your brand in the same category immediately, without waiting for the cooloff period. 
+                When they complete multiple campaigns from your brand, they&apos;ll serve the highest cooloff period among all your campaigns.
+              </p>
+            </div>
           </div>
         </div>
       </div>

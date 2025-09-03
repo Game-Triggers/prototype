@@ -8,11 +8,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { CampaignStatus } from "@/schemas/campaign.schema";
 import { ParticipationStatus } from "@/schemas/campaign-participation.schema";
-import { CheckCircle, Clock, Image as ImageIcon, Play, Users } from "lucide-react";
+import { CheckCircle, Clock, Image as ImageIcon, Play, Users, Lock, AlertTriangle } from "lucide-react";
+import { apiClient } from "@/lib/api-client";
+import { useSession } from "next-auth/react";
 import Image from "next/image";
 import Link from "next/link";
+import { useState, useEffect } from "react";
 
 interface CampaignCardProps {
   campaign: {

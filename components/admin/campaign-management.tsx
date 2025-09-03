@@ -35,6 +35,7 @@ import {
   Eye,
   TrendingUp,
 } from 'lucide-react';
+import CampaignCompletionMonitor from './campaign-completion-monitor';
 
 interface Campaign {
   _id: string;
@@ -290,6 +291,9 @@ export function CampaignManagement() {
 
   return (
     <div className="space-y-6">
+      {/* Campaign Completion Monitor */}
+      <CampaignCompletionMonitor showAllCampaigns={true} />
+      
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

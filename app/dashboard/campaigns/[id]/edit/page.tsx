@@ -67,7 +67,7 @@ export default function EditCampaignPage() {
           mediaType: campaignData.mediaType || MediaType.IMAGE,
           paymentRate: campaignData.paymentRate || 0,
           paymentType: campaignData.paymentType || 'cpm',
-          categories: campaignData.categories || [],
+          categories: campaignData.categories && campaignData.categories.length > 0 ? campaignData.categories[0] : "",
           languages: campaignData.languages || [],
           startDate: formatDateForInput(campaignData.startDate),
           endDate: formatDateForInput(campaignData.endDate),
@@ -142,7 +142,7 @@ export default function EditCampaignPage() {
         ...(campaign.status === CampaignStatus.DRAFT && { 
           budget: typeof formData.budget === 'string' ? parseFloat(formData.budget) : formData.budget 
         }),
-        categories: formData.categories || [],
+        categories: formData.categories || [],  // formData.categories is already an array
         languages: formData.languages || [],
         paymentType: formData.paymentType,
         // Only allow payment rate changes in draft mode
