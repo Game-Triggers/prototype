@@ -59,7 +59,7 @@ export interface IWallet {
 
 const walletSchema = new Schema<IWallet>(
   {
-    userId: { type: String, required: true },
+    userId: { type: String, required: true, unique: true },
     walletType: { 
       type: String, 
       enum: Object.values(WalletType), 
