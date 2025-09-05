@@ -1036,6 +1036,26 @@ export class CampaignsService {
       await campaign.save();
     }
 
+    // Check if this impression might trigger campaign completion
+    // Dynamic checking based on impression count to balance responsiveness and performance
+    let shouldCheckCompletion = false;
+    
+    if (updateResult.impressions <= 1000) {
+      // For low impression campaigns, check every 50 impressions
+      shouldCheckCompletion = updateResult.impressions % 50 === 0;
+    } else if (updateResult.impressions <= 10000) {
+      // For medium impression campaigns, check every 100 impressions
+      shouldCheckCompletion = updateResult.impressions % 100 === 0;
+    } else {
+      // For high impression campaigns, check every 500 impressions
+      shouldCheckCompletion = updateResult.impressions % 500 === 0;
+    }
+    
+    if (shouldCheckCompletion) {
+      // Asynchronously check for campaign completion without blocking the response
+      this.checkCampaignCompletionAsync(campaign._id.toString());
+    }
+
     return { success: true };
   }
 
@@ -1063,6 +1083,26 @@ export class CampaignsService {
     }
 
     return { success: true };
+  }
+
+  /**
+   * Asynchronously check campaign completion without blocking response
+   * This method uses event emission to avoid circular dependency issues
+   */
+  private checkCampaignCompletionAsync(campaignId: string): void {
+    try {
+      // Emit an event for campaign completion check
+      // The completion service will handle this event
+      this.eventEmitter.emit('campaign.check_completion', {
+        campaignId,
+        triggeredBy: 'impression_milestone',
+        timestamp: new Date(),
+      });
+    } catch (error) {
+      this.logger.warn(
+        `Failed to trigger campaign completion check for ${campaignId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
+    }
   }
 
   /**

@@ -342,6 +342,101 @@ export class GKeyService {
   }
 
   /**
+   * Debug key status with detailed analysis
+   */
+  async debugKeyStatus(
+    userId: string,
+    category: string,
+  ): Promise<{
+    userId: string;
+    category: string;
+    status: string;
+    lockedWith?: string;
+    lockedAt?: Date;
+    cooloffEndsAt?: Date;
+    lastBrandId?: string;
+    lastUsed?: Date;
+    usageCount: number;
+    cooloffAnalysis?: {
+      hasExpired: boolean;
+      timeUntilExpiry: number;
+      minutesUntilExpiry: number;
+    };
+    campaignAnalysis?: {
+      campaignExists: boolean;
+      campaignTitle?: string;
+      campaignStatus?: string;
+      campaignCategories?: string[];
+    };
+    activeCampaignsInCategory: Array<{
+      id: string;
+      title: string;
+      status: string;
+      categories: string[];
+    }>;
+  }> {
+    const key = await this.gKeyModel.findOne({ userId, category }).exec();
+
+    if (!key) {
+      throw new NotFoundException('Key not found');
+    }
+
+    const result: any = {
+      userId,
+      category: key.category,
+      status: key.status,
+      lockedWith: key.lockedWith,
+      lockedAt: key.lockedAt,
+      cooloffEndsAt: key.cooloffEndsAt,
+      lastBrandId: key.lastBrandId,
+      lastUsed: key.lastUsed,
+      usageCount: key.usageCount || 0,
+      activeCampaignsInCategory: [],
+    };
+
+    // Analyze cooloff status
+    if (key.status === 'cooloff' && key.cooloffEndsAt) {
+      const now = new Date();
+      const cooloffEnd = new Date(key.cooloffEndsAt);
+      result.cooloffAnalysis = {
+        hasExpired: now > cooloffEnd,
+        timeUntilExpiry: cooloffEnd.getTime() - now.getTime(),
+        minutesUntilExpiry: Math.round(
+          (cooloffEnd.getTime() - now.getTime()) / (1000 * 60),
+        ),
+      };
+    }
+
+    // Analyze locked status
+    if (key.status === 'locked' && key.lockedWith) {
+      const campaign = await this.campaignModel.findById(key.lockedWith).exec();
+      result.campaignAnalysis = {
+        campaignExists: !!campaign,
+        campaignTitle: campaign?.title,
+        campaignStatus: campaign?.status,
+        campaignCategories: campaign?.categories,
+      };
+    }
+
+    // Check for active gaming campaigns
+    const activeCampaigns = await this.campaignModel
+      .find({
+        status: { $in: ['active', 'approved'] },
+        categories: { $regex: new RegExp(category, 'i') },
+      })
+      .exec();
+
+    result.activeCampaignsInCategory = activeCampaigns.map((c) => ({
+      id: c._id.toString(),
+      title: c.title,
+      status: c.status,
+      categories: c.categories || [],
+    }));
+
+    return result;
+  }
+
+  /**
    * Get keys summary for dashboard with cooloff time remaining
    */
   async getKeysSummary(userId: string): Promise<{

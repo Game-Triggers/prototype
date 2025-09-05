@@ -23,6 +23,8 @@ import {
 import { CampaignsService } from './campaigns.service';
 import { CampaignCompletionService } from './campaign-completion.service';
 import { CampaignCompletionTaskService } from './campaign-completion-task.service';
+import { CampaignMonitoringService } from './campaign-monitoring.service';
+import { GKeyService } from '../g-key/g-key.service';
 import {
   CreateCampaignDto,
   UpdateCampaignDto,
@@ -69,11 +71,17 @@ export class CampaignsController {
     private readonly campaignsService: CampaignsService,
     private readonly campaignCompletionService: CampaignCompletionService,
     private readonly campaignCompletionTaskService: CampaignCompletionTaskService,
+    private readonly campaignMonitoringService: CampaignMonitoringService,
+    private readonly gKeyService: GKeyService,
   ) {
     // Force instantiation of task service
     console.log(
       '=== CampaignsController constructor - Task service injected:',
       this.campaignCompletionTaskService.constructor.name,
+    );
+    console.log(
+      '=== CampaignsController constructor - Monitoring service injected:',
+      this.campaignMonitoringService.constructor.name,
     );
   }
 
@@ -286,6 +294,24 @@ export class CampaignsController {
   }
 
   /**
+   * Admin approve a campaign (Admin only)
+   */
+  @Post(':id/approve')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({ summary: 'Admin approve a campaign' })
+  @ApiParam({ name: 'id', description: 'Campaign ID' })
+  @ApiResponse({ status: 200, description: 'Campaign approved successfully' })
+  @ApiResponse({ status: 400, description: 'Bad request' })
+  @ApiResponse({ status: 403, description: 'Admin access required' })
+  @ApiResponse({ status: 404, description: 'Campaign not found' })
+  @ApiBearerAuth()
+  async approveCampaign(@Param('id') id: string, @Req() req: RequestWithUser) {
+    const adminId = this.getUserId(req);
+    return this.campaignsService.approveCampaign(id, adminId);
+  }
+
+  /**
    * Activate a draft campaign
    */
   @Post(':id/activate')
@@ -468,7 +494,9 @@ export class CampaignsController {
   @ApiOperation({
     summary: 'Get campaign completion status',
     description:
-      'Retrieve detailed completion criteria and current status for a campaign',
+      'Retrieve detailed completion criteria and current status for a campaign. ' +
+      'Campaigns are automatically completed when streamers achieve the impression targets set by brands, ' +
+      'and earnings are immediately transferred to streamer wallets.',
   })
   @ApiParam({ name: 'campaignId', description: 'Campaign ID' })
   @ApiResponse({
@@ -633,5 +661,104 @@ export class CampaignsController {
       campaignId,
       userId,
     );
+  }
+
+  /**
+   * Force unlock gaming G-key (Admin/Debug endpoint)
+   */
+  @Post('unlock-gaming-gkey')
+  @ApiOperation({
+    summary: 'Force unlock gaming G-key',
+    description: 'Force unlock the gaming G-key that is stuck in locked state',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Gaming G-key unlocked successfully',
+  })
+  async unlockGamingGKey(@Req() req: RequestWithUser) {
+    const userId = this.getUserId(req);
+    
+    try {
+      // Use the GKeyService to force unlock the gaming G-key
+      const unlockedKey = await this.gKeyService.forceUnlockKey(
+        userId,
+        'gaming',
+      );
+      
+      return {
+        success: true,
+        message: 'Gaming G-key has been unlocked and is now available',
+        key: {
+          category: unlockedKey.category,
+          status: unlockedKey.status,
+          userId: unlockedKey.userId,
+        },
+      };
+    } catch (error) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : 'Failed to unlock gaming G-key';
+      const errorName = error instanceof Error ? error.name : 'UnknownError';
+      
+      return {
+        success: false,
+        message: errorMessage,
+        error: errorName,
+      };
+    }
+  }
+
+  /**
+   * Get database monitoring status (Admin only)
+   */
+  @Get('monitoring/status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({
+    summary: 'Get database monitoring status',
+    description:
+      'Get the status of the MongoDB change stream monitoring for real-time campaign completion detection',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Monitoring status retrieved successfully',
+    schema: {
+      type: 'object',
+      properties: {
+        isActive: { type: 'boolean' },
+        streamStatus: { type: 'string' },
+        startTime: { type: 'string', format: 'date-time' },
+      },
+    },
+  })
+  @ApiBearerAuth()
+  getMonitoringStatus() {
+    return this.campaignMonitoringService.getMonitoringStatus();
+  }
+
+  /**
+   * Trigger full system check (Admin only)
+   */
+  @Post('monitoring/full-check')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @ApiOperation({
+    summary: 'Trigger full system check',
+    description:
+      'Manually trigger a full system check for all active campaigns to detect completion criteria',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Full system check triggered successfully',
+  })
+  @ApiBearerAuth()
+  async triggerFullSystemCheck() {
+    await this.campaignMonitoringService.triggerFullSystemCheck();
+    return {
+      success: true,
+      message: 'Full system check triggered for all active campaigns',
+      timestamp: new Date(),
+    };
   }
 }

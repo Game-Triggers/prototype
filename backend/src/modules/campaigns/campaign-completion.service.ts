@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
-import { EventEmitter2 } from '@nestjs/event-emitter';
+import { EventEmitter2, OnEvent } from '@nestjs/event-emitter';
 import { ICampaign, CampaignStatus } from '@schemas/campaign.schema';
 import {
   ICampaignParticipation,
@@ -784,6 +784,40 @@ export class CampaignCompletionService {
         error: error instanceof Error ? error.message : 'Unknown error',
         campaignId,
       };
+    }
+  }
+
+  /**
+   * Event listener for campaign completion checks triggered by impression milestones
+   */
+  @OnEvent('campaign.check_completion')
+  async handleCampaignCompletionCheck(payload: {
+    campaignId: string;
+    triggeredBy: string;
+    timestamp: Date;
+  }): Promise<void> {
+    this.logger.debug(
+      `Received campaign completion check event for campaign ${payload.campaignId} (triggered by: ${payload.triggeredBy})`,
+    );
+
+    try {
+      const wasCompleted = await this.checkCampaignCompletion(
+        payload.campaignId,
+      );
+      
+      if (wasCompleted) {
+        this.logger.log(
+          `Campaign ${payload.campaignId} was automatically completed due to ${payload.triggeredBy} trigger`,
+        );
+      } else {
+        this.logger.debug(
+          `Campaign ${payload.campaignId} checked but not completed (triggered by: ${payload.triggeredBy})`,
+        );
+      }
+    } catch (error) {
+      this.logger.error(
+        `Error handling campaign completion check for ${payload.campaignId}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      );
     }
   }
 }

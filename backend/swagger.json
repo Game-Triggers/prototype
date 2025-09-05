@@ -1255,6 +1255,45 @@
         ]
       }
     },
+    "/api/v1/campaigns/{id}/approve": {
+      "post": {
+        "operationId": "CampaignsController_approveCampaign",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Campaign ID",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Campaign approved successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          },
+          "403": {
+            "description": "Admin access required"
+          },
+          "404": {
+            "description": "Campaign not found"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Admin approve a campaign",
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
     "/api/v1/campaigns/{id}/activate": {
       "post": {
         "operationId": "CampaignsController_activateCampaign",
@@ -1560,7 +1599,7 @@
     },
     "/api/v1/campaigns/{campaignId}/completion-status": {
       "get": {
-        "description": "Retrieve detailed completion criteria and current status for a campaign",
+        "description": "Retrieve detailed completion criteria and current status for a campaign. Campaigns are automatically completed when streamers achieve the impression targets set by brands, and earnings are immediately transferred to streamer wallets.",
         "operationId": "CampaignsController_getCampaignCompletionStatus",
         "parameters": [
           {
@@ -1795,6 +1834,83 @@
           }
         },
         "summary": "Get campaign completion details and earnings",
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/unlock-gaming-gkey": {
+      "post": {
+        "description": "Force unlock the gaming G-key that is stuck in locked state",
+        "operationId": "CampaignsController_unlockGamingGKey",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Gaming G-key unlocked successfully"
+          }
+        },
+        "summary": "Force unlock gaming G-key",
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/monitoring/status": {
+      "get": {
+        "description": "Get the status of the MongoDB change stream monitoring for real-time campaign completion detection",
+        "operationId": "CampaignsController_getMonitoringStatus",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Monitoring status retrieved successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "isActive": {
+                      "type": "boolean"
+                    },
+                    "streamStatus": {
+                      "type": "string"
+                    },
+                    "startTime": {
+                      "type": "string",
+                      "format": "date-time"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Get database monitoring status",
+        "tags": [
+          "campaigns"
+        ]
+      }
+    },
+    "/api/v1/campaigns/monitoring/full-check": {
+      "post": {
+        "description": "Manually trigger a full system check for all active campaigns to detect completion criteria",
+        "operationId": "CampaignsController_triggerFullSystemCheck",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Full system check triggered successfully"
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Trigger full system check",
         "tags": [
           "campaigns"
         ]
@@ -3452,6 +3568,36 @@
           }
         ],
         "summary": "Force unlock G-key",
+        "tags": [
+          "G-Keys"
+        ]
+      }
+    },
+    "/api/v1/g-keys/debug/{category}": {
+      "get": {
+        "description": "Get detailed debug information about a G-key status",
+        "operationId": "GKeyController_debugGKeyStatus",
+        "parameters": [
+          {
+            "name": "category",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Debug G-key status",
         "tags": [
           "G-Keys"
         ]
