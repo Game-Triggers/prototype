@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Campaign Impression Recording</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #333;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .button {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+        }
+        .button:hover {
+            background: #0056b3;
+        }
+        .button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+        .success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
+        .error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
+        .info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
+        .token-input {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .counter {
+            font-size: 18px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .auto-test {
+            background: #fff3cd;
+            border-left-color: #ffc107;
+        }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .stat-number {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Campaign Impression Recording Test</h1>
+            <p>Test the automatic campaign completion system when impression targets are reached</p>
+        </div>
+
+        <div class="test-section">
+            <h3>📋 Test Setup</h3>
+            <p>Enter a browser source token from an active campaign participation:</p>
+            <input type="text" 
+                   id="browserToken" 
+                   class="token-input" 
+                   placeholder="60e5e46b0e5baf8f18fd21d3b3390ca958557cafeba6c9254abd20826f499162"
+                   value="60e5e46b0e5baf8f18fd21d3b3390ca958557cafeba6c9254abd20826f499162">
+            <div id="tokenStatus" class="status info">
+                💡 Use the browser source token from an active campaign participation. You can find this in the campaign details.
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-number" id="impressionCount">0</div>
+                <div class="stat-label">Impressions Sent</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="clickCount">0</div>
+                <div class="stat-label">Clicks Sent</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="successRate">0%</div>
+                <div class="stat-label">Success Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="checkTriggers">0</div>
+                <div class="stat-label">Completion Checks</div>
+            </div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 Manual Testing</h3>
+            <button class="button" onclick="recordImpression()">Record Single Impression</button>
+            <button class="button" onclick="recordClick()">Record Single Click</button>
+            <button class="button" onclick="record50Impressions()">Record 50 Impressions</button>
+            <button class="button" onclick="record100Impressions()">Record 100 Impressions</button>
+            <div id="manualStatus"></div>
+        </div>
+
+        <div class="test-section auto-test">
+            <h3>🚀 Auto Completion Test</h3>
+            <p>This will send impressions automatically to trigger campaign completion checks:</p>
+            <button class="button" id="autoTestBtn" onclick="startAutoTest()">Start Auto Test (Every 100ms)</button>
+            <button class="button" onclick="stopAutoTest()">Stop Auto Test</button>
+            <div class="counter">Auto Test Status: <span id="autoStatus">Stopped</span></div>
+            <div id="autoTestStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>📊 Campaign Status Check</h3>
+            <button class="button" onclick="checkCampaignStatus()">Check Campaign Completion Status</button>
+            <button class="button" onclick="checkMonitoringStatus()">Check Database Monitoring Status</button>
+            <button class="button" onclick="triggerFullSystemCheck()">Trigger Full System Check (Admin)</button>
+            <div id="campaignStatus"></div>
+        </div>
+
+        <div class="test-section">
+            <h3>🔧 Database Monitoring Test</h3>
+            <p>Test the real-time database change monitoring system:</p>
+            <div class="info status">
+                💡 <strong>How to test database monitoring:</strong><br>
+                1. Find an active campaign participation in your database<br>
+                2. Manually update the impressions field using MongoDB Compass or CLI<br>
+                3. Watch the application logs for "Database impression update detected" messages<br>
+                4. The system should automatically trigger campaign completion checks
+            </div>
+            <textarea id="dbInstructions" rows="6" class="token-input" readonly>
+// Example MongoDB update command:
+db.campaignparticipations.updateOne(
+  { _id: ObjectId("68ba7c37ac409b8584ee0dd3") },
+  { $inc: { impressions: 100 } }
+);
+
+// This should trigger real-time detection in the application logs
+            </textarea>
+        </div>
+
+        <div class="test-section">
+            <h3>📜 Recent Events Log</h3>
+            <div id="eventLog" style="max-height: 300px; overflow-y: auto; background: #f8f9fa; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px;"></div>
+        </div>
+    </div>
+
+    <script>
+        let impressionCounter = 0;
+        let clickCounter = 0;
+        let successfulRequests = 0;
+        let totalRequests = 0;
+        let autoTestInterval = null;
+        let completionCheckCount = 0;
+
+        function logEvent(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const eventLog = document.getElementById('eventLog');
+            const logEntry = document.createElement('div');
+            logEntry.innerHTML = `<span style="color: #666;">[${timestamp}]</span> ${message}`;
+            if (type === 'success') logEntry.style.color = '#28a745';
+            if (type === 'error') logEntry.style.color = '#dc3545';
+            if (type === 'warning') logEntry.style.color = '#ffc107';
+            eventLog.appendChild(logEntry);
+            eventLog.scrollTop = eventLog.scrollHeight;
+        }
+
+        function updateStats() {
+            document.getElementById('impressionCount').textContent = impressionCounter;
+            document.getElementById('clickCount').textContent = clickCounter;
+            document.getElementById('successRate').textContent = 
+                totalRequests > 0 ? Math.round((successfulRequests / totalRequests) * 100) + '%' : '0%';
+            document.getElementById('checkTriggers').textContent = completionCheckCount;
+        }
+
+        function getBrowserToken() {
+            const token = document.getElementById('browserToken').value.trim();
+            if (!token) {
+                showStatus('tokenStatus', 'Please enter a browser source token', 'error');
+                return null;
+            }
+            return token;
+        }
+
+        function showStatus(elementId, message, type = 'info') {
+            const element = document.getElementById(elementId);
+            element.className = `status ${type}`;
+            element.textContent = message;
+        }
+
+        async function recordImpression() {
+            const token = getBrowserToken();
+            if (!token) return;
+
+            totalRequests++;
+            try {
+                const response = await fetch(`/api/v1/campaigns/impression/${token}`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    impressionCounter++;
+                    successfulRequests++;
+                    
+                    // Check if this impression count should trigger a completion check
+                    if (impressionCounter <= 1000 && impressionCounter % 50 === 0) {
+                        completionCheckCount++;
+                        logEvent(`🎯 Impression #${impressionCounter} - Completion check should be triggered!`, 'warning');
+                    } else if (impressionCounter <= 10000 && impressionCounter % 100 === 0) {
+                        completionCheckCount++;
+                        logEvent(`🎯 Impression #${impressionCounter} - Completion check should be triggered!`, 'warning');
+                    } else if (impressionCounter % 500 === 0) {
+                        completionCheckCount++;
+                        logEvent(`🎯 Impression #${impressionCounter} - Completion check should be triggered!`, 'warning');
+                    }
+                    
+                    logEvent(`✅ Impression #${impressionCounter} recorded successfully`, 'success');
+                    showStatus('manualStatus', `Impression #${impressionCounter} recorded successfully`, 'success');
+                } else {
+                    logEvent(`❌ Failed to record impression: ${response.status}`, 'error');
+                    showStatus('manualStatus', `Failed to record impression: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                logEvent(`❌ Network error: ${error.message}`, 'error');
+                showStatus('manualStatus', `Network error: ${error.message}`, 'error');
+            }
+            updateStats();
+        }
+
+        async function recordClick() {
+            const token = getBrowserToken();
+            if (!token) return;
+
+            totalRequests++;
+            try {
+                const response = await fetch(`/api/v1/campaigns/click/${token}`, {
+                    method: 'POST'
+                });
+                
+                if (response.ok) {
+                    clickCounter++;
+                    successfulRequests++;
+                    logEvent(`👆 Click #${clickCounter} recorded successfully`, 'success');
+                    showStatus('manualStatus', `Click #${clickCounter} recorded successfully`, 'success');
+                } else {
+                    logEvent(`❌ Failed to record click: ${response.status}`, 'error');
+                    showStatus('manualStatus', `Failed to record click: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                logEvent(`❌ Network error: ${error.message}`, 'error');
+                showStatus('manualStatus', `Network error: ${error.message}`, 'error');
+            }
+            updateStats();
+        }
+
+        async function record50Impressions() {
+            showStatus('manualStatus', 'Recording 50 impressions...', 'info');
+            for (let i = 0; i < 50; i++) {
+                await recordImpression();
+                await new Promise(resolve => setTimeout(resolve, 10)); // Small delay
+            }
+        }
+
+        async function record100Impressions() {
+            showStatus('manualStatus', 'Recording 100 impressions...', 'info');
+            for (let i = 0; i < 100; i++) {
+                await recordImpression();
+                await new Promise(resolve => setTimeout(resolve, 10)); // Small delay
+            }
+        }
+
+        function startAutoTest() {
+            if (autoTestInterval) {
+                stopAutoTest();
+            }
+
+            const token = getBrowserToken();
+            if (!token) return;
+
+            document.getElementById('autoStatus').textContent = 'Running';
+            document.getElementById('autoTestBtn').disabled = true;
+            showStatus('autoTestStatus', 'Auto test started - sending impressions every 100ms', 'info');
+            logEvent('🚀 Auto test started - watch for campaign completion!', 'warning');
+
+            autoTestInterval = setInterval(async () => {
+                await recordImpression();
+            }, 100);
+        }
+
+        function stopAutoTest() {
+            if (autoTestInterval) {
+                clearInterval(autoTestInterval);
+                autoTestInterval = null;
+            }
+            document.getElementById('autoStatus').textContent = 'Stopped';
+            document.getElementById('autoTestBtn').disabled = false;
+            showStatus('autoTestStatus', 'Auto test stopped', 'info');
+            logEvent('⏹️ Auto test stopped', 'info');
+        }
+
+        async function checkMonitoringStatus() {
+            try {
+                showStatus('campaignStatus', 'Checking database monitoring status...', 'info');
+                
+                const response = await fetch('/api/v1/campaigns/monitoring/status', {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Bearer admin-token' // You'll need proper auth
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showStatus('campaignStatus', 
+                        `Monitoring Status: ${data.isActive ? 'Active' : 'Inactive'} | Stream: ${data.streamStatus} | Started: ${data.startTime || 'N/A'}`, 
+                        data.isActive ? 'success' : 'error');
+                    logEvent(`📊 Monitoring status: ${JSON.stringify(data)}`, 'info');
+                } else {
+                    showStatus('campaignStatus', `Failed to get monitoring status: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                showStatus('campaignStatus', `Error checking monitoring status: ${error.message}`, 'error');
+                logEvent(`❌ Monitoring status error: ${error.message}`, 'error');
+            }
+        }
+
+        async function triggerFullSystemCheck() {
+            try {
+                showStatus('campaignStatus', 'Triggering full system check...', 'info');
+                
+                const response = await fetch('/api/v1/campaigns/monitoring/full-check', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer admin-token', // You'll need proper auth
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showStatus('campaignStatus', 
+                        `Full system check triggered successfully at ${data.timestamp}`, 
+                        'success');
+                    logEvent(`🔄 Full system check triggered: ${JSON.stringify(data)}`, 'success');
+                } else {
+                    showStatus('campaignStatus', `Failed to trigger system check: ${response.status}`, 'error');
+                }
+            } catch (error) {
+                showStatus('campaignStatus', `Error triggering system check: ${error.message}`, 'error');
+                logEvent(`❌ System check error: ${error.message}`, 'error');
+            }
+        }
+
+        // Initialize
+        logEvent('🎯 Campaign impression test page loaded', 'info');
+        updateStats();
+
+        // Clean up interval on page unload
+        window.addEventListener('beforeunload', stopAutoTest);
+    </script>
+</body>
+</html>

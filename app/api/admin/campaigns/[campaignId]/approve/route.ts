@@ -12,7 +12,7 @@ export async function POST(
   { params }: { params: { campaignId: string } }
 ) {
   try {
-    const campaignId = params.campaignId;
+    const { campaignId } = await params;
     
     // Get session token for authentication
     const token = await getToken({ 

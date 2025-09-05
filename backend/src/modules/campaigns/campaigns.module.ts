@@ -4,6 +4,7 @@ import { CampaignsController } from './campaigns.controller';
 import { CampaignsService } from './campaigns.service';
 import { CampaignCompletionService } from './campaign-completion.service';
 import { CampaignCompletionTaskService } from './campaign-completion-task.service';
+import { CampaignMonitoringService } from './campaign-monitoring.service';
 import { CampaignSchema } from '@schemas/campaign.schema';
 import { CampaignParticipationSchema } from '@schemas/campaign-participation.schema';
 import { UsersModule } from '../users/users.module';
@@ -28,11 +29,12 @@ import { GKeyModule } from '../g-key/g-key.module';
     CampaignsService,
     CampaignCompletionService,
     CampaignCompletionTaskService,
+    CampaignMonitoringService,
     {
       provide: 'ConflictRulesService',
       useExisting: ConflictRulesService,
     },
   ],
-  exports: [CampaignsService, CampaignCompletionService],
+  exports: [CampaignsService, CampaignCompletionService, CampaignMonitoringService],
 })
 export class CampaignsModule {}

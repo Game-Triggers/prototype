@@ -233,4 +233,24 @@ export class GKeyController {
       key: unlockedKey,
     };
   }
+
+  /**
+   * Debug G-key status with campaign analysis
+   */
+  @Get('debug/:category')
+  @ApiOperation({
+    summary: 'Debug G-key status',
+    description: 'Get detailed debug information about a G-key status',
+  })
+  async debugGKeyStatus(
+    @Param('category') category: string,
+    @Req() req: RequestWithUser,
+  ) {
+    const userId = req.user?.userId;
+    if (!userId) {
+      throw new BadRequestException('User ID not found');
+    }
+
+    return this.gKeyService.debugKeyStatus(userId, category);
+  }
 }
