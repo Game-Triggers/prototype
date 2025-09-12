@@ -22,6 +22,9 @@ import { AdminModule } from './modules/admin/admin.module';
 import { ConflictRulesModule } from './modules/conflict-rules/conflict-rules.module';
 import { NotificationModule } from './modules/notifications/notification.module';
 import { GKeyModule } from './modules/g-key/g-key.module';
+import { Logger } from '@nestjs/common';
+
+const logger = new Logger('AppModule');
 
 @Module({
   imports: [
@@ -42,8 +45,8 @@ import { GKeyModule } from './modules/g-key/g-key.module';
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => {
         const uri = configService.get<string>('MONGODB_URI');
-        console.log('MongoDB URI from config:', uri); // Debug log
-
+        // console.log('MongoDB URI from config:', uri); // Debug log
+        logger.debug(`MongoDB URI: ${uri ? 'Loaded' : 'Not Loaded'}`);
         // Throw explicit error if URI is missing
         if (!uri) {
           throw new Error(

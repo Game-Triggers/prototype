@@ -33,14 +33,17 @@ import {
 } from './dto/campaign.dto';
 import { JwtAuthGuard } from '../auth/guards/enhanced-jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import { RolesGuard } from '../auth/guards/roles.guard';
 import {
   RequirePermissions,
   RequireAnyPermission,
   RequirePortal,
 } from '../auth/decorators/permissions.decorator';
+import { Roles } from '../auth/decorators/roles.decorator';
 import { Permission, Portal } from '../../../../lib/eureka-roles';
 import { RequestWithUser } from '../auth/interfaces/enhanced-request.interface';
 import { UserRole } from '@schemas/user.schema';
+import { Logger } from '@nestjs/common';
 import { Document } from 'mongoose';
 
 /**
@@ -58,6 +61,8 @@ import { Document } from 'mongoose';
  * - Streamers to browse, join, and manage their participation in campaigns
  * - Admin users to oversee all platform campaigns
  */
+
+const logger = new Logger('CampaignsController');
 @ApiTags('campaigns')
 @Controller('campaigns')
 export class CampaignsController {
@@ -69,13 +74,11 @@ export class CampaignsController {
     private readonly gKeyService: GKeyService,
   ) {
     // Force instantiation of task service
-    console.log(
-      '=== CampaignsController constructor - Task service injected:',
-      this.campaignCompletionTaskService.constructor.name,
+    logger.debug(
+      `CampaignsController constructor - Task service injected: ${this.campaignCompletionTaskService.constructor.name}`,
     );
-    console.log(
-      '=== CampaignsController constructor - Monitoring service injected:',
-      this.campaignMonitoringService.constructor.name,
+    logger.debug(
+      `CampaignsController constructor - Monitoring service injected: ${this.campaignMonitoringService.constructor.name}`,
     );
   }
 
@@ -665,7 +668,7 @@ export class CampaignsController {
     @Param('campaignId') campaignId: string,
     @Req() req: RequestWithUser,
   ) {
-    const userId = req.user._id?.toString() || req.user.userId;
+    const userId = this.getUserId(req);
     if (!userId) {
       throw new BadRequestException('User ID not found');
     }
@@ -690,14 +693,14 @@ export class CampaignsController {
   })
   async unlockGamingGKey(@Req() req: RequestWithUser) {
     const userId = this.getUserId(req);
-    
+
     try {
       // Use the GKeyService to force unlock the gaming G-key
       const unlockedKey = await this.gKeyService.forceUnlockKey(
         userId,
         'gaming',
       );
-      
+
       return {
         success: true,
         message: 'Gaming G-key has been unlocked and is now available',
@@ -713,7 +716,7 @@ export class CampaignsController {
           ? error.message
           : 'Failed to unlock gaming G-key';
       const errorName = error instanceof Error ? error.name : 'UnknownError';
-      
+
       return {
         success: false,
         message: errorMessage,

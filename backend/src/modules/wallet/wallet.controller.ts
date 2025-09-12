@@ -16,7 +16,9 @@ import {
   ApiBearerAuth,
   ApiQuery,
   ApiParam,
+  ApiProperty,
 } from '@nestjs/swagger';
+import { IsNumber, IsString, IsOptional, IsEnum, Min } from 'class-validator';
 import { WalletService } from './wallet.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { PermissionsGuard } from '../auth/guards/permissions.guard';
@@ -63,6 +65,30 @@ class CreditEarningsDto {
 
 class WithdrawalRequestDto {
   amount: number;
+}
+
+class TempAddFundsDto {
+  @ApiProperty({ example: 1000.0, description: 'Amount to add to wallet' })
+  @IsNumber()
+  @Min(0.01)
+  amount: number;
+
+  @ApiProperty({
+    example: 'upi',
+    description: 'Payment method used for the transaction',
+    enum: ['upi', 'card', 'netbanking', 'bank_transfer', 'wallet'],
+  })
+  @IsEnum(['upi', 'card', 'netbanking', 'bank_transfer', 'wallet'])
+  paymentMethod: PaymentMethod;
+
+  @ApiProperty({
+    example: 'Test fund addition',
+    description: 'Optional description for the transaction',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  description?: string;
 }
 
 /**
@@ -134,6 +160,71 @@ export class WalletController {
       dto.paymentGatewayTxnId,
       createdBy,
     );
+  }
+
+  /**
+   * Temporary add funds (for testing without payment gateway)
+   */
+  @Post('temp-add-funds')
+  @ApiOperation({
+    summary: 'Temporary add funds to wallet',
+    description:
+      'Add funds to brand wallet temporarily (for testing without payment gateway)',
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Funds added successfully',
+    schema: {
+      example: {
+        transactionId: '507f1f77bcf86cd799439011',
+        amount: 1000.0,
+        balance: 6000.0,
+        message: 'Funds added successfully',
+      },
+    },
+  })
+  async tempAddFunds(
+    @Body() dto: TempAddFundsDto,
+    @Req() req: RequestWithUser,
+  ) {
+    const userId = this.getUserId(req);
+    const createdBy = userId;
+
+    // Basic check: only allow brands to add funds to their wallet
+    // This is a temporary endpoint, so we don't need strict permission checks
+    const user = req.user;
+    if (!user || !['brand', 'BRAND'].includes(String(user.role))) {
+      throw new BadRequestException('Only brand users can add funds to wallet');
+    }
+
+    // Generate a fake transaction ID for simulation
+    const fakeTransactionId = `temp_${Date.now()}_${Math.random()
+      .toString(36)
+      .substr(2, 9)}`;
+
+    const description =
+      dto.description || `Temporary funds added via ${dto.paymentMethod}`;
+
+    const transaction = await this.walletService.addFunds(
+      userId,
+      dto.amount,
+      dto.paymentMethod,
+      fakeTransactionId,
+      createdBy,
+    );
+
+    // Get updated balance
+    const balance = await this.walletService.getWalletBalance(userId);
+
+    return {
+      transactionId: transaction._id,
+      amount: dto.amount,
+      balance: balance.balance,
+      message: 'Funds added successfully',
+      paymentMethod: dto.paymentMethod,
+      description: description,
+      timestamp: new Date().toISOString(),
+    };
   }
 
   /**

@@ -110,8 +110,8 @@ export function WalletDashboard({}: WalletDashboardProps) {
     try {
       setIsProcessing(true);
       
-      // Create payment intent
-      const response = await fetch('/api/nest/payments/create-intent', {
+      // Use temporary add funds endpoint for testing
+      const response = await fetch('/api/wallet/temp-add-funds', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -119,29 +119,25 @@ export function WalletDashboard({}: WalletDashboardProps) {
         body: JSON.stringify({
           amount: parseFloat(addFundsAmount),
           paymentMethod,
-          currency: 'inr',
+          description: `Test fund addition via ${paymentMethod}`,
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
         
-        // In a real implementation, you would redirect to payment gateway
-        // For now, we'll simulate a successful payment
-        toast.success('Payment initiated successfully');
+        toast.success(`₹${data.amount} added successfully!`);
+        toast.success(`New balance: ₹${data.balance}`);
         
-        // Simulate payment processing
-        setTimeout(() => {
-          toast.success('Funds added to wallet successfully');
-          setAddFundsAmount('');
-          fetchWalletData();
-        }, 2000);
+        setAddFundsAmount('');
+        await fetchWalletData();
       } else {
-        throw new Error('Failed to create payment intent');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to add funds');
       }
     } catch (error) {
       console.error('Error adding funds:', error);
-      toast.error('Failed to add funds');
+      toast.error(error instanceof Error ? error.message : 'Failed to add funds');
     } finally {
       setIsProcessing(false);
     }
@@ -337,12 +333,24 @@ export function WalletDashboard({}: WalletDashboardProps) {
           <TabsContent value="add-funds" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Add Funds to Wallet</CardTitle>
+                <CardTitle>Add Funds to Wallet (Temporary)</CardTitle>
                 <CardDescription>
-                  Top up your wallet to fund campaigns
+                  Add temporary funds for testing (no real payment required)
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-center space-x-2">
+                    <AlertCircle className="h-4 w-4 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-800">
+                      Testing Mode
+                    </span>
+                  </div>
+                  <p className="text-sm text-blue-700 mt-1">
+                    This is a temporary fund adding feature for testing purposes. 
+                    No real payment will be processed.
+                  </p>
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="amount">Amount ({getCurrencyCode()})</Label>
                   <Input
@@ -352,6 +360,40 @@ export function WalletDashboard({}: WalletDashboardProps) {
                     value={addFundsAmount}
                     onChange={(e) => setAddFundsAmount(e.target.value)}
                   />
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAddFundsAmount('1000')}
+                    >
+                      ₹1,000
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAddFundsAmount('5000')}
+                    >
+                      ₹5,000
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAddFundsAmount('10000')}
+                    >
+                      ₹10,000
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAddFundsAmount('25000')}
+                    >
+                      ₹25,000
+                    </Button>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="payment-method">Payment Method</Label>
@@ -372,7 +414,7 @@ export function WalletDashboard({}: WalletDashboardProps) {
                   disabled={isProcessing}
                   className="w-full"
                 >
-                  {isProcessing ? 'Processing...' : 'Add Funds'}
+                  {isProcessing ? 'Processing...' : 'Add Temporary Funds'}
                 </Button>
               </CardContent>
             </Card>

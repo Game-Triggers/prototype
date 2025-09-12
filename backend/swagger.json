@@ -2233,6 +2233,49 @@
         ]
       }
     },
+    "/api/v1/wallet/temp-add-funds": {
+      "post": {
+        "description": "Add funds to brand wallet temporarily (for testing without payment gateway)",
+        "operationId": "WalletController_tempAddFunds",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TempAddFundsDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Funds added successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "transactionId": "507f1f77bcf86cd799439011",
+                    "amount": 1000,
+                    "balance": 6000,
+                    "message": "Funds added successfully"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Temporary add funds to wallet",
+        "tags": [
+          "Wallet"
+        ]
+      }
+    },
     "/api/v1/wallet/reserve-campaign-funds": {
       "post": {
         "description": "Reserve funds from wallet balance for campaign activation",
@@ -5792,6 +5835,37 @@
       "AddFundsDto": {
         "type": "object",
         "properties": {}
+      },
+      "TempAddFundsDto": {
+        "type": "object",
+        "properties": {
+          "amount": {
+            "type": "number",
+            "example": 1000,
+            "description": "Amount to add to wallet"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "example": "upi",
+            "description": "Payment method used for the transaction",
+            "enum": [
+              "upi",
+              "card",
+              "netbanking",
+              "bank_transfer",
+              "wallet"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "example": "Test fund addition",
+            "description": "Optional description for the transaction"
+          }
+        },
+        "required": [
+          "amount",
+          "paymentMethod"
+        ]
       },
       "ReserveCampaignFundsDto": {
         "type": "object",
