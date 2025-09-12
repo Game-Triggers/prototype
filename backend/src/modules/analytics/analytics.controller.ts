@@ -9,8 +9,12 @@ import {
 } from '@nestjs/swagger';
 import { AnalyticsService } from './analytics.service';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { RolesGuard } from '../auth/guards/roles.guard';
-import { Roles } from '../auth/decorators/roles.decorator';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
+import {
+  RequirePermissions,
+  RequireAnyPermission,
+} from '../auth/decorators/permissions.decorator';
+import { Permission } from '../../../../lib/eureka-roles';
 import { UserRole, IUser } from '@schemas/user.schema';
 import {
   AnalyticsQueryDto,
@@ -180,8 +184,11 @@ export class AnalyticsController {
   }
 
   @Get('brand/:id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BRAND, UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequireAnyPermission(
+    Permission.VIEW_ANALYTICS,
+    Permission.VIEW_DETAILED_ANALYTICS,
+  )
   async getBrandAnalytics(
     @Param('id') id: string,
     @Query() query: AnalyticsQueryDto,
@@ -211,8 +218,8 @@ export class AnalyticsController {
   }
 
   @Get('overview')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.VIEW_DETAILED_ANALYTICS)
   async getPlatformOverview(@Query() query: AnalyticsQueryDto) {
     return this.analyticsService.getPlatformOverview(query);
   }
@@ -247,8 +254,11 @@ export class AnalyticsController {
   }
 
   @Get('streamers/top')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BRAND, UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequireAnyPermission(
+    Permission.VIEW_ANALYTICS,
+    Permission.VIEW_PERFORMANCE_METRICS,
+  )
   async getTopPerformingStreamers(
     @Query() query: AnalyticsQueryDto,
     @Req() req: RequestWithUser,

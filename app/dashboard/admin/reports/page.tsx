@@ -41,7 +41,6 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { UserRole } from '@/schemas/user.schema';
-import { apiClient } from '@/lib/api-client';
 
 // Sample data - in a real application, this would come from the API
 const SAMPLE_REVENUE_DATA = [
@@ -146,7 +145,7 @@ export default function FinancialReportsPage() {
     );
   }
 
-  if (session.user.role !== UserRole.ADMIN) {
+  if (session?.user?.role !== UserRole.ADMIN) {
     return (
       <div className="container mx-auto py-6">
         <Alert variant="destructive">

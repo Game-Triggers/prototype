@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { formatCurrency as formatPlatformCurrency, getCurrencyCode } from '../../lib/currency-config';
+import { useEurekaRole } from "@/lib/hooks/use-eureka-roles";
+import { Portal } from "@/lib/eureka-roles";
 import {
   Card,
   CardContent,
@@ -53,10 +55,11 @@ interface Transaction {
 }
 
 interface WalletDashboardProps {
-  userRole: 'brand' | 'streamer';
+  // Props are now optional since we'll get portal info from hooks
 }
 
-export function WalletDashboard({ userRole }: WalletDashboardProps) {
+export function WalletDashboard({}: WalletDashboardProps) {
+  const { portal } = useEurekaRole();
   const [walletBalance, setWalletBalance] = useState<WalletBalance>({
     balance: 0,
     reservedBalance: 0,
@@ -107,8 +110,8 @@ export function WalletDashboard({ userRole }: WalletDashboardProps) {
     try {
       setIsProcessing(true);
       
-      // Create payment intent
-      const response = await fetch('/api/nest/payments/create-intent', {
+      // Use temporary add funds endpoint for testing
+      const response = await fetch('/api/wallet/temp-add-funds', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -116,29 +119,25 @@ export function WalletDashboard({ userRole }: WalletDashboardProps) {
         body: JSON.stringify({
           amount: parseFloat(addFundsAmount),
           paymentMethod,
-          currency: 'inr',
+          description: `Test fund addition via ${paymentMethod}`,
         }),
       });
 
       if (response.ok) {
         const data = await response.json();
         
-        // In a real implementation, you would redirect to payment gateway
-        // For now, we'll simulate a successful payment
-        toast.success('Payment initiated successfully');
+        toast.success(`₹${data.amount} added successfully!`);
+        toast.success(`New balance: ₹${data.balance}`);
         
-        // Simulate payment processing
-        setTimeout(() => {
-          toast.success('Funds added to wallet successfully');
-          setAddFundsAmount('');
-          fetchWalletData();
-        }, 2000);
+        setAddFundsAmount('');
+        await fetchWalletData();
       } else {
-        throw new Error('Failed to create payment intent');
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to add funds');
       }
     } catch (error) {
       console.error('Error adding funds:', error);
-      toast.error('Failed to add funds');
+      toast.error(error instanceof Error ? error.message : 'Failed to add funds');
     } finally {
       setIsProcessing(false);
     }
@@ -246,16 +245,16 @@ export function WalletDashboard({ userRole }: WalletDashboardProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {userRole === 'brand' ? 'Reserved Balance' : 'Withdrawable Balance'}
+              {portal === Portal.BRAND ? 'Reserved Balance' : 'Withdrawable Balance'}
             </CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(userRole === 'brand' ? walletBalance.reservedBalance : walletBalance.withdrawableBalance)}
+              {formatCurrency(portal === Portal.BRAND ? walletBalance.reservedBalance : walletBalance.withdrawableBalance)}
             </div>
             <p className="text-xs text-muted-foreground">
-              {userRole === 'brand' ? 'Allocated to campaigns' : 'Available for withdrawal'}
+              {portal === Portal.BRAND ? 'Allocated to campaigns' : 'Available for withdrawal'}
             </p>
           </CardContent>
         </Card>
@@ -263,16 +262,16 @@ export function WalletDashboard({ userRole }: WalletDashboardProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              {userRole === 'brand' ? 'Total Spent' : 'Total Earnings'}
+              {portal === Portal.BRAND ? 'Total Spent' : 'Total Earnings'}
             </CardTitle>
             <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {formatCurrency(userRole === 'brand' ? (walletBalance.totalSpent || 0) : (walletBalance.totalEarnings || 0))}
+              {formatCurrency(portal === Portal.BRAND ? (walletBalance.totalSpent || 0) : (walletBalance.totalEarnings || 0))}
             </div>
             <p className="text-xs text-muted-foreground">
-              {userRole === 'brand' ? 'All-time campaign spending' : 'All-time earnings'}
+              {portal === Portal.BRAND ? 'All-time campaign spending' : 'All-time earnings'}
             </p>
           </CardContent>
         </Card>
@@ -281,8 +280,8 @@ export function WalletDashboard({ userRole }: WalletDashboardProps) {
       <Tabs defaultValue="transactions" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="transactions">Transactions</TabsTrigger>
-          {userRole === 'brand' && <TabsTrigger value="add-funds">Add Funds</TabsTrigger>}
-          {userRole === 'streamer' && <TabsTrigger value="withdraw">Withdraw</TabsTrigger>}
+          {portal === Portal.BRAND && <TabsTrigger value="add-funds">Add Funds</TabsTrigger>}
+          {portal === Portal.PUBLISHER && <TabsTrigger value="withdraw">Withdraw</TabsTrigger>}
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
@@ -330,16 +329,28 @@ export function WalletDashboard({ userRole }: WalletDashboardProps) {
           </Card>
         </TabsContent>
 
-        {userRole === 'brand' && (
+        {portal === Portal.BRAND && (
           <TabsContent value="add-funds" className="space-y-4">
             <Card>
               <CardHeader>
-                <CardTitle>Add Funds to Wallet</CardTitle>
+                <CardTitle>Add Funds to Wallet (Temporary)</CardTitle>
                 <CardDescription>
-                  Top up your wallet to fund campaigns
+                  Add temporary funds for testing (no real payment required)
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                  <div className="flex items-center space-x-2">
+                    <AlertCircle className="h-4 w-4 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-800">
+                      Testing Mode
+                    </span>
+                  </div>
+                  <p className="text-sm text-blue-700 mt-1">
+                    This is a temporary fund adding feature for testing purposes. 
+                    No real payment will be processed.
+                  </p>
+                </div>
                 <div className="space-y-2">
                   <Label htmlFor="amount">Amount ({getCurrencyCode()})</Label>
                   <Input
@@ -349,6 +360,40 @@ export function WalletDashboard({ userRole }: WalletDashboardProps) {
                     value={addFundsAmount}
                     onChange={(e) => setAddFundsAmount(e.target.value)}
                   />
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAddFundsAmount('1000')}
+                    >
+                      ₹1,000
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAddFundsAmount('5000')}
+                    >
+                      ₹5,000
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAddFundsAmount('10000')}
+                    >
+                      ₹10,000
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setAddFundsAmount('25000')}
+                    >
+                      ₹25,000
+                    </Button>
+                  </div>
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="payment-method">Payment Method</Label>
@@ -369,14 +414,14 @@ export function WalletDashboard({ userRole }: WalletDashboardProps) {
                   disabled={isProcessing}
                   className="w-full"
                 >
-                  {isProcessing ? 'Processing...' : 'Add Funds'}
+                  {isProcessing ? 'Processing...' : 'Add Temporary Funds'}
                 </Button>
               </CardContent>
             </Card>
           </TabsContent>
         )}
 
-        {userRole === 'streamer' && (
+        {portal === Portal.PUBLISHER && (
           <TabsContent value="withdraw" className="space-y-4">
             <Card>
               <CardHeader>

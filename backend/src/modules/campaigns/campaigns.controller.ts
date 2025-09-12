@@ -31,23 +31,20 @@ import {
   CampaignFilterDto,
   JoinCampaignDto,
 } from './dto/campaign.dto';
-import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
+import { JwtAuthGuard } from '../auth/guards/enhanced-jwt-auth.guard';
+import { PermissionsGuard } from '../auth/guards/permissions.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
+import {
+  RequirePermissions,
+  RequireAnyPermission,
+  RequirePortal,
+} from '../auth/decorators/permissions.decorator';
 import { Roles } from '../auth/decorators/roles.decorator';
-import { UserRole, IUser } from '@schemas/user.schema';
-import { Request } from 'express';
+import { Permission, Portal } from '../../../../lib/eureka-roles';
+import { RequestWithUser } from '../auth/interfaces/enhanced-request.interface';
+import { UserRole } from '@schemas/user.schema';
+import { Logger } from '@nestjs/common';
 import { Document } from 'mongoose';
-import { Types } from 'mongoose';
-
-// Define RequestWithUser interface for type safety
-interface RequestWithUser extends Request {
-  user: {
-    _id?: Types.ObjectId;
-    userId?: string;
-    user?: IUser & { _id?: Types.ObjectId };
-    [key: string]: any; // Allow for other properties
-  };
-}
 
 /**
  * Campaigns Controller
@@ -64,6 +61,8 @@ interface RequestWithUser extends Request {
  * - Streamers to browse, join, and manage their participation in campaigns
  * - Admin users to oversee all platform campaigns
  */
+
+const logger = new Logger('CampaignsController');
 @ApiTags('campaigns')
 @Controller('campaigns')
 export class CampaignsController {
@@ -75,13 +74,11 @@ export class CampaignsController {
     private readonly gKeyService: GKeyService,
   ) {
     // Force instantiation of task service
-    console.log(
-      '=== CampaignsController constructor - Task service injected:',
-      this.campaignCompletionTaskService.constructor.name,
+    logger.debug(
+      `CampaignsController constructor - Task service injected: ${this.campaignCompletionTaskService.constructor.name}`,
     );
-    console.log(
-      '=== CampaignsController constructor - Monitoring service injected:',
-      this.campaignMonitoringService.constructor.name,
+    logger.debug(
+      `CampaignsController constructor - Monitoring service injected: ${this.campaignMonitoringService.constructor.name}`,
     );
   }
 
@@ -143,8 +140,8 @@ export class CampaignsController {
     description: 'Forbidden - Must be a brand to create campaigns',
   })
   @ApiBearerAuth()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BRAND)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.CREATE_CAMPAIGN)
   async create(
     @Body() createCampaignDto: CreateCampaignDto,
     @Req() req: RequestWithUser,
@@ -193,8 +190,8 @@ export class CampaignsController {
   }
 
   @Get('brand')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BRAND)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.CREATE_CAMPAIGN)
   async findBrandCampaigns(
     @Req() req: RequestWithUser,
     @Query() filterDto: CampaignFilterDto,
@@ -204,22 +201,26 @@ export class CampaignsController {
   }
 
   @Get('streamer/available')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STREAMER)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePortal(Portal.PUBLISHER)
+  @RequirePermissions(Permission.BID_ON_CAMPAIGNS)
   async findAvailableCampaigns(@Req() req: RequestWithUser) {
     const userId = this.getUserId(req);
     return this.campaignsService.findAvailableCampaigns(userId);
   }
 
   @Get('streamer/active')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STREAMER)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePortal(Portal.PUBLISHER)
+  @RequirePermissions(Permission.READ_CAMPAIGN)
   async findStreamerCampaigns(@Req() req: RequestWithUser) {
     const userId = this.getUserId(req);
     return this.campaignsService.findStreamerCampaigns(userId);
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.READ_CAMPAIGN)
   async findOne(
     @Param('id') id: string,
     @Query('adminAccess') adminAccess?: string,
@@ -235,8 +236,8 @@ export class CampaignsController {
   }
 
   @Put(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BRAND)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.CREATE_CAMPAIGN)
   async update(
     @Param('id') id: string,
     @Body() updateCampaignDto: UpdateCampaignDto,
@@ -247,16 +248,19 @@ export class CampaignsController {
   }
 
   @Delete(':id')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BRAND, UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequireAnyPermission(
+    Permission.UPDATE_CAMPAIGN,
+    Permission.OVERRIDE_CAMPAIGN,
+  )
   async remove(@Param('id') id: string, @Req() req: RequestWithUser) {
     const userId = this.getUserId(req);
     return this.campaignsService.remove(id, userId);
   }
 
   @Post('join')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STREAMER)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.BID_ON_CAMPAIGNS)
   async joinCampaign(
     @Body() joinCampaignDto: JoinCampaignDto,
     @Req() req: RequestWithUser,
@@ -273,8 +277,8 @@ export class CampaignsController {
   }
 
   @Delete('leave/:campaignId')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STREAMER)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.BID_ON_CAMPAIGNS)
   async leaveCampaign(
     @Param('campaignId') campaignId: string,
     @Req() req: RequestWithUser,
@@ -315,8 +319,11 @@ export class CampaignsController {
    * Activate a draft campaign
    */
   @Post(':id/activate')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BRAND, UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequireAnyPermission(
+    Permission.UPDATE_CAMPAIGN,
+    Permission.OVERRIDE_CAMPAIGN,
+  )
   @ApiOperation({ summary: 'Activate a draft campaign' })
   @ApiParam({ name: 'id', description: 'Campaign ID' })
   @ApiResponse({ status: 200, description: 'Campaign activated successfully' })
@@ -333,8 +340,11 @@ export class CampaignsController {
    * Pause an active campaign
    */
   @Post(':id/pause')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BRAND, UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequireAnyPermission(
+    Permission.UPDATE_CAMPAIGN,
+    Permission.OVERRIDE_CAMPAIGN,
+  )
   @ApiOperation({ summary: 'Pause an active campaign' })
   @ApiParam({ name: 'id', description: 'Campaign ID' })
   @ApiResponse({ status: 200, description: 'Campaign paused successfully' })
@@ -351,8 +361,11 @@ export class CampaignsController {
    * Resume a paused campaign
    */
   @Post(':id/resume')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.BRAND, UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequireAnyPermission(
+    Permission.UPDATE_CAMPAIGN,
+    Permission.OVERRIDE_CAMPAIGN,
+  )
   @ApiOperation({ summary: 'Resume a paused campaign' })
   @ApiParam({ name: 'id', description: 'Campaign ID' })
   @ApiResponse({ status: 200, description: 'Campaign resumed successfully' })
@@ -369,8 +382,8 @@ export class CampaignsController {
    * Streamer leaves campaign early
    */
   @Post(':campaignId/leave')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STREAMER)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.BID_ON_CAMPAIGNS)
   @ApiOperation({ summary: 'Streamer leaves campaign early' })
   @ApiParam({ name: 'campaignId', description: 'Campaign ID' })
   @ApiResponse({
@@ -392,8 +405,8 @@ export class CampaignsController {
    * Streamer pauses participation
    */
   @Post(':campaignId/pause-participation')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STREAMER)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.BID_ON_CAMPAIGNS)
   @ApiOperation({ summary: 'Streamer pauses campaign participation' })
   @ApiParam({ name: 'campaignId', description: 'Campaign ID' })
   @ApiResponse({
@@ -415,8 +428,8 @@ export class CampaignsController {
    * Streamer resumes participation
    */
   @Post(':campaignId/resume-participation')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.STREAMER)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequirePermissions(Permission.BID_ON_CAMPAIGNS)
   @ApiOperation({ summary: 'Streamer resumes campaign participation' })
   @ApiParam({ name: 'campaignId', description: 'Campaign ID' })
   @ApiResponse({
@@ -438,8 +451,11 @@ export class CampaignsController {
    * Admin/Brand removes streamer from campaign
    */
   @Delete(':campaignId/streamers/:streamerId')
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.BRAND)
+  @UseGuards(JwtAuthGuard, PermissionsGuard)
+  @RequireAnyPermission(
+    Permission.DELETE_CAMPAIGN,
+    Permission.OVERRIDE_CAMPAIGN,
+  )
   @ApiOperation({ summary: 'Remove streamer from campaign' })
   @ApiParam({ name: 'campaignId', description: 'Campaign ID' })
   @ApiParam({ name: 'streamerId', description: 'Streamer ID to remove' })
@@ -652,7 +668,7 @@ export class CampaignsController {
     @Param('campaignId') campaignId: string,
     @Req() req: RequestWithUser,
   ) {
-    const userId = req.user._id?.toString() || req.user.userId;
+    const userId = this.getUserId(req);
     if (!userId) {
       throw new BadRequestException('User ID not found');
     }
@@ -677,14 +693,14 @@ export class CampaignsController {
   })
   async unlockGamingGKey(@Req() req: RequestWithUser) {
     const userId = this.getUserId(req);
-    
+
     try {
       // Use the GKeyService to force unlock the gaming G-key
       const unlockedKey = await this.gKeyService.forceUnlockKey(
         userId,
         'gaming',
       );
-      
+
       return {
         success: true,
         message: 'Gaming G-key has been unlocked and is now available',
@@ -700,7 +716,7 @@ export class CampaignsController {
           ? error.message
           : 'Failed to unlock gaming G-key';
       const errorName = error instanceof Error ? error.name : 'UnknownError';
-      
+
       return {
         success: false,
         message: errorMessage,

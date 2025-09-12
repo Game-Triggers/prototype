@@ -7,8 +7,7 @@
           "-y",
           "mongodb-mcp-server",
           "--connectionString",
-           "mongodb://localhost:27017/gametriggers",
-          "--readOnly"
+           "mongodb://localhost:27017/gametriggers"
         ]
       }
     }

@@ -32,6 +32,8 @@ import {
   Unlock,
   Eye,
   History,
+  Plus,
+  AlertCircle,
 } from 'lucide-react';
 
 interface WalletUser {
@@ -71,6 +73,10 @@ export function WalletManagement() {
   const [adjustmentAmount, setAdjustmentAmount] = useState('');
   const [adjustmentType, setAdjustmentType] = useState<'add' | 'subtract'>('add');
   const [adjustmentReason, setAdjustmentReason] = useState('');
+  
+  // Quick funds states
+  const [showQuickFundsDialog, setShowQuickFundsDialog] = useState(false);
+  const [quickFundsAmount, setQuickFundsAmount] = useState('1000');
 
   const searchUsers = async () => {
     if (!searchTerm.trim()) return;
@@ -175,6 +181,38 @@ export function WalletManagement() {
       setAdjustmentReason('');
     } catch (error) {
       console.error('Failed to adjust balance:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleQuickAddFunds = async (amount: number) => {
+    if (!selectedUser) return;
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/api/admin/wallets/${selectedUser._id}/adjust`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          amount: amount,
+          reason: `Quick test funds addition - ₹${amount}`,
+          type: 'manual_adjustment'
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      // Refresh user details
+      await fetchUserDetails(selectedUser._id);
+      setShowQuickFundsDialog(false);
+    } catch (error) {
+      console.error('Failed to add quick funds:', error);
     } finally {
       setIsLoading(false);
     }
@@ -349,6 +387,90 @@ export function WalletManagement() {
                   <History className="h-4 w-4 mr-1" />
                   History
                 </Button>
+                
+                <Dialog open={showQuickFundsDialog} onOpenChange={setShowQuickFundsDialog}>
+                  <DialogTrigger asChild>
+                    <Button variant="default" size="sm">
+                      <Plus className="h-4 w-4 mr-1" />
+                      Quick Add Funds
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Quick Add Test Funds</DialogTitle>
+                      <DialogDescription>
+                        Add test funds to {selectedUser.username}&apos;s wallet (for testing purposes)
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <div className="flex items-center space-x-2">
+                          <AlertCircle className="h-4 w-4 text-blue-600" />
+                          <span className="text-sm font-medium text-blue-800">
+                            Testing Mode
+                          </span>
+                        </div>
+                        <p className="text-sm text-blue-700 mt-1">
+                          This will add test funds instantly for development and testing purposes.
+                        </p>
+                      </div>
+                      <div className="grid grid-cols-2 gap-3">
+                        <Button
+                          variant="outline"
+                          onClick={() => handleQuickAddFunds(1000)}
+                          disabled={isLoading}
+                        >
+                          Add ₹1,000
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => handleQuickAddFunds(5000)}
+                          disabled={isLoading}
+                        >
+                          Add ₹5,000
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => handleQuickAddFunds(10000)}
+                          disabled={isLoading}
+                        >
+                          Add ₹10,000
+                        </Button>
+                        <Button
+                          variant="outline"
+                          onClick={() => handleQuickAddFunds(25000)}
+                          disabled={isLoading}
+                        >
+                          Add ₹25,000
+                        </Button>
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="custom-amount">Custom Amount</Label>
+                        <div className="flex gap-2">
+                          <Input
+                            id="custom-amount"
+                            type="number"
+                            placeholder="Enter amount"
+                            value={quickFundsAmount}
+                            onChange={(e) => setQuickFundsAmount(e.target.value)}
+                          />
+                          <Button
+                            onClick={() => handleQuickAddFunds(parseFloat(quickFundsAmount))}
+                            disabled={isLoading || !quickFundsAmount || parseFloat(quickFundsAmount) <= 0}
+                          >
+                            Add
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                    <DialogFooter>
+                      <Button variant="outline" onClick={() => setShowQuickFundsDialog(false)}>
+                        Cancel
+                      </Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
+                
                 <Dialog open={showAdjustDialog} onOpenChange={setShowAdjustDialog}>
                   <DialogTrigger asChild>
                     <Button variant="outline" size="sm">

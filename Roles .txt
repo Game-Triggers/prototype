@@ -1,4 +1,4 @@
-Eureka E1 Roles ( Eureka 1 means Brand side portal)
+Eureka E1 Roles ( Eureka 1 means Brand side portal which means when user logged in with role having brand in it we render brands related components)
 	
 
 	Advertiser
@@ -23,7 +23,7 @@ Eureka E1 Roles ( Eureka 1 means Brand side portal)
 
 	Support 1                Resolves basic advertiser queries related to campaign creation steps, login issues, navigation help, wallet visibility, and feature usage. Provides documentation or links, and escalates unresolved issues to higher authorities.
 
-Eureka E2 (Eureka 2 means admin side porta)
+Eureka E2 (Eureka 2 means admin side portal which means when user logged in with role having admin in it we render admin related components)
 	Ad Exchange
 
 	Roles                    Responsibilities
@@ -48,7 +48,7 @@ Eureka E2 (Eureka 2 means admin side porta)
 
 	Support 2 queries will escalate to the platform success manager as well as customer success manager depending on the nature of the tickets, and they both act as "Support 3" across whole platform.
 
-Eureka E3 (Eureka 3 means Streamer side protal)
+Eureka E3 (Eureka 3 means Streamer side protal which means when user logged in with role having streamer in it we render brands streamer components) 
 	Publisher
 	Internal Gametriggers Team
 

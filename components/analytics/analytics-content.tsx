@@ -6,21 +6,23 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   TrendingUp,
-  TrendingDown,
   Users,
   DollarSign,
   Clock,
   Calendar,
   Eye,
-  Play,
 } from "lucide-react";
-import { UserRole } from "@/schemas/user.schema";
 import { Chart } from "./chart";
 import { StatCard } from "./stat-card";
 import { formatCurrency } from "@/lib/currency-config";
+import { useEurekaRole, usePermissions } from "@/lib/hooks/use-eureka-roles";
+import { Permission, Portal } from "@/lib/eureka-roles";
 
 export function AnalyticsContent() {
   const { data: session, status } = useSession();
+  const { eurekaRole, portal, permissions, isAuthenticated } = useEurekaRole();
+  const { hasPermission, hasAnyPermission } = usePermissions();
+  
   const [activeTab, setActiveTab] = useState("overview");
   const [timeRange, setTimeRange] = useState("7d");
   const [isLoading, setIsLoading] = useState(true);
@@ -33,7 +35,10 @@ export function AnalyticsContent() {
     topStreamers: [],
   });
 
-  const userRole = session?.user?.role;
+  // Permission checks
+  const canViewAnalytics = hasPermission(Permission.VIEW_ANALYTICS);
+  const canViewDetailedAnalytics = hasPermission(Permission.VIEW_DETAILED_ANALYTICS);
+  const canExportReports = hasPermission(Permission.EXPORT_REPORTS);
 
   // Fetch analytics data using our proxy routes
   useEffect(() => {
@@ -65,7 +70,7 @@ export function AnalyticsContent() {
 
         // For admins, also fetch platform overview data
         let platformOverviewData = null;
-        if (userRole === UserRole.ADMIN) {
+        if (hasPermission(Permission.VIEW_DETAILED_ANALYTICS)) {
           try {
             const overviewResponse = await fetch("/api/analytics/overview", {
               headers: {
@@ -131,7 +136,7 @@ export function AnalyticsContent() {
         };
 
         // For admins, merge platform overview data and format properly
-        if (userRole === UserRole.ADMIN && dashboardData) {
+        if (hasPermission(Permission.VIEW_DETAILED_ANALYTICS) && dashboardData) {
           combinedData = {
             ...combinedData,
             platformOverview: platformOverviewData,
@@ -157,7 +162,7 @@ export function AnalyticsContent() {
             engagementRate: 5.4,
             totalStreamers: 28,
             totalCampaigns: 12,
-            totalRevenue: userRole === UserRole.STREAMER ? 629.4 : 3450.0,
+            totalRevenue: portal === Portal.PUBLISHER ? 629.4 : 3450.0,
             avgWatchTime: "00:08:32",
             campaignStats: {
               labels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
@@ -289,7 +294,7 @@ export function AnalyticsContent() {
     } else {
       setIsLoading(false);
     }
-  }, [session, userRole, timeRange]);
+  }, [session, hasPermission, portal, timeRange]);
 
   // Handle tab switching
   const handleTabChange = (tab: string) => {
@@ -378,7 +383,7 @@ export function AnalyticsContent() {
           >
             Campaigns
           </button>
-          {userRole === UserRole.BRAND && (
+          {portal === Portal.BRAND && (
             <button
               className={`px-4 py-2 font-medium ${
                 activeTab === "streamers"
@@ -390,7 +395,7 @@ export function AnalyticsContent() {
               Streamers
             </button>
           )}
-          {userRole === UserRole.ADMIN && (
+          {hasPermission(Permission.VIEW_DETAILED_ANALYTICS) && (
             <button
               className={`px-4 py-2 font-medium ${
                 activeTab === "streamers"
@@ -402,7 +407,7 @@ export function AnalyticsContent() {
               Top Streamers
             </button>
           )}
-          {userRole === UserRole.ADMIN && (
+          {hasPermission(Permission.VIEW_DETAILED_ANALYTICS) && (
             <button
               className={`px-4 py-2 font-medium ${
                 activeTab === "platform"
@@ -429,9 +434,9 @@ export function AnalyticsContent() {
 
               <StatCard
                 title={
-                  userRole === UserRole.STREAMER
+                  portal === Portal.PUBLISHER
                     ? "Total Earnings"
-                    : userRole === UserRole.ADMIN
+                    : hasPermission(Permission.VIEW_DETAILED_ANALYTICS)
                     ? "Platform Revenue"
                     : "Total Spent"
                 }              value={formatCurrency(analyticsData.totalRevenue || 0)}
@@ -440,7 +445,7 @@ export function AnalyticsContent() {
                 icon={<DollarSign className="h-5 w-5" />}
               />
 
-              {userRole === UserRole.ADMIN ? (
+              {hasPermission(Permission.VIEW_DETAILED_ANALYTICS) ? (
                 <StatCard
                   title="Total Brands"
                   value={(analyticsData.totalBrands || 0).toLocaleString()}
@@ -460,21 +465,21 @@ export function AnalyticsContent() {
 
               <StatCard
                 title={
-                  userRole === UserRole.STREAMER
+                  portal === Portal.PUBLISHER
                     ? "Active Campaigns"
-                    : userRole === UserRole.ADMIN
+                    : hasPermission(Permission.VIEW_DETAILED_ANALYTICS)
                     ? "Total Streamers"
                     : "Total Streamers"
                 }
                 value={
-                  userRole === UserRole.STREAMER
+                  portal === Portal.PUBLISHER
                     ? analyticsData.totalCampaigns
                     : analyticsData.totalStreamers
                 }
                 change="+3 from last month"
                 trend="up"
                 icon={
-                  userRole === UserRole.STREAMER ? (
+                  portal === Portal.PUBLISHER ? (
                     <Calendar className="h-5 w-5" />
                   ) : (
                     <Users className="h-5 w-5" />
@@ -484,7 +489,7 @@ export function AnalyticsContent() {
             </div>
 
             {/* Admin-specific additional stats */}
-            {userRole === UserRole.ADMIN && (
+            {hasPermission(Permission.VIEW_DETAILED_ANALYTICS) && (
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-6">
                 <StatCard
                   title="Active Campaigns"
@@ -550,7 +555,7 @@ export function AnalyticsContent() {
             {/* Revenue chart */}
             <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">
-                {userRole === UserRole.STREAMER ? "Earnings" : "Spend"} Over Time
+                {portal === Portal.PUBLISHER ? "Earnings" : "Spend"} Over Time
               </h3>
               <Chart
                 type="Bar"
@@ -567,7 +572,7 @@ export function AnalyticsContent() {
                   datasets: [
                     {
                       label:
-                        userRole === UserRole.STREAMER ? "Earnings" : "Spend",
+                        portal === Portal.PUBLISHER ? "Earnings" : "Spend",
                       data: [120, 145, 135, 150, 180, 190, 210],
                     },
                   ],
@@ -632,7 +637,7 @@ export function AnalyticsContent() {
           </>
         )}
 
-        {activeTab === "streamers" && userRole === UserRole.BRAND && (
+        {activeTab === "streamers" && portal === Portal.BRAND && (
           <>
             {/* Streamer performance chart */}          <Card className="p-6">
               <h3 className="text-lg font-semibold mb-4">Streamer Performance</h3>
@@ -687,7 +692,7 @@ export function AnalyticsContent() {
           </>
         )}
 
-        {activeTab === "platform" && userRole === UserRole.ADMIN && (
+        {activeTab === "platform" && hasPermission(Permission.VIEW_DETAILED_ANALYTICS) && (
           <>
             <div className="space-y-6">
               <div>

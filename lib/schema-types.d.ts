@@ -1,11 +1,29 @@
-/**
- * This file contains types and enums to be used across both client and server.
- * It should NOT include any server-only code like Mongoose models.
- */
 export declare enum UserRole {
     STREAMER = "streamer",
     BRAND = "brand",
-    ADMIN = "admin"
+    ADMIN = "admin",
+    MARKETING_HEAD = "marketing_head",
+    CAMPAIGN_MANAGER = "campaign_manager",
+    ADMIN_BRAND = "admin_brand",
+    FINANCE_MANAGER = "finance_manager",
+    VALIDATOR_APPROVER = "validator_approver",
+    CAMPAIGN_CONSULTANT = "campaign_consultant",
+    SALES_REPRESENTATIVE = "sales_representative",
+    SUPPORT_2_BRAND = "support_2_brand",
+    SUPPORT_1_BRAND = "support_1_brand",
+    SUPER_ADMIN = "super_admin",
+    ADMIN_EXCHANGE = "admin_exchange",
+    PLATFORM_SUCCESS_MANAGER = "platform_success_manager",
+    CUSTOMER_SUCCESS_MANAGER = "customer_success_manager",
+    CAMPAIGN_SUCCESS_MANAGER = "campaign_success_manager",
+    SUPPORT_2_ADMIN = "support_2_admin",
+    SUPPORT_1_ADMIN = "support_1_admin",
+    INDEPENDENT_PUBLISHER = "independent_publisher",
+    ARTISTE_MANAGER = "artiste_manager",
+    STREAMER_INDIVIDUAL = "streamer_individual",
+    LIAISON_MANAGER = "liaison_manager",
+    SUPPORT_2_PUBLISHER = "support_2_publisher",
+    SUPPORT_1_PUBLISHER = "support_1_publisher"
 }
 export declare enum AuthProvider {
     TWITCH = "twitch",
@@ -14,10 +32,12 @@ export declare enum AuthProvider {
 }
 export declare enum CampaignStatus {
     DRAFT = "draft",
+    PENDING = "pending",
     ACTIVE = "active",
     PAUSED = "paused",
     COMPLETED = "completed",
-    CANCELLED = "cancelled"
+    CANCELLED = "cancelled",
+    REJECTED = "rejected"
 }
 export declare enum MediaType {
     IMAGE = "image",
@@ -63,6 +83,12 @@ export interface ICampaignData {
     endDate?: Date;
     paymentRate: number;
     paymentType: 'cpm' | 'fixed';
+    submittedForReviewAt?: Date;
+    approvedAt?: Date;
+    approvedBy?: string;
+    rejectedAt?: Date;
+    rejectedBy?: string;
+    rejectionReason?: string;
     activeStreamers?: number;
     impressions?: number;
     viewerImpressions?: number;
@@ -113,4 +139,3 @@ export interface ICampaignParticipationData {
     createdAt?: Date;
     updatedAt?: Date;
 }
-//# sourceMappingURL=schema-types.d.ts.map

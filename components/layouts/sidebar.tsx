@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { UserRole } from "@/schemas/user.schema";
+import { useEurekaRole, usePermissions } from "@/lib/hooks/use-eureka-roles";
+import { Portal, Permission } from "@/lib/eureka-roles";
 import { 
   LayoutDashboard, 
   PieChart, 
@@ -22,11 +23,12 @@ import {
 interface SidebarProps {
   isOpen: boolean;
   toggleSidebar: () => void;
-  userRole?: string;
 }
 
-export function Sidebar({ isOpen, toggleSidebar, userRole }: SidebarProps) {
+export function Sidebar({ isOpen, toggleSidebar }: SidebarProps) {
   const pathname = usePathname();
+  const { portal } = useEurekaRole();
+  const { hasPermission } = usePermissions();
 
   // Define navigation items based on user role
   const getNavItems = () => {
@@ -130,12 +132,12 @@ export function Sidebar({ isOpen, toggleSidebar, userRole }: SidebarProps) {
       },
     ];
 
-    // Return navigation items based on user role
-    if (userRole === UserRole.STREAMER) {
+    // Return navigation items based on portal and permissions
+    if (portal === Portal.PUBLISHER) {
       return [...streamerItems, ...commonItems];
-    } else if (userRole === UserRole.BRAND) {
+    } else if (portal === Portal.BRAND) {
       return [...brandItems, ...commonItems];
-    } else if (userRole === UserRole.ADMIN) {
+    } else if (hasPermission(Permission.VIEW_DETAILED_ANALYTICS)) {
       return [...adminItems, ...commonItems];
     }
 
