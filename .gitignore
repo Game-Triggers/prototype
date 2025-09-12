@@ -37,6 +37,9 @@ yarn-error.log*
 .env.production
 .env.local
 .env.development.local
+frontend-env-example.env
+backend-env-independent.env
+frontend-env-independent.env
 
 # vercel
 .vercel
